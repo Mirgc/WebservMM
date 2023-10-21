@@ -1,8 +1,10 @@
 NAME 		= webserv
 SRC_DIR		= ./src
 SRC 		= 	$(SRC_DIR)/main.cpp \
+				$(SRC_DIR)/AcceptConnectionEventHandler.cpp \
 				$(SRC_DIR)/VirtualHostServer.cpp \
 				$(SRC_DIR)/Reactor.cpp \
+				$(SRC_DIR)/ServeRequestEventHandler.cpp \
 				$(SRC_DIR)/EventHandler.cpp
 
 CC		= c++

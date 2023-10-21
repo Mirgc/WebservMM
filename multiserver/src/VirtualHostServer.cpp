@@ -4,7 +4,7 @@
 #include <stdexcept>
 
 #include "VirtualHostServer.hpp"
-#include "EventHandler.hpp"
+#include "AcceptConnectionEventHandler.hpp"
 
 VirtualHostServer::VirtualHostServer(Reactor& reactor, int port) : reactor(reactor) {
     // Create a socket for listening
@@ -37,6 +37,6 @@ void VirtualHostServer::listen() {
     // Event Handler should be an abstract, because we will need multiple different
     // Event Handlers for: AcceptingNewConnection, HandlingHTTPRequestStaticFile,
     // HandlingHTTPRequestCGI, HandlingHTTPRequestRedirection, HandlingHTTPRequestListDir, etc...
-    EventHandler *acceptNewConnectionHandler = new EventHandler(reactor, listenSocket);
+    IEventHandler *acceptNewConnectionHandler = new AcceptConnectionEventHandler(reactor, listenSocket);
     reactor.registerEventHandler(listenSocket, acceptNewConnectionHandler);
 }

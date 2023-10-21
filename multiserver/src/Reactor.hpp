@@ -4,7 +4,7 @@
 #include <set>
 #include <utility>  // For std::pair
 
-class EventHandler;
+class IEventHandler;
 
 // Official patter sugests makeing this a singleton to avoid having multiple instances of Reactor
 class Reactor {
@@ -12,12 +12,12 @@ public:
     Reactor();
     void runEventLoop();
     void stopEventLoop();
-    void registerEventHandler(int fd, EventHandler* handler);
+    void registerEventHandler(int fd, IEventHandler* handler);
     void unregisterEventHandler(int fd);
 
 private:
-    // Holds all registered event handlers <SocketFD, EventHandler>
-    std::set<std::pair<int, EventHandler*> > fdHandlerPairs;
+    // Holds all registered event handlers <SocketFD, IEventHandler>
+    std::set<std::pair<int, IEventHandler*> > fdHandlerPairs;
 };
 
 #endif

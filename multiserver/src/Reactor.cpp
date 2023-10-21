@@ -18,7 +18,7 @@ void Reactor::runEventLoop() {
         FD_ZERO(&readSet);
 
         // Collects all registered socket fds
-        for (std::set<std::pair<int, EventHandler*> >::iterator it = fdHandlerPairs.begin(); it != fdHandlerPairs.end(); ++it) {
+        for (std::set<std::pair<int, IEventHandler*> >::iterator it = fdHandlerPairs.begin(); it != fdHandlerPairs.end(); ++it) {
             int fd = it->first;
             FD_SET(fd, &readSet);
             if (fd > maxFd) {
@@ -36,11 +36,11 @@ void Reactor::runEventLoop() {
 
         // Any with data?
         if (numReady > 0) {
-            for (std::set<std::pair<int, EventHandler*> >::iterator it = fdHandlerPairs.begin(); it != fdHandlerPairs.end(); ++it) {
+            for (std::set<std::pair<int, IEventHandler*> >::iterator it = fdHandlerPairs.begin(); it != fdHandlerPairs.end(); ++it) {
                 int fd = it->first;
                 if (FD_ISSET(fd, &readSet)) {
                     // Socket fd has data, disptach the event to the right handler
-                    EventHandler* handler = it->second;
+                    IEventHandler* handler = it->second;
                     handler->handleEvent();
                 }
             }
@@ -52,12 +52,12 @@ void Reactor::stopEventLoop() {
     // Implement stopping the event loop (while true for now)
 }
 
-void Reactor::registerEventHandler(int fd, EventHandler* handler) {
+void Reactor::registerEventHandler(int fd, IEventHandler* handler) {
     fdHandlerPairs.insert(std::make_pair(fd, handler));
 }
 
 void Reactor::unregisterEventHandler(int fd) {
-    std::set<std::pair<int, EventHandler*> >::iterator it = fdHandlerPairs.begin();
+    std::set<std::pair<int, IEventHandler*> >::iterator it = fdHandlerPairs.begin();
     while (it != fdHandlerPairs.end()) {
         if (it->first == fd) {
             // Delete handler instance here?
