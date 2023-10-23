@@ -48,7 +48,7 @@ clean:
 
 fclean: clean
 		@$(RM) $(NAME)
-		@$(RM) $(NAME_V)
+		@$(RM) $(NAME_SAN)
 		@echo "\n\033[31m"-------------------\\n💣 FULL CLEAN 💣\\n-------------------\\n"\033[0m\n"
 
 re: fclean all
