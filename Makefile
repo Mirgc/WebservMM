@@ -35,7 +35,7 @@ $(OBJS_DIR)%.o: $(SRCS_DIR)%.cpp
 
 san : $(NAME_SAN)
 
-$(NAME_V): $(OBJS)
+$(NAME_SAN): $(OBJS)
 		@$(CC) $(CFLAGS) $(DEBUG) $^ -o $@ 
 		@echo "\n\033[92m"--------------\\n👌 SANITIZED 👌\\n--------------\\n"\033[0m\n"
 
