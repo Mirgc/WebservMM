@@ -1,10 +1,10 @@
 NAME 		= webserv
-NAME_V 		= webserv_sanitized
+NAME_SAN 	= webserv_sanitized
 
 CC		= c++
 
 DEBUG		= -fsanitize=address -g3 -D DEBUG
-CFLAGS 		= -Wall -Werror -Wextra -std=c++98 --pedantic -MD $(DEBUG)
+CFLAGS 		= -Wall -Werror -Wextra -std=c++98 --pedantic -MD
 RM 		= rm -rf
 
 SRCS_MAIN = ./
@@ -18,10 +18,8 @@ INCLUDES = $(addprefix -I, $(HEADERS))
 
 
 SRCS := $(wildcard $(SRCS_MAIN)main.cpp) $(wildcard $(SRCS_DIR)*.cpp)
-SRCS_V := $(wildcard $(SRCS_MAIN)main_v.cpp) $(wildcard $(SRCS_DIR)*_v.cpp)
 
 OBJS := $(addprefix $(OBJS_DIR), $(notdir $(SRCS:.cpp=.o)))
-OBJS_V := $(addprefix $(OBJS_DIR), $(notdir $(SRCS_V:.cpp=.o)))
 
 $(NAME): $(OBJS)
 		@$(CC) $(CFLAGS) $^ -o $@ 
@@ -35,10 +33,10 @@ $(OBJS_DIR)%.o: $(SRCS_DIR)%.cpp
 		@mkdir -p $(OBJS_DIR)
 		@$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
-san : $(NAME_V)
+san : $(NAME_SAN)
 
 $(NAME_V): $(OBJS)
-		@$(CC) $(CFLAGS) $(S) $^ -o $@ 
+		@$(CC) $(CFLAGS) $(DEBUG) $^ -o $@ 
 		@echo "\n\033[92m"-------------\\n👌 SANITIZEZ 👌\\n-------------\\n"\033[0m\n"
 
 all: $(NAME)
