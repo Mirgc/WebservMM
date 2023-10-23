@@ -3,14 +3,14 @@
 
 class Reactor;
 
-class IEventHandler {
+class EventHandler {
 public:
-    IEventHandler(Reactor& reactor, int fd);
-    virtual ~IEventHandler() {} 
+    EventHandler(Reactor& reactor, int fd);
+    virtual ~EventHandler() {} 
 
     virtual void handleEvent() = 0;
 
-private:
+protected:
     Reactor& reactor;
     int fd;
 };

@@ -5,14 +5,10 @@ class Reactor;
 
 #include "EventHandler.hpp"
 
-class ServeRequestEventHandler: public IEventHandler {
+class ServeRequestEventHandler: public EventHandler {
 public:
     ServeRequestEventHandler(Reactor& reactor, int fd);
     virtual void handleEvent();
-
-private:
-    Reactor& reactor;
-    int fd;
 };
 
 #endif

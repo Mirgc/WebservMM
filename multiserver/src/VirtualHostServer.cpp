@@ -37,6 +37,6 @@ void VirtualHostServer::listen() {
     // Event Handler should be an abstract, because we will need multiple different
     // Event Handlers for: AcceptingNewConnection, HandlingHTTPRequestStaticFile,
     // HandlingHTTPRequestCGI, HandlingHTTPRequestRedirection, HandlingHTTPRequestListDir, etc...
-    IEventHandler *acceptNewConnectionHandler = new AcceptConnectionEventHandler(reactor, listenSocket);
+    EventHandler *acceptNewConnectionHandler = new AcceptConnectionEventHandler(reactor, listenSocket);
     reactor.registerEventHandler(listenSocket, acceptNewConnectionHandler);
 }

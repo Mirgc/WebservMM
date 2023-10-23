@@ -6,10 +6,8 @@
 #include "ServeRequestEventHandler.hpp"
 #include "Reactor.hpp"
 
-const int BUFFER_SIZE = 30720;
-
 AcceptConnectionEventHandler::AcceptConnectionEventHandler(Reactor& reactor, int fd)
-    : IEventHandler(reactor, fd), reactor(reactor), fd(fd) {
+    : EventHandler(reactor, fd) {
 }
 
 void AcceptConnectionEventHandler::handleEvent() {
@@ -27,6 +25,6 @@ void AcceptConnectionEventHandler::handleEvent() {
         throw std::runtime_error("Server failed to accept incoming connection from ADDRESS: ");// << inet_ntoa(socketAddress.sin_addr) << "; PORT: " << ntohs(socketAddress.sin_port));
     }
 
-    IEventHandler *serveRequestEventHandler = new ServeRequestEventHandler(reactor, newSocketfd);
+    EventHandler *serveRequestEventHandler = new ServeRequestEventHandler(reactor, newSocketfd);
     reactor.registerEventHandler(newSocketfd, serveRequestEventHandler);
 }

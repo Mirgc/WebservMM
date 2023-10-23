@@ -5,14 +5,10 @@ class Reactor;
 
 #include "EventHandler.hpp"
 
-class AcceptConnectionEventHandler: public IEventHandler {
+class AcceptConnectionEventHandler: public EventHandler {
 public:
     AcceptConnectionEventHandler(Reactor& reactor, int fd);
     virtual void handleEvent();
-
-private:
-    Reactor& reactor;
-    int fd;
 };
 
 #endif
