@@ -35,4 +35,10 @@ void LocationConfig:setVector(std::pair<string, string> &pair){
 	this->vector.push_back(pair);
 }
 
-/* print_location_method pending */
+std::ostream & LocationConfig::operator<<(std::ostream & o, LocationConfig const & rhs){
+	std::cout << "Location" << " : " << this->_name << std::endl;
+	std::cout << "KEY" << " : " << "VALUE" << std::endl;
+	for(std::vector<std::pair<string, string>>::const_iterator it = this->_cfg.begin();
+	it != this->_cfg.end(); ++it)
+		std::cout << (*it).first() << " : " << (it*).second() << std::endl;
+}
