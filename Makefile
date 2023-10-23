@@ -37,7 +37,7 @@ san : $(NAME_SAN)
 
 $(NAME_V): $(OBJS)
 		@$(CC) $(CFLAGS) $(DEBUG) $^ -o $@ 
-		@echo "\n\033[92m"-------------\\n👌 SANITIZEZ 👌\\n-------------\\n"\033[0m\n"
+		@echo "\n\033[92m"--------------\\n👌 SANITIZED 👌\\n--------------\\n"\033[0m\n"
 
 all: $(NAME)
 
