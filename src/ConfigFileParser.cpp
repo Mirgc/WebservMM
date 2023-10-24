@@ -6,7 +6,7 @@ ConfigFileParser::ConfigFileParser(){
 ConfigFileParser::~ConfigFileParser(){
 }
 
-void ConfigFileParser::checkFile(std::string fileName){
+void ConfigFileParser::checkFile(const std::string &fileName){
 	struct stat	fileInfo; //Estructura que nos da informacion del fichero
 
         if (stat(fileName.c_str(), &fileInfo) != -1) // Si al intentar sacar el estado da error
@@ -29,7 +29,7 @@ void ConfigFileParser::checkFile(std::string fileName){
 
 }
 
-bool ConfigFileParser::isEmptyFile(std::string fileName){
+bool ConfigFileParser::isEmptyFile(const std::string &fileName){
 	std::ifstream	file(fileName.c_str());
 	char		ch;
 
@@ -43,8 +43,8 @@ bool ConfigFileParser::isEmptyFile(std::string fileName){
 	return true;
 }
 
-std::string ConfigFileParser::removeCommentsWhiteLines(std::string fileName){
-	std::ifstream		input(fileName);
+std::string ConfigFileParser::removeCommentsWhiteLines(const std::string &fileName){
+	std::ifstream		input(fileName.c_str());
 	std::ostringstream	output;
 	std::string		line;
 	std::string		content;

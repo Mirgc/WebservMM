@@ -16,9 +16,9 @@ class ConfigFileParser{
 		ConfigFileParser();
 		~ConfigFileParser();
 
-		void checkFile(std::string fileName);
-		bool isEmptyFile(std::string fileName);
-		std::string removeCommentsWhiteLines(std::string fileName);
+		void checkFile(const std::string &fileName);
+		bool isEmptyFile(const std::string &fileName);
+		std::string removeCommentsWhiteLines(const std::string &fileName);
 
 		class ParseException : public std::exception
 		{
