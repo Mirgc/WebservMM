@@ -18,7 +18,7 @@ void Reactor::runEventLoop() {
         FD_ZERO(&readSet);
 
         // Collects all registered socket fds
-        for (std::set<std::pair<int, EventHandler*> >::iterator it = fdHandlerPairs.begin(); it != fdHandlerPairs.end(); ++it) {
+        for (std::map<int, EventHandler*>::iterator it = fdHandlerMap.begin(); it != fdHandlerMap.end(); ++it) {
             int fd = it->first;
             FD_SET(fd, &readSet);
             if (fd > maxFd) {
@@ -36,9 +36,13 @@ void Reactor::runEventLoop() {
 
         // Any with data?
         if (numReady > 0) {
-            for (std::set<std::pair<int, EventHandler*> >::iterator it = fdHandlerPairs.begin(); it != fdHandlerPairs.end(); ++it) {
+            // Elements can get deleted from the map as we loop through it. Find a better solution
+            for (std::map<int, EventHandler*>::iterator it = fdHandlerMap.begin(); it != fdHandlerMap.end(); ++it) {
                 int fd = it->first;
                 if (FD_ISSET(fd, &readSet)) {
+                
+                    std::cout << "Reactor socket (" << fd << ")with data..." << std::endl;
+
                     // Socket fd has data, disptach the event to the right handler
                     EventHandler* handler = it->second;
                     handler->handleEvent();
@@ -53,17 +57,17 @@ void Reactor::stopEventLoop() {
 }
 
 void Reactor::registerEventHandler(int fd, EventHandler* handler) {
-    fdHandlerPairs.insert(std::make_pair(fd, handler));
+    fdHandlerMap[fd] = handler;
 }
 
 void Reactor::unregisterEventHandler(int fd) {
-    std::set<std::pair<int, EventHandler*> >::iterator it = fdHandlerPairs.begin();
-    while (it != fdHandlerPairs.end()) {
-        if (it->first == fd) {
-            // Delete handler instance here?
-            it = fdHandlerPairs.erase(it);
-        } else {
-            ++it;
-        }
+    std::map<int, EventHandler*>::iterator it = fdHandlerMap.find(fd);
+    if (it != fdHandlerMap.end()) {
+        // Removes the fd, EventHandler from the map
+        fdHandlerMap[fd] = NULL;
+        // Deletes the instance of the class EventHandler
+        delete it->second;
+        // Closes the fd
+        close(fd);
     }
 }

@@ -1,7 +1,7 @@
 #ifndef REACTOR_HPP
 #define REACTOR_HPP
 
-#include <set>
+#include <map>
 #include <utility>  // For std::pair
 
 class EventHandler;
@@ -17,7 +17,7 @@ public:
 
 private:
     // Holds all registered event handlers <SocketFD, EventHandler>
-    std::set<std::pair<int, EventHandler*> > fdHandlerPairs;
+    std::map<int, EventHandler*> fdHandlerMap;
 };
 
 #endif

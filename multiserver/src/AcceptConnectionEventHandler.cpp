@@ -2,6 +2,9 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+#include <fstream>
+#include <iostream>
+
 #include "AcceptConnectionEventHandler.hpp"
 #include "ServeRequestEventHandler.hpp"
 #include "Reactor.hpp"
@@ -16,7 +19,7 @@ void AcceptConnectionEventHandler::handleEvent() {
 
     socketAddress.sin_family = AF_INET;
     socketAddress.sin_addr.s_addr = INADDR_ANY;
-    // TODO: We need to connect hadnlers with Context (Server, Config, etc)
+    // TODO: We need to connect handlers with Context (Server, Config, etc)
     socketAddress.sin_port = htons(8080);
 
     int newSocketfd = accept(fd, (sockaddr *)&socketAddress, &socketAddressSize);
@@ -24,6 +27,8 @@ void AcceptConnectionEventHandler::handleEvent() {
     {
         throw std::runtime_error("Server failed to accept incoming connection from ADDRESS: ");// << inet_ntoa(socketAddress.sin_addr) << "; PORT: " << ntohs(socketAddress.sin_port));
     }
+
+    std::cout << "Registering event(fd = " << newSocketfd << ")...ServeRequestEventHandler" << std::endl;
 
     EventHandler *serveRequestEventHandler = new ServeRequestEventHandler(reactor, newSocketfd);
     reactor.registerEventHandler(newSocketfd, serveRequestEventHandler);
