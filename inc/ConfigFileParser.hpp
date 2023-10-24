@@ -6,16 +6,19 @@
 # include <sys/stat.h>
 # include <unistd.h>
 # include <fstream>
+# include <sstream>
 
 class ConfigFileParser{
 	private:
-		std::string _filename;
+		std::string _fileContent;
+
 	public:
-		ConfigFileParser(const std::string &configFile);
+		ConfigFileParser();
 		~ConfigFileParser();
 
-		void checkFile();
-		bool isEmptyFile();
+		void checkFile(const std::string &fileName);
+		bool isEmptyFile(const std::string &fileName);
+		std::string removeCommentsWhiteLines(const std::string &fileName);
 
 		class ParseException : public std::exception
 		{
