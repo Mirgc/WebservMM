@@ -15,30 +15,31 @@ LocationConfig::~LocationConfig(void){
 
 LocationConfig& LocationConfig::operator=(const LocationConfig &rhs){
 	this->_name = rhs.getName();
-	this->_vector = rhs.getVector();
+	this->_cfg = rhs.getVector();
 	return (*this);
 }
 
-const unsigned int & LocationConfig::getName(void) const{
-	return(this->_Name);
+const std::string & LocationConfig::getName(void) const{
+	return(this->_name);
 }
 
-const std::vector<std::pair<string, string>> & LocationConfig::getVector(void) const{
-	return(this->_vector);
+const std::vector<std::pair<std::string, std::string> > & LocationConfig::getVector(void) const{
+	return(this->_cfg);
 }
 
 void LocationConfig::setName(std::string const &name){
 	this->_name = name;
 }
 
-void LocationConfig:setVector(std::pair<string, string> &pair){
-	this->vector.push_back(pair);
+void LocationConfig::setVector(std::pair<std::string, std::string> &pair){
+	this->_cfg.push_back(pair);
 }
 
-std::ostream & LocationConfig::operator<<(std::ostream & o, LocationConfig const & rhs){
-	std::cout << "Location" << " : " << this->_name << std::endl;
+std::ostream & operator<<(std::ostream & o, LocationConfig const & rhs){
+	std::cout << "Location" << " : " << rhs.getName() << std::endl;
 	std::cout << "KEY" << " : " << "VALUE" << std::endl;
-	for(std::vector<std::pair<string, string>>::const_iterator it = this->_cfg.begin();
-	it != this->_cfg.end(); ++it)
-		std::cout << (*it).first() << " : " << (it*).second() << std::endl;
+	for(std::vector<std::pair<std::string, std::string> >::const_iterator it = rhs.getVector().begin();
+	it != rhs.getVector().end(); ++it)
+		std::cout << (*it).first << " : " << (*it).second << std::endl;
+	return (o);
 }

@@ -8,8 +8,8 @@
 class LocationConfig{
 
 	private:
-		std::string  const 	_name;
-		std::vector<std::pair<string, string>> _cfg;
+		std::string   	_name;
+		std::vector<std::pair<std::string, std::string> > _cfg;
 
 	public:
 		LocationConfig(void);
@@ -19,10 +19,10 @@ class LocationConfig{
 		LocationConfig & operator=(LocationConfig const & rhs);
 
 		std::string const & getName(void) const;
-		const std::vector<std::pair<string, string>> & LocationConfig::getVector(void) const;
+		const std::vector<std::pair<std::string, std::string> > & getVector(void) const;
 
 		void setName(std::string const &name);
-		void setVector(std::pair<string, string> &pair);
+		void setVector(std::pair<std::string, std::string> &pair);
 
 };
 
