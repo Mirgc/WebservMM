@@ -10,8 +10,8 @@ int main(int argc, char **argv){
 			else{
 				configFile=("./httpd.conf");
 			}
-			ConfigFileParser parse(configFile);
-			parse.checkFile();
+			ConfigFileParser parse;
+			parse.checkFile(configFile);
 		}
 		catch (std::exception &e){
 			std::cerr << e.what() << std::endl;

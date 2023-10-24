@@ -10,16 +10,15 @@
 
 class ConfigFileParser{
 	private:
-		std::string _fileName;
 		std::string _fileContent;
 
 	public:
-		ConfigFileParser(const std::string &configFile);
+		ConfigFileParser();
 		~ConfigFileParser();
 
-		void checkFile();
-		bool isEmptyFile();
-		void removeCommentsWhiteLines();
+		void checkFile(std::string fileName);
+		bool isEmptyFile(std::string fileName);
+		std::string removeCommentsWhiteLines(std::string fileName);
 
 		class ParseException : public std::exception
 		{

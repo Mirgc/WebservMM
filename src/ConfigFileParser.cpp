@@ -1,22 +1,22 @@
 #include "ConfigFileParser.hpp"
 
-ConfigFileParser::ConfigFileParser(const std::string &configFile): _fileName(configFile){
+ConfigFileParser::ConfigFileParser(){
 }
 
 ConfigFileParser::~ConfigFileParser(){
 }
 
-void ConfigFileParser::checkFile(){
+void ConfigFileParser::checkFile(std::string fileName){
 	struct stat	fileInfo; //Estructura que nos da informacion del fichero
 
-        if (stat(_fileName.c_str(), &fileInfo) != -1) // Si al intentar sacar el estado da error
+        if (stat(fileName.c_str(), &fileInfo) != -1) // Si al intentar sacar el estado da error
         {
                 if (fileInfo.st_mode & S_IFREG) { // Si es una ruta pero vacia, sin indicarle fichero
-			if (access(_fileName.c_str(), R_OK) == 0) { //Tenemos permisos de lectura en el fichero
-			        if (isEmptyFile()) // El fichero esta vacio o contiene solo espacios en blanco
+			if (access(fileName.c_str(), R_OK) == 0) { //Tenemos permisos de lectura en el fichero
+			        if (isEmptyFile(fileName)) // El fichero esta vacio o contiene solo espacios en blanco
 					throw ParseException("File is empty.");
 				else
-					removeCommentsWhiteLines();
+					_fileContent = removeCommentsWhiteLines(fileName);
 		    	}
 			else
 				throw ParseException("Access denied.");
@@ -29,24 +29,25 @@ void ConfigFileParser::checkFile(){
 
 }
 
-bool ConfigFileParser::isEmptyFile(){
-	std::ifstream	file(_fileName.c_str());
+bool ConfigFileParser::isEmptyFile(std::string fileName){
+	std::ifstream	file(fileName.c_str());
 	char		ch;
 
 	while (file.get(ch)){
 		if(!isspace(static_cast<unsigned char>(ch))){
-			return false;
 			file.close();
+			return false;
 		}
 	}
 	file.close();
 	return true;
 }
 
-void ConfigFileParser::removeCommentsWhiteLines(){
-	std::ifstream		input(_fileName);
+std::string ConfigFileParser::removeCommentsWhiteLines(std::string fileName){
+	std::ifstream		input(fileName);
 	std::ostringstream	output;
 	std::string		line;
+	std::string		content;
 	size_t			pos;
 
 	while (std::getline(input, line)){ // Eliminar espacios en blanco y tabulaciones al principio y al final de la línea
@@ -60,17 +61,18 @@ void ConfigFileParser::removeCommentsWhiteLines(){
 
 		output << line << std::endl;
 	}
-	_fileContent = output.str();
+	content = output.str();
 
 	// Eliminamos comentarios
         pos = 0;
-        while ((pos = _fileContent.find("#", pos)) != std::string::npos)
-                _fileContent.erase(pos, _fileContent.find("\n", pos + 1) - pos);
+        while ((pos = content.find("#", pos)) != std::string::npos)
+                content.erase(pos, content.find("\n", pos + 1) - pos);
 
 	// Eliminamos lineas vacias
 	pos = 0;
-	while ((pos = _fileContent.find("\n\n", pos)) != std::string::npos)
-		_fileContent.erase(pos, 1);
+	while ((pos = content.find("\n\n", pos)) != std::string::npos)
+		content.erase(pos, 1);
 
     	input.close();
+	return content;
 }
