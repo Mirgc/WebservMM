@@ -21,7 +21,7 @@ void ServeRequestEventHandler::handleEvent() {
     char buffer[BUFFER_SIZE];
 
     memset(&buffer[0], 0, BUFFER_SIZE);
-    size_t bytesRead = recv(fd, buffer, BUFFER_SIZE, 0);
+    ssize_t bytesRead = recv(fd, buffer, BUFFER_SIZE, 0);
 
     std::cout << std::endl << "ServeRequestEventHandler recv (fd = " << fd << ")(bytesRead = " << bytesRead << ")" << std::endl;
     std::cout << buffer << std::endl;
@@ -44,8 +44,8 @@ void ServeRequestEventHandler::handleEvent() {
 
         std::string response = ss.str();
 
-        int bytesSent;
-        long totalBytesSent = 0;
+        size_t bytesSent;
+        size_t totalBytesSent = 0;
 
         while (totalBytesSent < response.size())
         {
