@@ -47,6 +47,9 @@ void ServeRequestEventHandler::handleEvent() {
         size_t bytesSent;
         size_t totalBytesSent = 0;
 
+        // TODO: This is only an example. Remember that we can only write once to a socket per select per socket
+        // Still we need to control how much data has to be written, and how much data we have already wrote,
+        // so that next time the socket is ready to write, we write only the remaining data.
         while (totalBytesSent < response.size())
         {
             bytesSent = send(fd, response.c_str(), response.size(), 0);

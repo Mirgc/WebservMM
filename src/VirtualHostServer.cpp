@@ -46,9 +46,6 @@ void VirtualHostServer::listen() {
     std::cout << "Registering event (fd = " << listenSocket << ")...AcceptConnectionEventHandler" << std::endl;
 
     // This handler will accept new connections to this Server/VirtualHost
-    // Event Handler should be an abstract, because we will need multiple different
-    // Event Handlers for: AcceptingNewConnection, HandlingHTTPRequestStaticFile,
-    // HandlingHTTPRequestCGI, HandlingHTTPRequestRedirection, HandlingHTTPRequestListDir, etc...
     EventHandler *acceptNewConnectionHandler = new AcceptConnectionEventHandler(reactor, listenSocket);
     reactor.registerEventHandler(listenSocket, acceptNewConnectionHandler);
 }
