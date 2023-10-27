@@ -1,5 +1,5 @@
-#ifndef LOCATIONCONFIG_HPP
-# define LOCATIONCONFIG_HPP
+#ifndef LOCATION_CONFIG_HPP
+# define LOCATION_CONFIG_HPP
 
 #include <algorithm>
 #include <iostream>
@@ -8,8 +8,8 @@
 class LocationConfig{
 
 	private:
-		std::string   	_name;
-		std::vector<std::pair<std::string, std::string> > _cfg;
+		std::string   	_UploadPath;
+		std::vector<std::pair<std::string, std::string> > _UploadCfg;
 
 	public:
 		LocationConfig(void);
@@ -18,11 +18,11 @@ class LocationConfig{
 
 		LocationConfig & operator=(LocationConfig const & rhs);
 
-		std::string const & getName(void) const;
-		const std::vector<std::pair<std::string, std::string> > & getVector(void) const;
+		std::string const & getUploadPath(void) const;
+		const std::vector<std::pair<std::string, std::string> > & getUploadCfg(void) const;
 
-		void setName(std::string const &name);
-		void setVector(std::pair<std::string, std::string> &pair);
+		void setUploadPath(std::string const &UploadPath);
+		void setUploadCfg(std::pair<std::string, std::string> &pair);
 
 };
 

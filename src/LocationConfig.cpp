@@ -14,32 +14,32 @@ LocationConfig::~LocationConfig(void){
 }
 
 LocationConfig& LocationConfig::operator=(const LocationConfig &rhs){
-	this->_name = rhs.getName();
-	this->_cfg = rhs.getVector();
+	this->_UploadPath = rhs.getUploadPath();
+	this->_UploadCfg = rhs.getUploadCfg();
 	return (*this);
 }
 
-const std::string & LocationConfig::getName(void) const{
-	return(this->_name);
+const std::string & LocationConfig::getUploadPath(void) const{
+	return(this->_UploadPath);
 }
 
-const std::vector<std::pair<std::string, std::string> > & LocationConfig::getVector(void) const{
-	return(this->_cfg);
+const std::vector<std::pair<std::string, std::string> > & LocationConfig::getUploadCfg(void) const{
+	return(this->_UploadCfg);
 }
 
-void LocationConfig::setName(std::string const &name){
-	this->_name = name;
+void LocationConfig::setUploadPath(std::string const &UploadPath){
+	this->_UploadPath = UploadPath;
 }
 
-void LocationConfig::setVector(std::pair<std::string, std::string> &pair){
-	this->_cfg.push_back(pair);
+void LocationConfig::setUploadCfg(std::pair<std::string, std::string> &pair){
+	this->_UploadCfg.push_back(pair);
 }
 
 std::ostream & operator<<(std::ostream & o, LocationConfig const & rhs){
-	std::cout << "Location" << " : " << rhs.getName() << std::endl;
+	std::cout << "Location" << " : " << rhs.getUploadPath() << std::endl;
 	std::cout << "KEY" << " : " << "VALUE" << std::endl;
-	for(std::vector<std::pair<std::string, std::string> >::const_iterator it = rhs.getVector().begin();
-	it != rhs.getVector().end(); ++it)
+	for(std::vector<std::pair<std::string, std::string> >::const_iterator it = rhs.getUploadCfg().begin();
+	it != rhs.getUploadCfg().end(); ++it)
 		std::cout << (*it).first << " : " << (*it).second << std::endl;
 	return (o);
 }
