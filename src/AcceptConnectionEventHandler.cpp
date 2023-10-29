@@ -20,7 +20,7 @@ void AcceptConnectionEventHandler::handleEvent() {
     socketAddress.sin_family = AF_INET;
     socketAddress.sin_addr.s_addr = INADDR_ANY;
     // TODO: We need to connect handlers with Context (Server, Config, etc)?
-    // Will different event handlers have different extra proterties to set up?
+    // Will different event handlers have different extra properties to set up?
     // At least we need the VirtualHostServer port here
     socketAddress.sin_port = htons(8080);
 
