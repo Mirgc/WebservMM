@@ -9,6 +9,7 @@
 
 #include "ServeRequestEventHandler.hpp"
 #include "Reactor.hpp"
+#include "HTTPRequestCGI.hpp"
 
 const int BUFFER_SIZE = 30720;
 
@@ -37,10 +38,16 @@ void ServeRequestEventHandler::handleEvent() {
         // Process the received data, send responses back to the client here...
         std::cout << "ServeRequestEventHandler bytesRead n, Sending response back" << std::endl;
 
-        std::string htmlFile = "<!DOCTYPE html><html lang=\"en\"><body><h1> HOME </h1><p> Hello from your Server :) </p></body></html>";
+        HTTPRequestCGI cgi;
+
+        std::string cgiResponse = cgi.execCGI("cgi-bin/cgitest.py", "num1=11,num2=22");
+
+        std::cout << "Parent returned content:" << std::endl;
+        std::cout << cgiResponse << std::endl;
+
         std::ostringstream ss;
-        ss << "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " << htmlFile.size() << "\n\n"
-            << htmlFile;
+        ss << "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " << cgiResponse.size() << "\n\n"
+            << cgiResponse;
 
         std::string response = ss.str();
 
