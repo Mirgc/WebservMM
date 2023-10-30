@@ -23,4 +23,5 @@ int main(int argc, char **argv){
 		std::cout << "ERROR: Wrong parameters." << std::endl;
 		return (1);
 	}
+	return (0);
 }
