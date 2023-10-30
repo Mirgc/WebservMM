@@ -1,4 +1,5 @@
 #include "ConfigFileParser.hpp"
+#include "HTTPHeader.hpp"
 
 int main(int argc, char **argv){
 	if (argc <= 2){
@@ -22,5 +23,4 @@ int main(int argc, char **argv){
 		std::cout << "ERROR: Wrong parameters." << std::endl;
 		return (1);
 	}
-	return (0);
 }
