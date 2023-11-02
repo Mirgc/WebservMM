@@ -8,7 +8,9 @@ class Reactor;
 class AcceptConnectionEventHandler: public EventHandler {
 public:
     AcceptConnectionEventHandler(Reactor& reactor, int fd);
-    virtual void handleEvent();
+    ~AcceptConnectionEventHandler();
+
+    void handleEvent();
 };
 
 #endif

@@ -8,6 +8,7 @@
 #include "EventHandler.hpp"
 
 Reactor::Reactor() {}
+Reactor::~Reactor() {}
 
 void Reactor::runEventLoop() {
     fd_set readSet;

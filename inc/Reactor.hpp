@@ -10,6 +10,8 @@ class EventHandler;
 class Reactor {
 public:
     Reactor();
+    ~Reactor();
+
     void runEventLoop();
     void stopEventLoop();
     void registerEventHandler(int fd, EventHandler* handler);

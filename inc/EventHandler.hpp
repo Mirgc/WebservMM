@@ -6,7 +6,7 @@ class Reactor;
 class EventHandler {
 public:
     EventHandler(Reactor& reactor, int fd);
-    virtual ~EventHandler() {} 
+    virtual ~EventHandler();
 
     virtual void handleEvent() = 0;
 

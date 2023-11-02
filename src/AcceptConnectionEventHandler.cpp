@@ -1,13 +1,14 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-
 #include <fstream>
 #include <iostream>
 
 #include "AcceptConnectionEventHandler.hpp"
 #include "ServeRequestEventHandler.hpp"
 #include "Reactor.hpp"
+
+AcceptConnectionEventHandler::~AcceptConnectionEventHandler() {}
 
 AcceptConnectionEventHandler::AcceptConnectionEventHandler(Reactor& reactor, int fd)
     : EventHandler(reactor, fd) {

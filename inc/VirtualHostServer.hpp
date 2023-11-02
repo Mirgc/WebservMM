@@ -6,6 +6,8 @@
 class VirtualHostServer {
 public:
     VirtualHostServer(Reactor& reactor, int port);
+    ~VirtualHostServer();
+
     void listen();
 
 private:

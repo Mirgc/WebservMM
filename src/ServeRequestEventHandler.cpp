@@ -17,6 +17,8 @@ ServeRequestEventHandler::ServeRequestEventHandler(Reactor& reactor, int fd)
     // Constructor implementation
 }
 
+ServeRequestEventHandler::~ServeRequestEventHandler() {}
+
 void ServeRequestEventHandler::handleEvent() {
     char buffer[BUFFER_SIZE];
 

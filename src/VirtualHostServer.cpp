@@ -9,6 +9,13 @@
 #include "VirtualHostServer.hpp"
 #include "AcceptConnectionEventHandler.hpp"
 
+VirtualHostServer::~VirtualHostServer() {
+    if (listenSocket) {
+        close(listenSocket);
+        listenSocket = 0;
+    }
+}
+
 VirtualHostServer::VirtualHostServer(Reactor& reactor, int port) : reactor(reactor) {
     // Create a socket for listening
     listenSocket = socket(AF_INET, SOCK_STREAM, 0);

@@ -4,3 +4,5 @@
 EventHandler::EventHandler(Reactor& reactor, int fd):
     reactor(reactor), fd(fd) {
 }
+
+EventHandler::~EventHandler() {}
