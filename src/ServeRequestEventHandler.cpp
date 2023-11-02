@@ -1,7 +1,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <string>
+#include <cstring>
 #include <sstream>
 
 #include <fstream>
@@ -44,7 +44,7 @@ void ServeRequestEventHandler::handleEvent() {
 
         std::string response = ss.str();
 
-        size_t bytesSent;
+        ssize_t bytesSent;
         size_t totalBytesSent = 0;
 
         // TODO: This is only an example. Remember that we can only write once to a socket per select per socket
