@@ -8,7 +8,10 @@ class Reactor;
 class AcceptConnectionEventHandler: public EventHandler {
 public:
     AcceptConnectionEventHandler(Reactor& reactor, int fd);
+    AcceptConnectionEventHandler(const AcceptConnectionEventHandler & src);
     ~AcceptConnectionEventHandler();
+
+    AcceptConnectionEventHandler & operator=(AcceptConnectionEventHandler const & rhs);
 
     void handleEvent();
 };

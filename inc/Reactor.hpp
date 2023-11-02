@@ -10,7 +10,10 @@ class EventHandler;
 class Reactor {
 public:
     Reactor();
+    Reactor(const Reactor & src);
     ~Reactor();
+
+    Reactor & operator=(Reactor const & rhs);
 
     void runEventLoop();
     void stopEventLoop();

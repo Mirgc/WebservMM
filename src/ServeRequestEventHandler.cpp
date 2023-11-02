@@ -17,7 +17,20 @@ ServeRequestEventHandler::ServeRequestEventHandler(Reactor& reactor, int fd)
     // Constructor implementation
 }
 
+ServeRequestEventHandler::ServeRequestEventHandler(const ServeRequestEventHandler & src)
+    : EventHandler(src.reactor, src.fd) {
+}
+
 ServeRequestEventHandler::~ServeRequestEventHandler() {}
+
+ServeRequestEventHandler& ServeRequestEventHandler::operator=(const ServeRequestEventHandler &rhs) {
+	if (this != &rhs) {
+        this->reactor = rhs.reactor;
+        this->fd = rhs.fd;
+    }
+
+	return (*this);
+}
 
 void ServeRequestEventHandler::handleEvent() {
     char buffer[BUFFER_SIZE];

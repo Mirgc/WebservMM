@@ -8,7 +8,21 @@
 #include "EventHandler.hpp"
 
 Reactor::Reactor() {}
+
+Reactor::Reactor(const Reactor & src) {
+	*this = src;
+}
+
 Reactor::~Reactor() {}
+
+Reactor& Reactor::operator=(const Reactor &rhs) {
+    
+	if (this != &rhs) {
+        throw std::runtime_error("Reactor must be a Singleton and this case should never happen");
+	}
+	
+	return (*this);
+}
 
 void Reactor::runEventLoop() {
     fd_set readSet;
