@@ -53,7 +53,7 @@ void ServeRequestEventHandler::handleEvent() {
         while (totalBytesSent < response.size())
         {
             bytesSent = send(fd, response.c_str(), response.size(), 0);
-            if (bytesSent < 0)
+            if (bytesSent <= 0)
             {
                 break;
             }

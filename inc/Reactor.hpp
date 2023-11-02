@@ -3,6 +3,7 @@
 
 #include <map>
 #include <utility>  // For std::pair
+#include <cstring>
 
 class EventHandler;
 

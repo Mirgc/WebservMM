@@ -7,10 +7,13 @@
 # include <unistd.h>
 # include <fstream>
 # include <sstream>
+# include <vector>
 
 class ConfigFileParser{
 	private:
-		std::string _fileContent;
+		std::string 			_fileContent;
+		std::vector<std::string>	_serverConfig;
+		size_t				_numServ;
 
 	public:
 		ConfigFileParser();
@@ -19,6 +22,7 @@ class ConfigFileParser{
 		void checkFile(const std::string &fileName);
 		bool isEmptyFile(const std::string &fileName);
 		std::string removeCommentsWhiteLines(const std::string &fileName);
+		void splitServers();
 
 		class ParseException : public std::exception
 		{
