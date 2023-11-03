@@ -9,29 +9,53 @@
 
 #include "ServeRequestEventHandler.hpp"
 #include "Reactor.hpp"
+#include "HTTPRequestFactory.hpp"
+#include "HTTPResponse.hpp"
 
 const int BUFFER_SIZE = 30720;
 
 ServeRequestEventHandler::ServeRequestEventHandler(Reactor& reactor, int fd)
     : EventHandler(reactor, fd) {
-    // Constructor implementation
+    this->httpRequest = NULL;
 }
 
 ServeRequestEventHandler::ServeRequestEventHandler(const ServeRequestEventHandler & src)
     : EventHandler(src.reactor, src.fd) {
+    this->copyHTTPRequest(src.httpRequest);
 }
 
-ServeRequestEventHandler::~ServeRequestEventHandler() {}
+ServeRequestEventHandler::~ServeRequestEventHandler() {
+    this->freeHTTPRequest();
+}
+
+void ServeRequestEventHandler::copyHTTPRequest(HTTPRequest * src) {
+
+    this->freeHTTPRequest();
+    if (src) {
+        // TODO: HTTPRequest is an abstract class. Find out how to copy it.
+        throw std::runtime_error("Error, copy constructor for ServeRequestEventHandler not yet supported.");
+        // this->httpRequest = new HTTPRequest(*(src));
+    }
+}
+
+void ServeRequestEventHandler::freeHTTPRequest() {
+    if (this->httpRequest) {
+        delete this->httpRequest;
+        this->httpRequest = NULL;
+    }
+}
 
 ServeRequestEventHandler& ServeRequestEventHandler::operator=(const ServeRequestEventHandler &rhs) {
 	if (this != &rhs) {
         this->reactor = rhs.reactor;
         this->fd = rhs.fd;
+        this->copyHTTPRequest(rhs.httpRequest);
     }
 
 	return (*this);
 }
 
+// TODO: Implement state machine: https://github.com/manu-garcia/WebServer/issues/53
 void ServeRequestEventHandler::handleEvent() {
     char buffer[BUFFER_SIZE];
 
@@ -52,12 +76,14 @@ void ServeRequestEventHandler::handleEvent() {
         // Process the received data, send responses back to the client here...
         std::cout << "ServeRequestEventHandler bytesRead n, Sending response back" << std::endl;
 
-        std::string htmlFile = "<!DOCTYPE html><html lang=\"en\"><body><h1> HOME </h1><p> Hello from your Server :) </p></body></html>";
-        std::ostringstream ss;
-        ss << "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " << htmlFile.size() << "\n\n"
-            << htmlFile;
+        HTTPRequestFactory httpRequestFactory;
+        this->httpRequest = httpRequestFactory.createHTTPRequest();
+        if (!this->httpRequest) {
+            throw std::runtime_error("Error creating HTTPRequest from factory");
+        }
 
-        std::string response = ss.str();
+        HTTPResponse httpResponse = this->httpRequest->process();
+        std::string response = httpResponse.getResponse();
 
         ssize_t bytesSent;
         size_t totalBytesSent = 0;
