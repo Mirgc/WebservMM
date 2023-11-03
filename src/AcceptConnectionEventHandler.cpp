@@ -1,7 +1,6 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-
 #include <fstream>
 #include <iostream>
 
@@ -12,6 +11,22 @@
 AcceptConnectionEventHandler::AcceptConnectionEventHandler(Reactor& reactor, int fd)
     : EventHandler(reactor, fd) {
 }
+
+AcceptConnectionEventHandler::AcceptConnectionEventHandler(const AcceptConnectionEventHandler & src)
+    : EventHandler(src.reactor, src.fd) {
+}
+
+AcceptConnectionEventHandler::~AcceptConnectionEventHandler() {}
+
+AcceptConnectionEventHandler& AcceptConnectionEventHandler::operator=(const AcceptConnectionEventHandler &rhs) {
+	if (this != &rhs) {
+        this->reactor = rhs.reactor;
+        this->fd = rhs.fd;
+    }
+
+	return (*this);
+}
+
 
 void AcceptConnectionEventHandler::handleEvent() {
     struct sockaddr_in socketAddress;

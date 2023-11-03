@@ -9,7 +9,7 @@
 #include "VirtualHostServer.hpp"
 #include "AcceptConnectionEventHandler.hpp"
 
-VirtualHostServer::VirtualHostServer(Reactor& reactor, int port) : reactor(reactor) {
+VirtualHostServer::VirtualHostServer(Reactor& reactor, int port): reactor(reactor), port(port) {
     // Create a socket for listening
     listenSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (listenSocket < 0) {
@@ -34,6 +34,26 @@ VirtualHostServer::VirtualHostServer(Reactor& reactor, int port) : reactor(react
         close(listenSocket);
         throw std::runtime_error("Failed to bind the listening socket");
     }
+}
+
+VirtualHostServer::VirtualHostServer(const VirtualHostServer & src) : reactor(src.reactor) {
+	*this = src;
+}
+
+VirtualHostServer::~VirtualHostServer() {
+    if (listenSocket) {
+        close(listenSocket);
+        listenSocket = 0;
+    }
+}
+
+VirtualHostServer& VirtualHostServer::operator=(const VirtualHostServer &rhs) {
+	if (this != &rhs) {
+        this->reactor = rhs.reactor;
+        this->port = rhs.port;
+        this->listenSocket = rhs.listenSocket;
+	}
+	return (*this);
 }
 
 void VirtualHostServer::listen() {

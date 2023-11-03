@@ -8,7 +8,12 @@ class Reactor;
 class ServeRequestEventHandler: public EventHandler {
 public:
     ServeRequestEventHandler(Reactor& reactor, int fd);
-    virtual void handleEvent();
+    ServeRequestEventHandler(const ServeRequestEventHandler & src);
+    ~ServeRequestEventHandler();
+
+    ServeRequestEventHandler & operator=(ServeRequestEventHandler const & rhs);
+
+    void handleEvent();
 };
 
 #endif
