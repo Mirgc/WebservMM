@@ -17,11 +17,13 @@ StaticFileHTTPRequest::StaticFileHTTPRequest(const StaticFileHTTPRequest & src)
 StaticFileHTTPRequest::~StaticFileHTTPRequest() {}
 
 StaticFileHTTPRequest& StaticFileHTTPRequest::operator=(const StaticFileHTTPRequest &rhs) {
-	if (this != &rhs) {
-
-    }
-
+    (void) rhs;
 	return (*this);
+}
+
+// We need a way to clone a derived instance not knowing its derived form
+StaticFileHTTPRequest * StaticFileHTTPRequest::clone() {
+    return (new StaticFileHTTPRequest(*this));
 }
 
 HTTPResponse StaticFileHTTPRequest::process() {

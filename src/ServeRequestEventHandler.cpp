@@ -15,12 +15,11 @@
 const int BUFFER_SIZE = 30720;
 
 ServeRequestEventHandler::ServeRequestEventHandler(Reactor& reactor, int fd)
-    : EventHandler(reactor, fd) {
-    this->httpRequest = NULL;
+    : EventHandler(reactor, fd), httpRequest(NULL) {
 }
 
 ServeRequestEventHandler::ServeRequestEventHandler(const ServeRequestEventHandler & src)
-    : EventHandler(src.reactor, src.fd) {
+    : EventHandler(src.reactor, src.fd), httpRequest(NULL) {
     this->copyHTTPRequest(src.httpRequest);
 }
 
@@ -28,13 +27,11 @@ ServeRequestEventHandler::~ServeRequestEventHandler() {
     this->freeHTTPRequest();
 }
 
-void ServeRequestEventHandler::copyHTTPRequest(HTTPRequest * src) {
+void ServeRequestEventHandler::copyHTTPRequest(HTTPRequest * httpRequest) {
 
     this->freeHTTPRequest();
-    if (src) {
-        // TODO: HTTPRequest is an abstract class. Find out how to copy it.
-        throw std::runtime_error("Error, copy constructor for ServeRequestEventHandler not yet supported.");
-        // this->httpRequest = new HTTPRequest(*(src));
+    if (httpRequest) {
+        this->httpRequest = httpRequest->clone();
     }
 }
 

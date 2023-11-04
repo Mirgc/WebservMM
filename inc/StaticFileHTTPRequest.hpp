@@ -13,6 +13,9 @@ public:
 
     StaticFileHTTPRequest & operator=(StaticFileHTTPRequest const & rhs);
 
+    // We need a way to clone a derived instance not knowing its derived form
+    StaticFileHTTPRequest * clone();
+
     HTTPResponse process();
 
 };

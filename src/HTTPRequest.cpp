@@ -9,9 +9,6 @@ HTTPRequest::HTTPRequest(const HTTPRequest & src) {
 HTTPRequest::~HTTPRequest() {}
 
 HTTPRequest& HTTPRequest::operator=(const HTTPRequest &rhs) {
-	if (this != &rhs) {
-
-    }
-
+    (void) rhs;
 	return (*this);
 }
