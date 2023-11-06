@@ -54,7 +54,7 @@ fclean: clean
 re: fclean all
 
 ccinfo: 
-		$(CC) -v
+		@$(CC) -v
 
 -include $(OBJS_DIR)/*.d
 
