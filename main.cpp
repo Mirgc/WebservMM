@@ -4,7 +4,7 @@
 
 int startServer (void) {
     // Create an Reactor to dispatch events
-    Reactor reactor;
+    Reactor &reactor = Reactor::getInstance();
 
     // Create an VirtualHostServer to listen for incoming connections on a specific port
     // We will have one socket listening for new connections for this server
