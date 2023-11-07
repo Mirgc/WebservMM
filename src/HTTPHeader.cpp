@@ -23,18 +23,19 @@ void	HTTPHeader::addHeader(const std::string & value1, const std::string & value
 }
 
 void	HTTPHeader::printHeader(void) const {
-	for (size_t i = 0; i< this->header.size(); ++i) {
-		std::cout << this->header[i].first << " " << this->header[i].second;
+	std::cout << this->header[i].first << " " << this->header[i].second; // HTTP status
+	for (size_t i = 1; i< this->header.size(); ++i) {
+		std::cout << this->header[i].first << ": " << this->header[i].second;
 		std::cout << std::endl;
 	}
 }
 
-//Be careful if there is not ':' in the first string of each position
 std::string	HTTPHeader::generateResponse(void) const {
 	std::string	response;
 
-	for (size_t i = 0; i< this->header.size(); ++i) {
-		response += this->header[i].first + " " + this->header[i].second + "\n";
+	response += this->header[i].first + " " + this->header[i].second + "\n"; //HTTP status
+	for (size_t i = 1; i< this->header.size(); ++i) {
+		response += this->header[i].first + ": " + this->header[i].second + "\n";
 	}
 	return response;
 }
