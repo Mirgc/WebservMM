@@ -7,6 +7,8 @@
 #include "Reactor.hpp"
 #include "EventHandler.hpp"
 
+Reactor *Reactor::instance = NULL;
+
 Reactor::Reactor() {}
 
 Reactor::Reactor(const Reactor & src) {

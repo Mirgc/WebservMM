@@ -49,7 +49,7 @@ VirtualHostServer::~VirtualHostServer() {
 
 VirtualHostServer& VirtualHostServer::operator=(const VirtualHostServer &rhs) {
 	if (this != &rhs) {
-        this->reactor = rhs.reactor;
+        //this->reactor = rhs.reactor;
         this->port = rhs.port;
         this->listenSocket = rhs.listenSocket;
 	}

@@ -10,20 +10,27 @@ class EventHandler;
 // Official patter sugests makeing this a singleton to avoid having multiple instances of Reactor
 class Reactor {
 public:
-    Reactor();
-    Reactor(const Reactor & src);
+    static Reactor *getInstance(){
+	if (NULL == instance)
+		instance = new Reactor();
+	return instance;
+    }
+
     ~Reactor();
-
-    Reactor & operator=(Reactor const & rhs);
-
     void runEventLoop();
     void stopEventLoop();
     void registerEventHandler(int fd, EventHandler* handler);
     void unregisterEventHandler(int fd);
 
 private:
+    Reactor();
+	// I make private the copy and the operator to avoid the creation of new instances
+    Reactor(const Reactor & src); 
+    Reactor & operator=(Reactor const & rhs);
     // Holds all registered event handlers <SocketFD, EventHandler>
     std::map<int, EventHandler*> fdHandlerMap;
+
+    static Reactor *instance;
 };
 
 #endif
