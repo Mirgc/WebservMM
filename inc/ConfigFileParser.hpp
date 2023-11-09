@@ -10,7 +10,7 @@
 # include <vector>
 
 class ConfigFileParser{
-	private:
+	protected:
 		std::string 			_fileContent;
 		std::vector<std::string>	_serverConfig;
 		size_t				_numServ;

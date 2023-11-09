@@ -1,5 +1,5 @@
 #ifndef VIRTUAL_HOST_SERVER_HPP
-#define VIRTUAL_HOST_SERVER_HPP
+# define VIRTUAL_HOST_SERVER_HPP
 
 #include "Reactor.hpp"
 

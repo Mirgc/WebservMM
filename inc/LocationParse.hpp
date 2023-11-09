@@ -10,9 +10,9 @@
 class LocationParse: public ConfigFileParser{
 
 	private:
-		std::string   	_ServerName;
-		std::string   	_ProcessingLine;
-		// std::vector<std::pair<std::string, std::string> > _UploadCfg;
+		std::string   		     		_ServerName;
+		std::vector<std::string>    	_ProcesingLocation;
+		std::vector<LocationConfig*>  	_ParsedLocations;
 
 	public:
 		LocationParse(void);
@@ -22,12 +22,22 @@ class LocationParse: public ConfigFileParser{
 		LocationParse & operator=(LocationParse const & rhs);
 
 		std::string const & getServerName(void) const;
-		std::string const & getProcessingLine(void) const;
+		std::vector<std::string>  const & getProcesingLocation(void) const;
+		std::vector<LocationConfig*>  const & getParsedLocations(void) const;
 
 		void setServerName(std::string const &ServerName);
-		void setProcessingLine(std::string const &PorcessingLine);
+		void setParsedLocations(std::vector<std::string> const &_ProcesingLocation);
+		void setParsedLocations(std::vector<LocationConfig*>  const &_ParsedLocations);
 
-		
+		// LocationConfig const & getLocationConfig();
+
+
+		void getNextLocation(void);
+		void getParsedLocations(void);
+
+
+		std::string trim(const std::string &s);
+
 		// Devolver un mapa o vector de pair de instancias de LocationConfig key:uploadName value: instancia de locartion
 		// O tal vez un vector con las instancias directamente 
 

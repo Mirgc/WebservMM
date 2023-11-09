@@ -1,5 +1,5 @@
 #ifndef SERVERCONFIG
-#define SERVERCONFIG
+# define SERVERCONFIG
 
 # include <map>
 # include <string>
