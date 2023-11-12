@@ -31,7 +31,7 @@ void LocationConfig::setUploadPath(std::string const &UploadPath){
 	this->_UploadPath = UploadPath;
 }
 
-void LocationConfig::setUploadCfg(std::pair<std::string, std::string> &pair){
+void LocationConfig::setUploadCfg(std::pair<std::string, std::string> const &pair){
 	this->_UploadCfg.push_back(pair);
 }
 

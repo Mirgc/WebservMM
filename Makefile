@@ -3,7 +3,7 @@ NAME_SAN 	= webserv_sanitized
 
 CC		= c++
 
-DEBUG		= -fsanitize=address -g3 -D DEBUG
+DEBUG		= -fsanitize=address -g3 -D DEBUG --debug
 CFLAGS 		= -Wall -Werror -Wextra -std=c++98 --pedantic -MD
 RM 		= rm -rf
 

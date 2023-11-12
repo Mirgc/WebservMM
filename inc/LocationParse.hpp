@@ -37,6 +37,7 @@ class LocationParse: public ConfigFileParser{
 
 		std::string trim(const std::string &s);
 		bool isStrInVector(const std::string &s, std::vector<std::string> const & vector);
+		std::vector<std::string> fillInVector(std::string *Keys);
 
 		// Devolver un mapa o vector de pair de instancias de LocationConfig key:uploadName value: instancia de locartion
 		// O tal vez un vector con las instancias directamente 

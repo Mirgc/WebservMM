@@ -22,7 +22,7 @@ class LocationConfig{
 		const std::vector<std::pair<std::string, std::string> > & getUploadCfg(void) const;
 
 		void setUploadPath(std::string const &UploadPath);
-		void setUploadCfg(std::pair<std::string, std::string> &pair);
+		void setUploadCfg(std::pair<std::string, std::string> const &pair);
 
 };
 

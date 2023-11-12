@@ -103,10 +103,13 @@ void LocationParse::getParsedLocations(void){
 	std::string  Keys[] = { "proxy_pass", "method", "upload_enable", "upload_path",
 							"redirection", "docroot", "autoindex", "index" };
 	std::vector<std::string>  validKeys = fillInVector(Keys);
+	std::string key;
+	std::string value;
 
 	start =	this->_ProcesingLocation.begin();
 	end = this->_ProcesingLocation.end();
 
+	const std::string WHITESPACE = " }\n\r\t\f\v{";
 	while (start != end)
 	{
 		itend = std::find(start, end, "}");
@@ -115,13 +118,13 @@ void LocationParse::getParsedLocations(void){
 			loc->setUploadPath(trim((*start).substr((*start).find("location")+8, std::string::npos)));
 			itend = std::find(start, end, "}");
 			while (start != itend){
-				// !!!!!!!!!!!!!!!! split key from values is needed !!!!!!!!!!!!!!!!!!!
-				splitWords(trim(*start));
+				key = (*start).substr(trim(*start).find_first_not_of(WHITESPACE), trim(*start).find_first_of(WHITESPACE));
+				value = (*start).substr(trim(*start).find_last_of(WHITESPACE), trim(*start).find_last_not_of(WHITESPACE));
+				if(isStrInVector(key, validKeys))
+					loc->setUploadCfg(std::make_pair(key, value));
+				else
+					throw ParseException("Syntax error near " + key);
 			}
-			
-			// continue here charging vector of pairs parsing _ProcesingLocation from each loc instance
-			// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-			// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		}
 		start++;
 	}
@@ -146,10 +149,10 @@ std::string LocationParse::trim(const std::string &s) {
 }
 
 // Validation supporting methods
-std::vector<std::string> & fillInVector(std::string *Keys){
+std::vector<std::string> LocationParse::fillInVector(std::string *Keys){
 
-	size_t numKeys = sizeof(Keys) / sizeof(Keys[0]);
-	std::vector<std::string>  filledVector(Keys, Keys + numKeys);
+	std::string *end = std::find(Keys, Keys + std::numeric_limits<size_t>::max(), "");
+	std::vector<std::string>  filledVector(Keys, end);
 	return (filledVector);
 }
 
@@ -161,14 +164,18 @@ bool LocationParse::isStrInVector(const std::string &s, std::vector<std::string>
 }
 
 // BAD METHOD !!!!!!!!
-std::string & splitWords(const std::string &s){
-	std::stringstream ss(s);  
-	std::string word;
-	while (ss >> word)
-		return (word);
+std::vector<std::string> splitWords(const std::string &s) {
+    std::stringstream ss(s);
+    std::vector<std::string> words;
+    std::string word;
+
+    while (ss >> word)
+        words.push_back(word);
+
+    return words;
 }
 
-	// for(start=this->_serverConfig.begin(); start!=this->_serverConfig.end(); start++){
+// 	// for(start=this->_serverConfig.begin(); start!=this->_serverConfig.end(); start++){
 	// 	it = std::find(start, end, "location");
 
 	// 	if (it != end){
