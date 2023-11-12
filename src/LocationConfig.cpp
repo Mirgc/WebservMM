@@ -43,3 +43,5 @@ std::ostream & operator<<(std::ostream & o, LocationConfig const & rhs){
 		std::cout << (*it).first << " : " << (*it).second << std::endl;
 	return (o);
 }
+
+// TODO: make a method to extract especific cfg value from this->_UploadCfg

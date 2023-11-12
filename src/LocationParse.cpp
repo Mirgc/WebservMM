@@ -163,7 +163,7 @@ bool LocationParse::isStrInVector(const std::string &s, std::vector<std::string>
 	return false;
 }
 
-// BAD METHOD !!!!!!!!
+// BAD METHOD !!!!!!!!??????
 std::vector<std::string> splitWords(const std::string &s) {
     std::stringstream ss(s);
     std::vector<std::string> words;
