@@ -4,6 +4,7 @@
 class Reactor;
 
 #include "EventHandler.hpp"
+#include "HTTPRequest.hpp"
 
 class ServeRequestEventHandler: public EventHandler {
 public:
@@ -14,6 +15,13 @@ public:
     ServeRequestEventHandler & operator=(ServeRequestEventHandler const & rhs);
 
     void handleEvent();
+
+private:
+
+    HTTPRequest *httpRequest;
+
+    void copyHTTPRequest(HTTPRequest * src);
+    void freeHTTPRequest();
 };
 
 #endif
