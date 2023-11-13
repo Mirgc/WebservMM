@@ -11,7 +11,10 @@ LocationParse::LocationParse(LocationParse const & src){
 }
 
 LocationParse::~LocationParse(void){
-
+	if(!this->_ParsedLocations.empty())
+		for(std::vector<LocationConfig*>::const_iterator it = this->_ParsedLocations.begin();
+		it != this->_ParsedLocations.end(); ++it)
+			delete (*it);
 }
 
 LocationParse& LocationParse::operator=(const LocationParse &rhs){
@@ -85,9 +88,9 @@ void LocationParse::getNextLocation(void){
 
 	if (this->_ProcesingLocation.empty() or
 	   (std::count(start, end, "{") - (std::count(start, end, "}")) != 0))
-			throw ParseException("No locations at file");
+			throw ParseException("No locations at file or bad scopes");
 
-	// if delete extracted data on src has sense (DISCUSS)
+	// if delete extracted data on src has sense (DISCUSS!!!!!!!!!)
 	start =	this->_serverConfig.begin();
 	it = std::find(start, itend, "location");
 	this->_serverConfig.erase(it, itend);
@@ -100,6 +103,7 @@ void LocationParse::getParsedLocations(void){
 	std::vector<std::string>::iterator it;
 	std::vector<std::string>::iterator itend;
 
+	// This list of valid CFG keys may increase as needed and we should discuss a possible value list.
 	std::string  Keys[] = { "proxy_pass", "method", "upload_enable", "upload_path",
 							"redirection", "docroot", "autoindex", "index" };
 	std::vector<std::string>  validKeys = fillInVector(Keys);
@@ -174,26 +178,3 @@ std::vector<std::string> splitWords(const std::string &s) {
 
     return words;
 }
-
-// 	// for(start=this->_serverConfig.begin(); start!=this->_serverConfig.end(); start++){
-	// 	it = std::find(start, end, "location");
-
-	// 	if (it != end){
-	// 		itend = std::find(start, end, "}");
-	// 		for(it; it!=itend; it++)
-	// 			this->_ProcesingLocation.push_back(*it);
-	// 	}
-	// }
-
-// void LocationParse::setUploadCfg(std::pair<std::string, std::string> &pair){
-// this->_UploadCfg.push_back(pair);
-// }
-
-// std::ostream & operator<<(std::ostream & o, LocationParse const & rhs){
-//  	std::cout << "Location" << " : " << rhs.getUploadPath() << std::endl; 
-//  	std::cout << "KEY" << " : " << "VALUE" << std::endl;
-//  	for(std::vector<std::pair<std::string, std::string> >::const_iterator it = rhs.getUploadCfg().begin();
-//  	it != rhs.getUploadCfg().end(); ++it)
-// 		std::cout << (*it).first << " : " << (*it).second << std::endl;
-// 	return (o);
-// }

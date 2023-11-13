@@ -29,24 +29,19 @@ class LocationParse: public ConfigFileParser{
 		void setParsedLocations(std::vector<std::string> const &_ProcesingLocation);
 		void setParsedLocations(std::vector<LocationConfig*>  const &_ParsedLocations);
 
-		// LocationConfig const & getLocationConfig();
-
-
+		// Get all locations form ConfigFileParser class _serverConfig to process it
 		void getNextLocation(void);
+		// Process RAW data vector and return a new vector of pointers to LocationConfig instances
 		void getParsedLocations(void);
-
+		
+		// trim " }\n\r\t\f\v{" from string
 		std::string trim(const std::string &s);
+
+		// check if specific string is in vector
 		bool isStrInVector(const std::string &s, std::vector<std::string> const & vector);
+		
+		// return a new sting vector contructed from an array
 		std::vector<std::string> fillInVector(std::string *Keys);
-
-		// Devolver un mapa o vector de pair de instancias de LocationConfig key:uploadName value: instancia de locartion
-		// O tal vez un vector con las instancias directamente 
-
-		// const std::vector<std::pair<std::string, std::string> > & getUploadCfg(void) const;
-		// void setUploadCfg(std::pair<std::string, std::string> &pair);
-
 };
-
-// std::ostream & operator<<(std::ostream & o, LocationParse const & rhs);
 
 #endif

@@ -21,6 +21,9 @@ class LocationConfig{
 		std::string const & getUploadPath(void) const;
 		const std::vector<std::pair<std::string, std::string> > & getUploadCfg(void) const;
 
+		// get specific fg value by name 
+		const std::string & getCfgValueFrom(std::string const & Key);
+
 		void setUploadPath(std::string const &UploadPath);
 		void setUploadCfg(std::pair<std::string, std::string> const &pair);
 
