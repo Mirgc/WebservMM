@@ -78,7 +78,7 @@ void ServerConfig::setLocation(LocationConfig location){
 	this->_locations.insert(_locations.end(), location);
 }
 
-const unsigned int &ServerConfig::getPort(){
+unsigned int ServerConfig::getPort() const {
 	return (this->_port);
 }
  
@@ -94,7 +94,7 @@ const std::string &ServerConfig::getDocRoot(){
 	return (this->_docRoot);
 }
 
-const unsigned int &ServerConfig::getClientMaxBodySize(){
+unsigned int ServerConfig::getClientMaxBodySize() const {
 	return (this->_clientMaxBodySize);
 }
 	

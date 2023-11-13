@@ -33,11 +33,11 @@ class ServerConfig{
 		void setErrorPageMap(int httpStatus, std::string path);
 		void setLocation(LocationConfig location);
 
-		const unsigned int			&getPort();
+		unsigned int				getPort() const;
 		const in_addr_t				&getHost();
 		const std::string			&getServerName();
 		const std::string			&getDocRoot();
-		const unsigned int			&getClientMaxBodySize();
+		unsigned int				getClientMaxBodySize() const;
 		const std::string			&getIndex();
 		const std::map<int, std::string>	&getErrorPageMap();
 		const std::vector<LocationConfig>	&getLocations();
