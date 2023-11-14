@@ -15,8 +15,10 @@ void ConfigFileParser::checkFile(const std::string &fileName){
 			if (access(fileName.c_str(), R_OK) == 0) { //Tenemos permisos de lectura en el fichero
 			        if (isEmptyFile(fileName)) // El fichero esta vacio o contiene solo espacios en blanco
 					throw ParseException("File is empty.");
-				else
+				else{
 					_fileContent = removeCommentsWhiteLines(fileName);
+					splitServers();
+				}
 		    	}
 			else
 				throw ParseException("Access denied.");
@@ -75,4 +77,38 @@ std::string ConfigFileParser::removeCommentsWhiteLines(const std::string &fileNa
 
     	input.close();
 	return content;
+}
+
+void ConfigFileParser::splitServers(){
+	size_t start = _fileContent.find("server");;
+	size_t end = 1;
+
+	while (start != end && start != _fileContent.length()){
+		if (_fileContent.compare(start, 6, "server") != 0)
+			throw ParseException("File is invalid");
+		start += 6;
+		while (_fileContent[start] && isspace(_fileContent[start]))
+                	start++;
+		if (_fileContent[start] != '{')
+			throw ParseException("File is invalid");
+
+		size_t j = 1;
+		for (size_t i = start + 1; _fileContent[i]; i++){
+                	if (_fileContent[i] == '{')
+                        	j++;
+                	if (_fileContent[i] == '}')
+                	{
+                        	j--;
+                        	if (!j){
+                                	end = i + 1;
+					break;
+				}
+                	}
+		}
+		if (j != 0)
+        		throw ParseException("No valid server blocks found in the file");
+		this->_serverConfig.push_back(_fileContent.substr(start, end - start + 1));
+                this->_numServ++;
+                start = end + 1;	
+	}
 }
