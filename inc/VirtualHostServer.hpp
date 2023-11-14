@@ -2,10 +2,11 @@
 #define VIRTUAL_HOST_SERVER_HPP
 
 #include "Reactor.hpp"
+#include "ServerConfig.hpp"
 
 class VirtualHostServer {
 public:
-    VirtualHostServer(Reactor& reactor, int port);
+    VirtualHostServer(Reactor& reactor, const ServerConfig & config);
     VirtualHostServer(const VirtualHostServer & src);
     ~VirtualHostServer();
 
@@ -15,7 +16,7 @@ public:
 
 private:
     Reactor& reactor;
-    int port;
+    ServerConfig config;
     int listenSocket;
 };
 

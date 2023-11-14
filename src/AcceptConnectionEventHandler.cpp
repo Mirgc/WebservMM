@@ -20,7 +20,6 @@ AcceptConnectionEventHandler::~AcceptConnectionEventHandler() {}
 
 AcceptConnectionEventHandler& AcceptConnectionEventHandler::operator=(const AcceptConnectionEventHandler &rhs) {
 	if (this != &rhs) {
-        //this->reactor = rhs.reactor;
         this->fd = rhs.fd;
     }
 
