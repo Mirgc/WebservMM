@@ -1,6 +1,7 @@
 #include "ConfigFileParser.hpp"
 #include "VirtualHostServer.hpp"
 #include "Reactor.hpp"
+#include "HTTPHeader.hpp"
 
 int startServer (void) {
     // Create an Reactor to dispatch events
@@ -30,7 +31,6 @@ int startServer (void) {
 
 	return (0);
 }
-#include "HTTPHeader.hpp"
 
 int main(int argc, char **argv){
 	if (argc <= 2){
