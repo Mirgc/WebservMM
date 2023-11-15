@@ -9,7 +9,8 @@
 #include "VirtualHostServer.hpp"
 #include "AcceptConnectionEventHandler.hpp"
 
-VirtualHostServer::VirtualHostServer(Reactor& reactor, int port): reactor(reactor), port(port) {
+VirtualHostServer::VirtualHostServer(Reactor& reactor, const ServerConfig & config):
+    reactor(reactor), config(config) {
     // Create a socket for listening
     listenSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (listenSocket < 0) {
@@ -20,7 +21,7 @@ VirtualHostServer::VirtualHostServer(Reactor& reactor, int port): reactor(reacto
     struct sockaddr_in serverAddress;
     serverAddress.sin_family = AF_INET;
     serverAddress.sin_addr.s_addr = INADDR_ANY;
-    serverAddress.sin_port = htons(port);
+    serverAddress.sin_port = htons(config.getPort());
 
     int reuse = 1;
     if (setsockopt(listenSocket, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) < 0)
@@ -49,8 +50,7 @@ VirtualHostServer::~VirtualHostServer() {
 
 VirtualHostServer& VirtualHostServer::operator=(const VirtualHostServer &rhs) {
 	if (this != &rhs) {
-        //this->reactor = rhs.reactor;
-        this->port = rhs.port;
+        this->config = rhs.config;
         this->listenSocket = rhs.listenSocket;
 	}
 	return (*this);

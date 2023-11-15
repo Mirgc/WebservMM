@@ -13,7 +13,6 @@ EventHandler::~EventHandler() {}
 
 EventHandler& EventHandler::operator=(const EventHandler &rhs) {
 	if (this != &rhs) {
-        //this->reactor = rhs.reactor;
         this->fd = rhs.fd;
     }
 
