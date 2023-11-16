@@ -14,12 +14,12 @@
 
 const int BUFFER_SIZE = 30720;
 
-ServeRequestEventHandler::ServeRequestEventHandler(Reactor& reactor, int fd)
-    : EventHandler(reactor, fd), httpRequest(NULL) {
+ServeRequestEventHandler::ServeRequestEventHandler(Reactor& reactor, int fd, const VirtualHostServer & virtualHostServer)
+    : EventHandler(reactor, fd, virtualHostServer), httpRequest(NULL) {
 }
 
 ServeRequestEventHandler::ServeRequestEventHandler(const ServeRequestEventHandler & src)
-    : EventHandler(src.reactor, src.fd), httpRequest(NULL) {
+    : EventHandler(src.reactor, src.fd, src.virtualHostServer), httpRequest(NULL) {
     this->copyHTTPRequest(src.httpRequest);
 }
 
@@ -45,6 +45,7 @@ void ServeRequestEventHandler::freeHTTPRequest() {
 ServeRequestEventHandler& ServeRequestEventHandler::operator=(const ServeRequestEventHandler &rhs) {
 	if (this != &rhs) {
         this->fd = rhs.fd;
+        this->virtualHostServer = rhs.virtualHostServer;
         this->copyHTTPRequest(rhs.httpRequest);
     }
 
