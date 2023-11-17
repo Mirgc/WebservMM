@@ -2,6 +2,7 @@
 #include "VirtualHostServer.hpp"
 #include "Reactor.hpp"
 #include "ServerConfig.hpp"
+#include "HTTPHeader.hpp"
 
 int startServer (void) {
     // Create an Reactor to dispatch events
