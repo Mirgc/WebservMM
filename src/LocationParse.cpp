@@ -11,10 +11,10 @@ LocationParse::LocationParse(LocationParse const & src){
 }
 
 LocationParse::~LocationParse(void){
-	if(!this->_ParsedLocations.empty())
-		for(std::vector<LocationConfig*>::const_iterator it = this->_ParsedLocations.begin();
-		it != this->_ParsedLocations.end(); ++it)
-			delete (*it);
+// 	if(!this->_ParsedLocations.empty())
+// 		for(std::vector<LocationConfig*>::const_iterator it = this._ParsedLocations.begin();
+		// it != this->_ParsedLocations.end(); ++it)
+		// 	delete (*it);
 }
 
 LocationParse& LocationParse::operator=(const LocationParse &rhs){
@@ -33,7 +33,7 @@ const std::vector<std::string> & LocationParse::getProcesingLocation(void) const
 	return(this->_ProcesingLocation);
 }
 
-const std::vector<LocationConfig*>  & LocationParse::getParsedLocations(void) const{
+const std::vector<LocationConfig>  & LocationParse::getParsedLocations(void) const{
 	return(this->_ParsedLocations);
 }
 
@@ -46,8 +46,16 @@ void LocationParse::setParsedLocations(std::vector<std::string> const &_Procesin
  	this->_ProcesingLocation = _ProcesingLocation;
 }
 
-void LocationParse::setParsedLocations(std::vector<LocationConfig*>  const &ParsedLocations){
+void LocationParse::setParsedLocations(std::vector<LocationConfig> const &ParsedLocations){
  	this->_ParsedLocations = ParsedLocations;
+}
+
+void LocationParse::addParsedLocations(std::string const &ProcesingLocation){
+ 	this->_ProcesingLocation.push_back(ProcesingLocation);
+}
+
+void LocationParse::addParsedLocations(LocationConfig const &ParsedLocation){
+ 	this->_ParsedLocations.push_back(ParsedLocation);
 }
 
 // Class Methods
@@ -97,7 +105,7 @@ void LocationParse::getNextLocation(void){
 }
 
 // Process RAW data vector and return a new vector of pointers to LocationConfig instances
-void LocationParse::getParsedLocations(void){
+void LocationParse::addParsedLocations(void){
 	std::vector<std::string>::iterator start;
 	std::vector<std::string>::iterator end;
 	std::vector<std::string>::iterator it;
@@ -118,17 +126,18 @@ void LocationParse::getParsedLocations(void){
 	{
 		itend = std::find(start, end, "}");
 		if((*start).find("location")){
-			LocationConfig* loc = new LocationConfig();
-			loc->setUploadPath(trim((*start).substr((*start).find("location")+8, std::string::npos)));
+			LocationConfig loc = LocationConfig();
+			loc.setUploadPath(trim((*start).substr((*start).find("location")+8, std::string::npos)));
 			itend = std::find(start, end, "}");
 			while (start != itend){
 				key = (*start).substr(trim(*start).find_first_not_of(WHITESPACE), trim(*start).find_first_of(WHITESPACE));
 				value = (*start).substr(trim(*start).find_last_of(WHITESPACE), trim(*start).find_last_not_of(WHITESPACE));
 				if(isStrInVector(key, validKeys))
-					loc->setUploadCfg(std::make_pair(key, value));
+					loc.setUploadCfg(std::make_pair(key, value));
 				else
 					throw ParseException("Syntax error near " + key);
 			}
+			this->addParsedLocations(loc);
 		}
 		start++;
 	}

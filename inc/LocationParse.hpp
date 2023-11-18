@@ -12,7 +12,7 @@ class LocationParse: public ConfigFileParser{
 	private:
 		std::string   		     		_ServerName;
 		std::vector<std::string>    	_ProcesingLocation;
-		std::vector<LocationConfig*>  	_ParsedLocations;
+		std::vector<LocationConfig>  	_ParsedLocations;
 
 	public:
 		LocationParse(void);
@@ -23,16 +23,21 @@ class LocationParse: public ConfigFileParser{
 
 		std::string const & getServerName(void) const;
 		std::vector<std::string>  const & getProcesingLocation(void) const;
-		std::vector<LocationConfig*>  const & getParsedLocations(void) const;
+		// get full vector
+		std::vector<LocationConfig>  const & getParsedLocations(void) const;
 
 		void setServerName(std::string const &ServerName);
-		void setParsedLocations(std::vector<std::string> const &_ProcesingLocation);
-		void setParsedLocations(std::vector<LocationConfig*>  const &_ParsedLocations);
+		void setParsedLocations(std::vector<std::string> const & ProcesingLocation);
+		void setParsedLocations(std::vector<LocationConfig>  const & ParsedLocation);
+		
+		// add one to vector
+		void addParsedLocations(std::string const & ProcesingLocation);
+		void addParsedLocations(LocationConfig const & ParsedLocation);
 
 		// Get all locations form ConfigFileParser class _serverConfig to process it
 		void getNextLocation(void);
-		// Process RAW data vector and return a new vector of pointers to LocationConfig instances
-		void getParsedLocations(void);
+		// Process RAW data vector and add a copy from LocationConfig filled instance 
+		void addParsedLocations(void);
 		
 		// trim " }\n\r\t\f\v{" from string
 		std::string trim(const std::string &s);
