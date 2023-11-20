@@ -44,6 +44,12 @@ class LocationParse: public ConfigFileParser{
 
 		// check if specific string is in vector
 		bool isStrInVector(const std::string &s, std::vector<std::string> const & vector);
+
+		// is a valid url format?
+		bool isUrlFormat(const std::string str);
+
+		// is a valid path?
+		bool isValidPath(const std::string str);
 		
 		// return a new sting vector contructed from an array
 		std::vector<std::string> fillInVector(std::string *Keys);

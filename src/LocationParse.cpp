@@ -176,6 +176,40 @@ bool LocationParse::isStrInVector(const std::string &s, std::vector<std::string>
 	return false;
 }
 
+// is a valid url format?
+bool isUrlFormat(const std::string str){
+	if (!str.empty()){
+		std::string http = "http://";
+		std::string https = "https://";
+		size_t pos;
+		
+		pos = 0;
+		if((pos = str.find_first_not_of(http)) == 7 or
+		   (pos = str.find_first_not_of(https)) == 8){
+			for(size_t it=0; it<pos; it++)
+				if((pos == 7 and str[it] != http[it]) or
+				   (pos == 8 and str[it] != https[it]))
+					return false;
+			for(size_t it=pos; isprint(str[it]) and !isspace(str[it]); it++)
+				if (it == (str.length()-1))
+					return true;
+		}
+	}
+	return false;
+}
+
+bool LocationParse::isValidPath(const std::string str){
+  std::ifstream ifs(str);
+
+  if (ifs.is_open()) {
+	ifs.close();
+	return true;
+  }
+
+	throw ParseException("Invalid location path " + str);
+	return false;
+}
+
 // BAD METHOD !!!!!!!!??????
 std::vector<std::string> splitWords(const std::string &s) {
     std::stringstream ss(s);
