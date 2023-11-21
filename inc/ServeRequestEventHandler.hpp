@@ -8,7 +8,7 @@ class Reactor;
 
 class ServeRequestEventHandler: public EventHandler {
 public:
-    ServeRequestEventHandler(Reactor& reactor, int fd);
+    ServeRequestEventHandler(Reactor& reactor, int fd, struct sockaddr_in socketAddress);
     ServeRequestEventHandler(const ServeRequestEventHandler & src);
     ~ServeRequestEventHandler();
 

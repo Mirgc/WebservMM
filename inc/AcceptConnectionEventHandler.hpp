@@ -7,7 +7,7 @@ class Reactor;
 
 class AcceptConnectionEventHandler: public EventHandler {
 public:
-    AcceptConnectionEventHandler(Reactor& reactor, int fd);
+    AcceptConnectionEventHandler(Reactor& reactor, int fd, struct sockaddr_in socketAddress);
     AcceptConnectionEventHandler(const AcceptConnectionEventHandler & src);
     ~AcceptConnectionEventHandler();
 

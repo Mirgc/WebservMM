@@ -8,12 +8,12 @@
 #include "ServeRequestEventHandler.hpp"
 #include "Reactor.hpp"
 
-AcceptConnectionEventHandler::AcceptConnectionEventHandler(Reactor& reactor, int fd)
-    : EventHandler(reactor, fd) {
+AcceptConnectionEventHandler::AcceptConnectionEventHandler(Reactor& reactor, int fd, struct sockaddr_in socketAddress)
+    : EventHandler(reactor, fd, socketAddress) {
 }
 
 AcceptConnectionEventHandler::AcceptConnectionEventHandler(const AcceptConnectionEventHandler & src)
-    : EventHandler(src.reactor, src.fd) {
+    : EventHandler(src.reactor, src.fd, src.socketAddress) {
 }
 
 AcceptConnectionEventHandler::~AcceptConnectionEventHandler() {}
@@ -21,6 +21,7 @@ AcceptConnectionEventHandler::~AcceptConnectionEventHandler() {}
 AcceptConnectionEventHandler& AcceptConnectionEventHandler::operator=(const AcceptConnectionEventHandler &rhs) {
 	if (this != &rhs) {
         this->fd = rhs.fd;
+        this->socketAddress = rhs.socketAddress;
     }
 
 	return (*this);
@@ -28,15 +29,11 @@ AcceptConnectionEventHandler& AcceptConnectionEventHandler::operator=(const Acce
 
 
 void AcceptConnectionEventHandler::handleEvent() {
-    struct sockaddr_in socketAddress;
     unsigned int socketAddressSize;
 
-    socketAddress.sin_family = AF_INET;
-    socketAddress.sin_addr.s_addr = INADDR_ANY;
     // TODO: We need to connect handlers with Context (Server, Config, etc)?
     // Will different event handlers have different extra properties to set up?
     // At least we need the VirtualHostServer port here
-    socketAddress.sin_port = htons(8080);
 
     int newSocketfd = accept(fd, (sockaddr *)&socketAddress, &socketAddressSize);
     if (newSocketfd < 0)
@@ -46,6 +43,6 @@ void AcceptConnectionEventHandler::handleEvent() {
 
     std::cout << "Registering event(fd = " << newSocketfd << ")...ServeRequestEventHandler" << std::endl;
 
-    EventHandler *serveRequestEventHandler = new ServeRequestEventHandler(reactor, newSocketfd);
+    EventHandler *serveRequestEventHandler = new ServeRequestEventHandler(reactor, newSocketfd, socketAddress);
     reactor.registerEventHandler(newSocketfd, serveRequestEventHandler);
 }
