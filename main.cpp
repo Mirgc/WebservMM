@@ -1,6 +1,8 @@
 #include "ConfigFileParser.hpp"
 #include "VirtualHostServer.hpp"
 #include "Reactor.hpp"
+#include "ServerConfig.hpp"
+#include "HTTPHeader.hpp"
 
 int startServer (void) {
     // Create an Reactor to dispatch events
@@ -9,7 +11,9 @@ int startServer (void) {
     // Create an VirtualHostServer to listen for incoming connections on a specific port
     // We will have one socket listening for new connections for this server
     // Pass the VirtualHostConfig class here
-    VirtualHostServer virtualHostServer1(*reactor, 8080);
+	ServerConfig serverConfig1;
+	serverConfig1.setPort(8080);
+    VirtualHostServer virtualHostServer1(*reactor, serverConfig1);
     // As well as start litening the VirtualHostServer registers its socket with the Reactor.
     virtualHostServer1.listen();
 

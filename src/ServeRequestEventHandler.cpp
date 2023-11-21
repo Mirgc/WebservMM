@@ -44,7 +44,6 @@ void ServeRequestEventHandler::freeHTTPRequest() {
 
 ServeRequestEventHandler& ServeRequestEventHandler::operator=(const ServeRequestEventHandler &rhs) {
 	if (this != &rhs) {
-        //this->reactor = rhs.reactor;
         this->fd = rhs.fd;
         this->copyHTTPRequest(rhs.httpRequest);
     }
