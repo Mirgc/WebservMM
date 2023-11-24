@@ -2,11 +2,13 @@
 #define EVENT_HANDLER_HPP
 #include <netinet/in.h>
 
+#include "VirtualHostServer.hpp"
+
 class Reactor;
 
 class EventHandler {
 public:
-    EventHandler(Reactor& reactor, int fd, struct sockaddr_in socketAddress);
+    EventHandler(Reactor& reactor, int fd, const VirtualHostServer & virtualHostServer, struct sockaddr_in socketAddress );
     EventHandler(const EventHandler & src);
     virtual ~EventHandler();
 
@@ -15,8 +17,9 @@ public:
     virtual void handleEvent() = 0;
 
 protected:
-    Reactor& reactor;
+    Reactor & reactor;
     int fd;
+    VirtualHostServer virtualHostServer;
     struct sockaddr_in socketAddress;
 };
 

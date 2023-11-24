@@ -65,10 +65,14 @@ void VirtualHostServer::listen() {
     std::cout << "Registering event (fd = " << listenSocket << ")...AcceptConnectionEventHandler" << std::endl;
 
     // This handler will accept new connections to this Server/VirtualHost
-    EventHandler *acceptNewConnectionHandler = new AcceptConnectionEventHandler(reactor, listenSocket, Address);
+    EventHandler *acceptNewConnectionHandler = new AcceptConnectionEventHandler(reactor, listenSocket, *this, Address);
     reactor.registerEventHandler(listenSocket, acceptNewConnectionHandler);
 }
 
 struct sockaddr_in VirtualHostServer::getAddress(void) {
     return (Address);
+}
+
+unsigned int VirtualHostServer::getPort() const {
+    return this->config.getPort();
 }

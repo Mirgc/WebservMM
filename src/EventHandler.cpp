@@ -1,12 +1,12 @@
 #include "EventHandler.hpp"
 #include "Reactor.hpp"
 
-EventHandler::EventHandler(Reactor& reactor, int fd, struct sockaddr_in socketAddress):
-    reactor(reactor), fd(fd), socketAddress(socketAddress){
+EventHandler::EventHandler(Reactor& reactor, int fd, const VirtualHostServer & virtualHostServer, struct sockaddr_in socketAddress):
+    reactor(reactor), fd(fd), virtualHostServer(virtualHostServer), socketAddress(socketAddress) {
 }
 
 EventHandler::EventHandler(const EventHandler & src):
-    reactor(src.reactor), fd(src.fd) , socketAddress(src.socketAddress){
+    reactor(src.reactor), fd(src.fd), virtualHostServer(src.virtualHostServer), socketAddress(src.socketAddress){
 }
 
 EventHandler::~EventHandler() {}

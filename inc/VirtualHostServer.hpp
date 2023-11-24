@@ -12,8 +12,9 @@ public:
 
     VirtualHostServer & operator=(VirtualHostServer const & rhs);
 
-    void listen();
     struct sockaddr_in getAddress(void);
+    void            listen();
+    unsigned int    getPort() const;
 
 private:
     Reactor& reactor;
