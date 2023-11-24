@@ -14,6 +14,7 @@ public:
 
     struct sockaddr_in getAddress(void);
     void            listen();
+    void            stop();
     unsigned int    getPort() const;
 
 private:

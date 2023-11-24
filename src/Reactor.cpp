@@ -3,9 +3,11 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <errno.h>
 
 #include "Reactor.hpp"
 #include "EventHandler.hpp"
+#include "Log.hpp"
 
 Reactor *Reactor::instance = NULL;
 
@@ -32,6 +34,7 @@ void Reactor::runEventLoop() {
 
     // We will need to deal with ending this loop to free up and gracefully exit
     while (true) {
+        maxFd = 0;
         FD_ZERO(&readSet);
 
         // Collects all registered socket fds
@@ -43,12 +46,17 @@ void Reactor::runEventLoop() {
             }
         }
 
+        std::cout << std::endl << "select() is checking these fds: ";
+        Log::FD_PRINT(readSet);
+        Log::socketList("webserv");
+        std::cout << std::endl;
+
         // Checks whether any socket has data
         // TODO: Only one read or write per select per socket as requirement. We have to check writeSet also in select
         int numReady = select(maxFd + 1, &readSet, NULL, NULL, NULL);
 
         if (numReady == -1) {
-            std::cerr << "select() error" << std::endl;
+            std::cerr << "select() error with errno:" << errno << " ( " << strerror(errno) << " )" << std::endl;
             return;
         }
 
@@ -59,7 +67,7 @@ void Reactor::runEventLoop() {
                 int fd = it->first;
                 if (FD_ISSET(fd, &readSet)) {
                 
-                    std::cout << "Reactor socket (" << fd << ")with data..." << std::endl;
+                    std::cout << "Socket (" << fd << ") has data" << std::endl;
 
                     // Socket fd has data, disptach the event to the right handler
                     EventHandler* handler = it->second;
@@ -67,6 +75,8 @@ void Reactor::runEventLoop() {
                 }
             }
         }
+
+        deleteUnregisteredHandlers();
     }
 }
 
@@ -79,13 +89,44 @@ void Reactor::registerEventHandler(int fd, EventHandler* handler) {
 }
 
 void Reactor::unregisterEventHandler(int fd) {
+
+    std::cout << "Reactor unregistering socket (" << fd << ")" << std::endl;
+
     std::map<int, EventHandler*>::iterator it = fdHandlerMap.find(fd);
     if (it != fdHandlerMap.end()) {
-        // Removes the fd, EventHandler from the map
-        fdHandlerMap[fd] = NULL;
-        // Deletes the instance of the class EventHandler
-        delete it->second;
-        // Closes the fd
-        close(fd);
+        // Deferrs the deleting of EventHandler instance and closing of the socket
+        this->handlersToDelete.push_back(it->first);
     }
+    else
+    {
+        std::runtime_error("Reactor::unregisterEventHandler: Error unregistering handler.");
+    }
+}
+
+void Reactor::deleteUnregisteredHandlers() {
+
+    if (!handlersToDelete.size()) {
+        return ;
+    }
+
+    for (size_t i = 0; i < handlersToDelete.size(); ++i) {
+        if (handlersToDelete[i]) {
+            try {
+                std::map<int, EventHandler*>::iterator it = fdHandlerMap.find(handlersToDelete[i]);
+                if (it != fdHandlerMap.end()) {
+                    // Deletes the Event Handler instance
+                    delete it->second;
+                    // Closes the fd
+                    close(it->first);
+                    // Removes the fd, EventHandler from the map
+                    fdHandlerMap.erase(it);
+                }
+            }
+            catch (...) {
+                std::runtime_error("Reactor::deleteUnregisteredHandlers: Error deleting instance.");
+            }
+        }
+    }
+
+    handlersToDelete.clear();
 }

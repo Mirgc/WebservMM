@@ -2,6 +2,7 @@
 #define REACTOR_HPP
 
 #include <map>
+#include <vector>
 #include <utility>  // For std::pair
 #include <cstring>
 
@@ -21,6 +22,7 @@ public:
     void stopEventLoop();
     void registerEventHandler(int fd, EventHandler* handler);
     void unregisterEventHandler(int fd);
+    void deleteUnregisteredHandlers();
 
 private:
     Reactor();
@@ -29,6 +31,8 @@ private:
     Reactor & operator=(Reactor const & rhs);
     // Holds all registered event handlers <SocketFD, EventHandler>
     std::map<int, EventHandler*> fdHandlerMap;
+    // Garbage collector (indexed by fd) so that instances can unregister themselves on a deferred basis
+    std::vector<int> handlersToDelete;
 
     static Reactor *instance;
 };

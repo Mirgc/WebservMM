@@ -32,6 +32,9 @@ int startServer (void) {
     // the request to the right VirtualHostServer
     reactor->runEventLoop();
 
+	// Stops listening for new connections. Closes sockets
+	virtualHostServer1.stop();
+
 	return (0);
 }
 
