@@ -12,7 +12,8 @@ public:
 
     VirtualHostServer & operator=(VirtualHostServer const & rhs);
 
-    void listen();
+    void            listen();
+    unsigned int    getPort() const;
 
 private:
     Reactor& reactor;
