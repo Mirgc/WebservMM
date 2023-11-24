@@ -41,12 +41,7 @@ VirtualHostServer::VirtualHostServer(const VirtualHostServer & src) : reactor(sr
 	*this = src;
 }
 
-VirtualHostServer::~VirtualHostServer() {
-    if (listenSocket) {
-        close(listenSocket);
-        listenSocket = 0;
-    }
-}
+VirtualHostServer::~VirtualHostServer() {}
 
 VirtualHostServer& VirtualHostServer::operator=(const VirtualHostServer &rhs) {
 	if (this != &rhs) {
@@ -63,11 +58,21 @@ void VirtualHostServer::listen() {
         throw std::runtime_error("Failed to start listening on the socket");
     }
 
-    std::cout << "Registering event (fd = " << listenSocket << ")...AcceptConnectionEventHandler" << std::endl;
+    std::cout << "Registering event (fd = " << listenSocket << ") AcceptConnectionEventHandler" << std::endl;
 
     // This handler will accept new connections to this Server/VirtualHost
     EventHandler *acceptNewConnectionHandler = new AcceptConnectionEventHandler(reactor, listenSocket, *this);
     reactor.registerEventHandler(listenSocket, acceptNewConnectionHandler);
+}
+
+void VirtualHostServer::stop() {
+
+    std::cout << "VirtualHostServer::stop() closing the server socket!!" << std::endl;
+
+    if (listenSocket) {
+        close(listenSocket);
+        listenSocket = 0;
+    }
 }
 
 unsigned int VirtualHostServer::getPort() const {

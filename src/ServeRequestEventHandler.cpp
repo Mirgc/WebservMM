@@ -59,20 +59,16 @@ void ServeRequestEventHandler::handleEvent() {
     memset(&buffer[0], 0, BUFFER_SIZE);
     ssize_t bytesRead = recv(fd, buffer, BUFFER_SIZE, 0);
 
-    std::cout << std::endl << "ServeRequestEventHandler recv (fd = " << fd << ")(bytesRead = " << bytesRead << ")" << std::endl;
+    std::cout << std::endl << "ServeRequestEventHandler read data from (fd = " << fd << ") (bytesRead = " << bytesRead << ")" << std::endl;
     std::cout << buffer << std::endl;
 
     if (bytesRead == -1) {
         // Handle errors
         std::cout << "ServeRequestEventHandler error bytesRead -1" << std::endl;
     } else if (bytesRead == 0) {
-        // Connection closed?
-        std::cout << "ServeRequestEventHandler connection closed? bytesRead 0" << std::endl;
+        std::cout << "ServeRequestEventHandler connection closed by client" << std::endl;
         reactor.unregisterEventHandler(fd);
     } else {
-        // Process the received data, send responses back to the client here...
-        std::cout << "ServeRequestEventHandler bytesRead n, Sending response back" << std::endl;
-
         HTTPRequestFactory httpRequestFactory;
         this->httpRequest = httpRequestFactory.createHTTPRequest();
         if (!this->httpRequest) {
@@ -83,19 +79,16 @@ void ServeRequestEventHandler::handleEvent() {
         std::string response = httpResponse.getResponse();
 
         ssize_t bytesSent;
-        size_t totalBytesSent = 0;
 
-        // TODO: This is only an example. Remember that we can only write once to a socket per select per socket
-        // Still we need to control how much data has to be written, and how much data we have already wrote,
-        // so that next time the socket is ready to write, we write only the remaining data.
-        while (totalBytesSent < response.size())
-        {
-            bytesSent = send(fd, response.c_str(), response.size(), 0);
-            if (bytesSent <= 0)
-            {
-                break;
-            }
-            totalBytesSent += bytesSent;
+        bytesSent = send(fd, response.c_str(), response.size(), 0);
+
+        // Process the received data, send responses back to the client here...
+        std::cout << "ServeRequestEventHandler write data to client on (fd = " << fd << ") (bytesSent " << bytesSent << ")" << std::endl;
+        if (bytesSent < (ssize_t) response.size()) {
+            // TODO: This need proper implementation. Remember that we can only write once to a socket per select per socket
+            // Still we need to control how much data has to be written, and how much data we have already wrote,
+            // so that next time the socket is ready to write, we write only the remaining data.
+            throw std::runtime_error("ServeRequestEventHandler::handleEvent: Error, not yet implemented");
         }
     }
 }

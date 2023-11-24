@@ -13,6 +13,7 @@ public:
     VirtualHostServer & operator=(VirtualHostServer const & rhs);
 
     void            listen();
+    void            stop();
     unsigned int    getPort() const;
 
 private:

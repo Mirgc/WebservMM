@@ -41,7 +41,7 @@ void AcceptConnectionEventHandler::handleEvent() {
         throw std::runtime_error("Server failed to accept incoming connection from ADDRESS: ");// << inet_ntoa(socketAddress.sin_addr) << "; PORT: " << ntohs(socketAddress.sin_port));
     }
 
-    std::cout << "Registering event(fd = " << newSocketfd << ")...ServeRequestEventHandler" << std::endl;
+    std::cout << "Registering event(fd = " << newSocketfd << ") ServeRequestEventHandler" << std::endl;
 
     EventHandler *serveRequestEventHandler = new ServeRequestEventHandler(reactor, newSocketfd, this->virtualHostServer);
     reactor.registerEventHandler(newSocketfd, serveRequestEventHandler);
