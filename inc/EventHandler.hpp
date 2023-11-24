@@ -8,7 +8,7 @@ class Reactor;
 
 class EventHandler {
 public:
-    EventHandler(Reactor& reactor, int fd, const VirtualHostServer & virtualHostServer, struct sockaddr_in socketAddress );
+    EventHandler(Reactor& reactor, int fd, const VirtualHostServer & virtualHostServer);
     EventHandler(const EventHandler & src);
     virtual ~EventHandler();
 
@@ -20,7 +20,6 @@ protected:
     Reactor & reactor;
     int fd;
     VirtualHostServer virtualHostServer;
-    struct sockaddr_in socketAddress;
 };
 
 #endif

@@ -8,12 +8,12 @@
 #include "ServeRequestEventHandler.hpp"
 #include "Reactor.hpp"
 
-AcceptConnectionEventHandler::AcceptConnectionEventHandler(Reactor& reactor, int fd, const VirtualHostServer & virtualHostServer, struct sockaddr_in socketAddress)
-    : EventHandler(reactor, fd, virtualHostServer, socketAddress) {
+AcceptConnectionEventHandler::AcceptConnectionEventHandler(Reactor& reactor, int fd, const VirtualHostServer & virtualHostServer)
+    : EventHandler(reactor, fd, virtualHostServer) {
 }
 
 AcceptConnectionEventHandler::AcceptConnectionEventHandler(const AcceptConnectionEventHandler & src)
-    : EventHandler(src.reactor, src.fd, src.virtualHostServer, src.socketAddress) {
+    : EventHandler(src.reactor, src.fd, src.virtualHostServer) {
 }
 
 AcceptConnectionEventHandler::~AcceptConnectionEventHandler() {}
@@ -21,7 +21,6 @@ AcceptConnectionEventHandler::~AcceptConnectionEventHandler() {}
 AcceptConnectionEventHandler& AcceptConnectionEventHandler::operator=(const AcceptConnectionEventHandler &rhs) {
 	if (this != &rhs) {
         this->fd = rhs.fd;
-        this->socketAddress = rhs.socketAddress;
         this->virtualHostServer = rhs.virtualHostServer;
     }
 
@@ -30,10 +29,9 @@ AcceptConnectionEventHandler& AcceptConnectionEventHandler::operator=(const Acce
 
 void AcceptConnectionEventHandler::handleEvent() {
     unsigned int socketAddressSize;
+    struct sockaddr_in socketAddress;
 
-    socketAddress.sin_family = AF_INET;
-    socketAddress.sin_addr.s_addr = INADDR_ANY;
-    socketAddress.sin_port = htons(this->virtualHostServer.getPort());
+    socketAddress = this->virtualHostServer.getAddress();
 
     int newSocketfd = accept(fd, (sockaddr *)&socketAddress, &socketAddressSize);
     if (newSocketfd < 0)
@@ -43,6 +41,6 @@ void AcceptConnectionEventHandler::handleEvent() {
 
     std::cout << "Registering event(fd = " << newSocketfd << ")...ServeRequestEventHandler" << std::endl;
 
-    EventHandler *serveRequestEventHandler = new ServeRequestEventHandler(reactor, newSocketfd, this->virtualHostServer, socketAddress);
+    EventHandler *serveRequestEventHandler = new ServeRequestEventHandler(reactor, newSocketfd, this->virtualHostServer);
     reactor.registerEventHandler(newSocketfd, serveRequestEventHandler);
 }
