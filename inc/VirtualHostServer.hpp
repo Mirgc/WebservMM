@@ -12,6 +12,7 @@ public:
 
     VirtualHostServer & operator=(VirtualHostServer const & rhs);
 
+    struct sockaddr_in getAddress(void);
     void            listen();
     unsigned int    getPort() const;
 
@@ -19,6 +20,7 @@ private:
     Reactor& reactor;
     ServerConfig config;
     int listenSocket;
+    struct sockaddr_in Address;
 };
 
 #endif

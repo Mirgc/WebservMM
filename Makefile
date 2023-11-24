@@ -4,7 +4,7 @@ NAME_SAN 	= webserv_sanitized
 CC		= c++
 
 SAN 	= -fsanitize=address -g3
-CFLAGS 	= -Wall -Werror -Wextra -std=c++98 --pedantic -MD
+CFLAGS 	= -Wall -Werror -Wextra -std=c++98 --pedantic -MD -g3
 RM 		= rm -rf
 
 SRCS_MAIN = ./
