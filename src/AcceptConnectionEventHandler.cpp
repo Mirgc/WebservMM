@@ -28,12 +28,10 @@ AcceptConnectionEventHandler& AcceptConnectionEventHandler::operator=(const Acce
 }
 
 void AcceptConnectionEventHandler::handleEvent() {
-    struct sockaddr_in socketAddress;
     unsigned int socketAddressSize;
+    struct sockaddr_in socketAddress;
 
-    socketAddress.sin_family = AF_INET;
-    socketAddress.sin_addr.s_addr = INADDR_ANY;
-    socketAddress.sin_port = htons(this->virtualHostServer.getPort());
+    socketAddress = this->virtualHostServer.getAddress();
 
     int newSocketfd = accept(fd, (sockaddr *)&socketAddress, &socketAddressSize);
     if (newSocketfd < 0)

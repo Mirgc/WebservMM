@@ -6,7 +6,7 @@ EventHandler::EventHandler(Reactor& reactor, int fd, const VirtualHostServer & v
 }
 
 EventHandler::EventHandler(const EventHandler & src):
-    reactor(src.reactor), fd(src.fd), virtualHostServer(src.virtualHostServer) {
+    reactor(src.reactor), fd(src.fd), virtualHostServer(src.virtualHostServer){
 }
 
 EventHandler::~EventHandler() {}

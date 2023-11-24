@@ -14,7 +14,7 @@
 
 const int BUFFER_SIZE = 30720;
 
-ServeRequestEventHandler::ServeRequestEventHandler(Reactor& reactor, int fd, const VirtualHostServer & virtualHostServer)
+ServeRequestEventHandler::ServeRequestEventHandler(Reactor& reactor, int fd, const VirtualHostServer & virtualHostServer) 
     : EventHandler(reactor, fd, virtualHostServer), httpRequest(NULL) {
 }
 
