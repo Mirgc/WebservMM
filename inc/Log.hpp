@@ -2,6 +2,7 @@
 #define LOG_HPP
 
 #include <string>
+#include <sys/time.h>
 
 class Log
 {

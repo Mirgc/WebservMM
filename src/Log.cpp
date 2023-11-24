@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stdio.h>
 
 #include "Log.hpp"
 
@@ -60,7 +61,7 @@ void Log::socketList(const std::string& processFilter) {
 
     // Read and display socket information
     char buffer[256];
-    while (fgets(buffer, sizeof(buffer), lsofFile) != nullptr) {
+    while (fgets(buffer, sizeof(buffer), lsofFile) != NULL) {
         std::string line(buffer);
 
         // Filter by process name
