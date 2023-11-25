@@ -1,5 +1,6 @@
 #ifndef EVENT_HANDLER_HPP
-# define EVENT_HANDLER_HPP
+#define EVENT_HANDLER_HPP
+#include <netinet/in.h>
 
 #include "VirtualHostServer.hpp"
 

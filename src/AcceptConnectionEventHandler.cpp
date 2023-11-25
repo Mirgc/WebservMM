@@ -28,12 +28,10 @@ AcceptConnectionEventHandler& AcceptConnectionEventHandler::operator=(const Acce
 }
 
 void AcceptConnectionEventHandler::handleEvent() {
-    struct sockaddr_in socketAddress;
     unsigned int socketAddressSize;
+    struct sockaddr_in socketAddress;
 
-    socketAddress.sin_family = AF_INET;
-    socketAddress.sin_addr.s_addr = INADDR_ANY;
-    socketAddress.sin_port = htons(this->virtualHostServer.getPort());
+    socketAddress = this->virtualHostServer.getAddress();
 
     int newSocketfd = accept(fd, (sockaddr *)&socketAddress, &socketAddressSize);
     if (newSocketfd < 0)
@@ -41,7 +39,7 @@ void AcceptConnectionEventHandler::handleEvent() {
         throw std::runtime_error("Server failed to accept incoming connection from ADDRESS: ");// << inet_ntoa(socketAddress.sin_addr) << "; PORT: " << ntohs(socketAddress.sin_port));
     }
 
-    std::cout << "Registering event(fd = " << newSocketfd << ")...ServeRequestEventHandler" << std::endl;
+    std::cout << "Registering event(fd = " << newSocketfd << ") ServeRequestEventHandler" << std::endl;
 
     EventHandler *serveRequestEventHandler = new ServeRequestEventHandler(reactor, newSocketfd, this->virtualHostServer);
     reactor.registerEventHandler(newSocketfd, serveRequestEventHandler);
