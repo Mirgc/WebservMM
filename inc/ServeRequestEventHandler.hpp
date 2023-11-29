@@ -4,7 +4,10 @@
 class Reactor;
 
 #include "EventHandler.hpp"
-#include "HTTPRequest.hpp"
+#include "HTTPRequestStatus.hpp"
+#include "HTTPResponse.hpp"
+
+class HTTPRequest;
 
 class ServeRequestEventHandler: public EventHandler {
 public:
@@ -19,9 +22,21 @@ public:
 private:
 
     HTTPRequest *httpRequest;
+    t_http_request_status requestStatus;
+    ssize_t bytesRead;
+    HTTPResponse httpResponse;
 
     void copyHTTPRequest(HTTPRequest * src);
     void freeHTTPRequest();
+    bool isRequestHeaderFullyRead();
+    bool isRequestBodyFullyRead();
+    bool isRequestFullyRead();
+    bool isRequestFullySent();
+    void setRequestStatus(t_http_request_status requestStatus);
+    void processRequest();
+    void sendResponse();
+    void confirmRequestClosedByClient();
+    void readRequest();
 };
 
 #endif
