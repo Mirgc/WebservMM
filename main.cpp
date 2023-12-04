@@ -50,10 +50,10 @@ int main(int argc, char **argv){
 			else{
 				configFile=("./httpd.conf");
 			}
+			// ## PARSE INTEGRATION IN PROGRESS ##
 			LocationParse parse;
 			parse.checkFile(configFile);
 			parse.getNextLocation();
-			parse.addParsedLocations();
 			parse.getParsedLocations();
 		}
 		catch (std::exception &e){
