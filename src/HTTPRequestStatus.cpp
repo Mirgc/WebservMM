@@ -64,6 +64,7 @@ std::string HTTPRequestStatus::toString(t_http_request_status status) {
     }
 
 	std::runtime_error("HTTPRequestStatus::toString trying to print an invalid status.");
+	return std::string();
 }
 
 HTTPRequestStatus::operator std::string() {
