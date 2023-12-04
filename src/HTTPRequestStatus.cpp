@@ -61,9 +61,9 @@ std::string HTTPRequestStatus::toString(t_http_request_status status) {
 	case REQUEST_STATUS_CLOSED_ERROR:
 		return "REQUEST_STATUS_CLOSED_ERROR";
 		break;
-    default:
-		std::runtime_error("HTTPRequestStatus::toString trying to print an invalid status.");
     }
+
+	std::runtime_error("HTTPRequestStatus::toString trying to print an invalid status.");
 }
 
 HTTPRequestStatus::operator std::string() {
