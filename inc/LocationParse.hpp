@@ -4,12 +4,13 @@
 #include <algorithm>
 #include <iostream>
 #include <vector>
+#include <map>
 #include "ConfigFileParser.hpp"
 #include "LocationConfig.hpp"
 
 class LocationParse: public ConfigFileParser{
 
-	private:
+	protected:
 		std::string   		     		_ServerName;
 		std::vector<std::string>    	_ProcesingLocation;
 		std::vector<LocationConfig>  	_ParsedLocations;
@@ -29,6 +30,7 @@ class LocationParse: public ConfigFileParser{
 		void setServerName(std::string const &ServerName);
 		void setParsedLocations(std::vector<std::string> const & ProcesingLocation);
 		void setParsedLocations(std::vector<LocationConfig>  const & ParsedLocation);
+		void setServerCfg(std::vector<std::string> const & serverCfg);
 		
 		// add one to vector
 		void addParsedLocations(std::string const & ProcesingLocation);
@@ -39,8 +41,6 @@ class LocationParse: public ConfigFileParser{
 		// Process RAW data vector and add a copy from LocationConfig filled instance 
 		void addParsedLocations(void);
 		
-		// trim " }\n\r\t\f\v{" from string
-		std::string trim(const std::string &s);
 
 		// check if specific string is in vector
 		bool isStrInVector(const std::string &s, std::vector<std::string> const & vector);
@@ -52,7 +52,7 @@ class LocationParse: public ConfigFileParser{
 		bool isValidPath(const std::string str);
 		
 		// return a new sting vector contructed from an array
-		std::vector<std::string> fillInVector(std::string *Keys);
+		// std::vector<std::string> fillInVector(std::string *Keys);
 };
 
 #endif

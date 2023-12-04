@@ -3,6 +3,7 @@
 #include "Reactor.hpp"
 #include "ServerConfig.hpp"
 #include "HTTPHeader.hpp"
+#include "LocationParse.hpp"
 
 int startServer (void) {
     // Create an Reactor to dispatch events
@@ -13,6 +14,7 @@ int startServer (void) {
     // Pass the VirtualHostConfig class here
 	ServerConfig serverConfig1;
 	serverConfig1.setPort(8080);
+
     VirtualHostServer virtualHostServer1(*reactor, serverConfig1);
     // As well as start litening the VirtualHostServer registers its socket with the Reactor.
     virtualHostServer1.listen();
@@ -48,8 +50,11 @@ int main(int argc, char **argv){
 			else{
 				configFile=("./httpd.conf");
 			}
-			ConfigFileParser parse;
+			LocationParse parse;
 			parse.checkFile(configFile);
+			parse.getNextLocation();
+			parse.addParsedLocations();
+			parse.getParsedLocations();
 		}
 		catch (std::exception &e){
 			std::cerr << e.what() << std::endl;
