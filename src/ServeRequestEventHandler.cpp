@@ -27,7 +27,7 @@ const int BUFFER_SIZE = 30720;
 ServeRequestEventHandler::ServeRequestEventHandler(Reactor& reactor, int fd, const VirtualHostServer & virtualHostServer) 
     : EventHandler(reactor, fd, virtualHostServer) {
     this->httpRequest = NULL;
-    this->requestStatus = REQUEST_STATUS_WAITING;
+    this->setRequestStatus(REQUEST_STATUS_WAITING);
     this->bytesRead = 0;
 }
 
@@ -73,12 +73,9 @@ ServeRequestEventHandler& ServeRequestEventHandler::operator=(const ServeRequest
 
 void ServeRequestEventHandler::handleEvent() {
 
-    // TODO: This is temporary. If multiple reads in different select calls, buffer
-    // should be concatenated.
-    char buffer[BUFFER_SIZE];
-    memset(&buffer[0], 0, BUFFER_SIZE);
+    std::cout << "ServeRequestEventHandler::handleEvent() (fd = " << fd << ") (request status: " << (std::string)this->requestStatus << ")" << std::endl;
 
-    switch(this->requestStatus) {
+    switch(this->requestStatus.getStatus()) {
         case REQUEST_STATUS_WAITING:
             this->setRequestStatus(REQUEST_STATUS_READING_HEADERS);
         case REQUEST_STATUS_READING_HEADERS:
@@ -87,7 +84,7 @@ void ServeRequestEventHandler::handleEvent() {
             // Can headers be sent in multiple chunks?
             // Check the RFC
             // Headers are separated by a blank line from the body
-            this->readRequest();
+            this->readOrCloseRequest();
 
             if (!this->isRequestHeaderFullyRead()) {
                 // let this call go. Select will call again and will go straight to REQUEST_STATUS_READING_BODY
@@ -120,7 +117,7 @@ void ServeRequestEventHandler::handleEvent() {
             this->setRequestStatus(REQUEST_STATUS_SENDING);
 
             // TODO: Commented out until we implement writing sockets!
-            // break;
+            break;
 
         case REQUEST_STATUS_SENDING:
             this->sendResponse();
@@ -133,7 +130,10 @@ void ServeRequestEventHandler::handleEvent() {
             break;
 
         case REQUEST_STATUS_SENDING_COMPLETE:
-            this->readRequest();
+            // TODO: We have to control here connection keep alive. That would do for now
+            // until we have the headers
+            this->readOrCloseRequest();
+            break;
 
         case REQUEST_STATUS_CLOSED_OK:
             break;
@@ -173,7 +173,8 @@ void ServeRequestEventHandler::setRequestStatus(t_http_request_status requestSta
     // TODO: We can check here that the current status is a valid status to move from
     // to the new status.
     // for instance we should not jump from waiting, to sending, because we havent read the request!
-    this->requestStatus = requestStatus;
+    this->requestStatus.setStatus(requestStatus);
+    std::cout << "ServeRequestEventHandler::setRequestStatus on (fd = " << fd << ") to status " << (std::string)this->requestStatus << std::endl;
 }
 
 void ServeRequestEventHandler::processRequest() {
@@ -205,30 +206,43 @@ void ServeRequestEventHandler::sendResponse() {
     }
 }
 
-void ServeRequestEventHandler::readRequest() {
+void ServeRequestEventHandler::readOrCloseRequest() {
+    // TODO: This buffer is local to this function, because we do not do anything with it quite yet
+    // But would need to be moved to a class property, so that multiple reads will concatenate to
+    // the class buffer containing the whole request read.
     char buffer[BUFFER_SIZE];
+    memset(&buffer, 0, BUFFER_SIZE);
+
+    std::cout << "ServeRequestEventHandler reading data from (fd = " << fd << ")" << std::endl;
 
     bytesRead = recv(fd, buffer, BUFFER_SIZE, 0);
+    std::cout << "ServeRequestEventHandler read data from (fd = " << fd << ") (bytesRead = " << bytesRead << ")" << std::endl;
 
-    std::cout << std::endl << "ServeRequestEventHandler read data from (fd = " << fd << ") (bytesRead = " << bytesRead << ")" << std::endl;
-    std::cout << buffer << std::endl;
     if (bytesRead == -1) {
         this->setRequestStatus(REQUEST_STATUS_CLOSED_ERROR);
         std::runtime_error("ServeRequestEventHandler error bytesRead -1");
     } else if (bytesRead == 0) {
-        std::cout << "ServeRequestEventHandler unexpected connection closed by client" << std::endl;
-        reactor.unregisterEventHandler(fd);
-    }
-}
-
-void ServeRequestEventHandler::confirmRequestClosedByClient() {
-    char buffer[1];
-    ssize_t bytesRead = recv(fd, buffer, 1, 0);
-    if (bytesRead == 0) {
-        std::cout << "ServeRequestEventHandler connection closed by client" << std::endl;
+        if (this->requestStatus.getStatus() == REQUEST_STATUS_SENDING_COMPLETE) {
+            // Normal closure of a connection
+            this->setRequestStatus(REQUEST_STATUS_CLOSED_OK);
+            std::cout << "ServeRequestEventHandler connection closed by client" << std::endl;
+        } else {
+            this->setRequestStatus(REQUEST_STATUS_CLOSED_ERROR);
+            std::cout << "ServeRequestEventHandler unexpected connection closed by client" << std::endl;
+        }
         reactor.unregisterEventHandler(fd);
     } else {
-        this->setRequestStatus(REQUEST_STATUS_CLOSED_ERROR);
-        std::runtime_error("ServeRequestEventHandler error confirmRequestClosedByClient no data expected.");
+        std::cout << buffer << std::endl;
+
+        if (this->requestStatus.getStatus() == REQUEST_STATUS_SENDING_COMPLETE) {
+            // TODO: The connection is probably a keep alive connection. It is now being reused.
+            // We have to deal properly with keep alive connection.
+            // This is a temporal workaround
+            // TODO: We are not controlling here the reading in chunks!!! This is just a workaround
+            //until we have the headers and implement keep alive properly
+            std::cout << "ServeRequestEventHandler connection has been reused as a keep-alive (fd = " << fd << ")." << std::endl;
+            this->setRequestStatus(REQUEST_STATUS_PROCESSING);
+            this->handleEvent();
+        }
     }
 }
