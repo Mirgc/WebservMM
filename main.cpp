@@ -39,7 +39,7 @@ int startServer (void) {
 }
 
 int main(int argc, char **argv){
-	/*if (argc <= 2){
+	if (argc <= 2){
 		try{
 			std::string configFile;
 			if (argc == 2){
@@ -60,11 +60,5 @@ int main(int argc, char **argv){
 		std::cout << "ERROR: Wrong parameters." << std::endl;
 		return (1);
 	}
-	return (startServer());*/
-	(void) argc;
-	(void) argv;
-	HTTPHeader a;
-
-	a.parseHTTPHeader ("   		Hola     Hola HTTP/1.1\n     Primero     :          			\n\r\n\r");
-	a.printHeader();
+	return (startServer());
 }

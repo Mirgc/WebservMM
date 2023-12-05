@@ -68,8 +68,6 @@ bool HTTPHeader::checkMethod(void) const
 	return false;
 }
 
-void	HTTPHeader::insertBody(std::isstringstream)
-
 void HTTPHeader::parseHTTPHeader(const std::string &request)
 {
 	std::istringstream iss(request);
@@ -86,7 +84,6 @@ void HTTPHeader::parseHTTPHeader(const std::string &request)
 
 	while (std::getline(iss, line))
 	{
-		// Analizar la primera línea para obtener el método y la URL
 		line = rtrim(ltrim(line));
 		size_t pos = line.find(':');
 		if (pos != std::string::npos && pos > 0 && pos < line.length() - 1)
@@ -100,8 +97,9 @@ void HTTPHeader::parseHTTPHeader(const std::string &request)
 			if (line.compare(""))
 				std::cout << "Mala descripcion" << std::endl;
 			else
-				
-				std::cout << "checkbody" << std::endl;
+				//Aqui hemos encontrado una linea vacia, por lo que asumimos que empieza el boy;
+				//std::cout << "Checkbody" << std::endl;
+				return;
 		}
 	}
 }
