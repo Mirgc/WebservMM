@@ -3,6 +3,7 @@
 #include "Reactor.hpp"
 #include "ServerConfig.hpp"
 #include "HTTPHeader.hpp"
+#include "HTTPMethod.hpp"
 
 int startServer (void) {
     // Create an Reactor to dispatch events
@@ -13,6 +14,11 @@ int startServer (void) {
     // Pass the VirtualHostConfig class here
 	ServerConfig serverConfig1;
 	serverConfig1.setPort(8080);
+
+	// Example location with an allowed http method
+	LocationConfig location1;
+	// TODO: Once ready ... location1.addAllowedMethod(HTTP_METHOD_GET);
+	serverConfig1.setLocation(location1);
     VirtualHostServer virtualHostServer1(*reactor, serverConfig1);
     // As well as start litening the VirtualHostServer registers its socket with the Reactor.
     virtualHostServer1.listen();
