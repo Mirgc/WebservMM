@@ -22,7 +22,7 @@ public:
 private:
 
     HTTPRequest *httpRequest;
-    t_http_request_status requestStatus;
+    HTTPRequestStatus requestStatus;
     ssize_t bytesRead;
     HTTPResponse httpResponse;
 
@@ -35,8 +35,7 @@ private:
     void setRequestStatus(t_http_request_status requestStatus);
     void processRequest();
     void sendResponse();
-    void confirmRequestClosedByClient();
-    void readRequest();
+    void readOrCloseRequest();
 };
 
 #endif

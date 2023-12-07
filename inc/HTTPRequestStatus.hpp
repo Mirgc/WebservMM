@@ -27,4 +27,22 @@ typedef enum e_http_request_status
     REQUEST_STATUS_CLOSED_ERROR = 8
 } t_http_request_status;
 
+class HTTPRequestStatus {
+public:
+    HTTPRequestStatus();
+    HTTPRequestStatus(const HTTPRequestStatus & src);
+    virtual ~HTTPRequestStatus();
+
+    HTTPRequestStatus & operator=(HTTPRequestStatus const & rhs);
+    operator std::string();
+    std::string toString(t_http_request_status status);
+
+    t_http_request_status getStatus();
+    void setStatus(t_http_request_status status);
+
+private:
+
+    t_http_request_status status;
+};
+
 #endif

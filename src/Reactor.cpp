@@ -30,17 +30,20 @@ Reactor& Reactor::operator=(const Reactor &rhs) {
 
 void Reactor::runEventLoop() {
     fd_set readSet;
+    fd_set writeSet;
     int maxFd = 0;
 
     // We will need to deal with ending this loop to free up and gracefully exit
     while (true) {
         maxFd = 0;
         FD_ZERO(&readSet);
+        FD_ZERO(&writeSet);
 
         // Collects all registered socket fds
         for (std::map<int, EventHandler*>::iterator it = fdHandlerMap.begin(); it != fdHandlerMap.end(); ++it) {
             int fd = it->first;
             FD_SET(fd, &readSet);
+            FD_SET(fd, &writeSet);
             if (fd > maxFd) {
                 maxFd = fd;
             }
@@ -53,7 +56,7 @@ void Reactor::runEventLoop() {
 
         // Checks whether any socket has data
         // TODO: Only one read or write per select per socket as requirement. We have to check writeSet also in select
-        int numReady = select(maxFd + 1, &readSet, NULL, NULL, NULL);
+        int numReady = select(maxFd + 1, &readSet, &writeSet, NULL, NULL);
 
         if (numReady == -1) {
             std::cerr << "select() error with errno:" << errno << " ( " << strerror(errno) << " )" << std::endl;
@@ -65,9 +68,15 @@ void Reactor::runEventLoop() {
             // Elements can get deleted from the map as we loop through it. Find a better solution
             for (std::map<int, EventHandler*>::iterator it = fdHandlerMap.begin(); it != fdHandlerMap.end(); ++it) {
                 int fd = it->first;
-                if (FD_ISSET(fd, &readSet)) {
+                if (FD_ISSET(fd, &readSet) || FD_ISSET(fd, &writeSet)) {
                 
-                    std::cout << "Socket (" << fd << ") has data" << std::endl;
+                    if (FD_ISSET(fd, &readSet)) {
+                        std::cout << std::endl << "Socket (" << fd << ") is ready to read data" << std::endl;
+                    } else if (FD_ISSET(fd, &writeSet)) {
+                        std::cout << std::endl << "Socket (" << fd << ") is ready to write data" << std::endl;
+                    } else {
+                        std::runtime_error("Reactor::runEventLoop not read ready nor write ready. Internal error!");
+                    }                    
 
                     // Socket fd has data, disptach the event to the right handler
                     EventHandler* handler = it->second;
