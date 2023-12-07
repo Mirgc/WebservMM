@@ -39,7 +39,7 @@ void LocationParse::setServerName(std::string const &ServerName){
  	this->_ServerName = ServerName;
 }
 
-void LocationParse::setParsedLocations(std::vector<std::string> const &_ProcesingLocation){
+void LocationParse::setProcesingLocations(std::vector<std::string> const &_ProcesingLocation){
  	this->_ProcesingLocation = _ProcesingLocation;
 }
 
@@ -47,7 +47,7 @@ void LocationParse::setParsedLocations(std::vector<LocationConfig> const &Parsed
  	this->_ParsedLocations = ParsedLocations;
 }
 
-void LocationParse::addParsedLocations(std::string const &ProcesingLocation){
+void LocationParse::addProcesingLocations(std::string const &ProcesingLocation){
  	this->_ProcesingLocation.push_back(ProcesingLocation);
 }
 
@@ -107,13 +107,13 @@ void LocationParse::getNextLocation(void){
 		if (this->_ProcesingLocation.empty() or scope != 0)
 				throw ParseException("No locations at file or bad scopes");
 		else{
-			this->addParsedLocations();
+			this->ParseLocations();
 		}
 	}
 }
 
 // Process RAW data vector and return a new vector of pointers to LocationConfig instances
-void LocationParse::addParsedLocations(void){
+void LocationParse::ParseLocations(void){
 	std::vector<std::string>::iterator start;
 	std::vector<std::string>::iterator end;
 	std::vector<std::string>::iterator it;

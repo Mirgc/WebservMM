@@ -28,18 +28,18 @@ class LocationParse: public ConfigFileParser{
 		std::vector<LocationConfig>  const & getParsedLocations(void) const;
 
 		void setServerName(std::string const &ServerName);
-		void setParsedLocations(std::vector<std::string> const & ProcesingLocation);
+		void setProcesingLocations(std::vector<std::string> const & ProcesingLocation);
 		void setParsedLocations(std::vector<LocationConfig>  const & ParsedLocation);
 		void setServerCfg(std::vector<std::string> const & serverCfg);
 		
 		// add one to vector
-		void addParsedLocations(std::string const & ProcesingLocation);
+		void addProcesingLocations(std::string const & ProcesingLocation);
 		void addParsedLocations(LocationConfig const & ParsedLocation);
 
 		// Get all locations form ConfigFileParser class _serverConfig to process it
 		void getNextLocation(void);
 		// Process RAW data vector and add a copy from LocationConfig filled instance 
-		void addParsedLocations(void);
+		void ParseLocations(void);
 		
 
 		// check if specific string is in vector
