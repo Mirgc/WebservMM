@@ -36,8 +36,8 @@ const std::string & LocationConfig::getCfgValueFrom(std::string const & Key){
 		it != this->getUploadCfg().end(); ++it){
 		if ((*it).first == Key)
 			return ((*it).second);
-		return (Key);
 	}
+	return (Key);
 }
 
 // setters
