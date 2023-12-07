@@ -1,5 +1,6 @@
 #include "LocationConfig.hpp"
 
+// Constructors
 LocationConfig::LocationConfig(void){
 
 }
@@ -19,22 +20,36 @@ LocationConfig& LocationConfig::operator=(const LocationConfig &rhs){
 	return (*this);
 }
 
+// get location Upload Path
 const std::string & LocationConfig::getUploadPath(void) const{
 	return(this->_UploadPath);
 }
 
+// get all cfg vector<pair> key.first value.second
 const std::vector<std::pair<std::string, std::string> > & LocationConfig::getUploadCfg(void) const{
 	return(this->_UploadCfg);
 }
 
+// get specific cfg value by name 
+const std::string & LocationConfig::getCfgValueFrom(std::string const & Key){
+	for(std::vector<std::pair<std::string, std::string> >::const_iterator it = this->getUploadCfg().begin();
+		it != this->getUploadCfg().end(); ++it){
+		if ((*it).first == Key)
+			return ((*it).second);
+	}
+	return (Key);
+}
+
+// setters
 void LocationConfig::setUploadPath(std::string const &UploadPath){
 	this->_UploadPath = UploadPath;
 }
 
-void LocationConfig::setUploadCfg(std::pair<std::string, std::string> &pair){
+void LocationConfig::setUploadCfg(std::pair<std::string, std::string> const &pair){
 	this->_UploadCfg.push_back(pair);
 }
 
+// print all cfg vector<pair> key.first value.second if needed to debug
 std::ostream & operator<<(std::ostream & o, LocationConfig const & rhs){
 	std::cout << "Location" << " : " << rhs.getUploadPath() << std::endl;
 	std::cout << "KEY" << " : " << "VALUE" << std::endl;

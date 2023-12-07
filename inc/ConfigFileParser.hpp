@@ -8,12 +8,14 @@
 # include <fstream>
 # include <sstream>
 # include <vector>
+# include <map>
 
 class ConfigFileParser{
-	private:
-		std::string 			_fileContent;
-		std::vector<std::string>	_serverConfig;
-		size_t				_numServ;
+	protected:
+		std::string 								_fileContent;
+		std::vector<std::string>					_serverConfig;
+		std::map<int, std::vector<std::string> > 	_eachServer;
+		size_t										_numServ;
 
 	public:
 		ConfigFileParser();
@@ -22,7 +24,12 @@ class ConfigFileParser{
 		void checkFile(const std::string &fileName);
 		bool isEmptyFile(const std::string &fileName);
 		std::string removeCommentsWhiteLines(const std::string &fileName);
+		std::vector<std::string>  const & getServerCfg(void) const;
 		void splitServers();
+		void eachServerCfg();
+		
+		// trim " }\n\r\t\f\v{" from string
+		std::string trim(const std::string &s);
 
 		class ParseException : public std::exception
 		{
@@ -38,5 +45,7 @@ class ConfigFileParser{
 				virtual ~ParseException() throw() {}
 		};
 };
+
+std::ostream & operator<<(std::ostream & o, std::vector<std::string> const & rhs);
 
 #endif
