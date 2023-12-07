@@ -186,7 +186,7 @@ bool LocationParse::isUrlFormat(const std::string str){
 
 //test path STILL UNUSED!!!
 bool LocationParse::isValidPath(const std::string str){
-  std::ifstream ifs(str);
+  std::ifstream ifs(str.c_str());
 
   if (ifs.is_open()) {
 	ifs.close();
