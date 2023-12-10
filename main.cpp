@@ -14,12 +14,13 @@ int startServer (void) {
     // We will have one socket listening for new connections for this server
     // Pass the VirtualHostConfig class here
 	ServerConfig serverConfig1;
-	serverConfig1.setPort(8080);
+	serverConfig1.addListenedPorts(8080);
+	serverConfig1.setPort(serverConfig1.getPortAt(0));
 
 	// Example location with an allowed http method
 	LocationConfig location1;
 	// TODO: Once ready ... location1.addAllowedMethod(HTTP_METHOD_GET);
-	serverConfig1.setLocation(location1);
+	serverConfig1.addLocation(location1);
     VirtualHostServer virtualHostServer1(*reactor, serverConfig1);
     // As well as start litening the VirtualHostServer registers its socket with the Reactor.
     virtualHostServer1.listen();

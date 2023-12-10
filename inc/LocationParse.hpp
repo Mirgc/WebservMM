@@ -7,6 +7,7 @@
 #include <map>
 #include "ConfigFileParser.hpp"
 #include "LocationConfig.hpp"
+#include "ServerConfig.hpp"
 
 class LocationParse: public ConfigFileParser{
 
@@ -14,6 +15,7 @@ class LocationParse: public ConfigFileParser{
 		std::string   		     		_ServerName;
 		std::vector<std::string>    	_ProcesingLocation;
 		std::vector<LocationConfig>  	_ParsedLocations;
+		std::vector<ServerConfig>  		_ParsedCfgs;
 
 	public:
 		LocationParse(void);
@@ -39,7 +41,7 @@ class LocationParse: public ConfigFileParser{
 		// Get all locations form ConfigFileParser class _serverConfig to process it
 		void getNextLocation(void);
 		// Process RAW data vector and add a copy from LocationConfig filled instance 
-		void ParseLocations(void);
+		void ParseLocations(ServerConfig srvCfg);
 		
 
 		// check if specific string is in vector
@@ -50,7 +52,13 @@ class LocationParse: public ConfigFileParser{
 
 		// is a valid path?
 		bool isValidPath(const std::string str);
-		
+
+		std::vector<unsigned int> splitPorts(const std::string &s);
+
+		in_addr_t strToIp(const std::string ipString);
+
+		bool isDigitStr(std::string str);
+
 		// return a new sting vector contructed from an array
 		// std::vector<std::string> fillInVector(std::string *Keys);
 };

@@ -68,6 +68,7 @@ void LocationParse::getNextLocation(void){
 	std::vector<std::string>::iterator end;
 	std::vector<std::string>::iterator it;
 	std::vector<std::string>::iterator itend;
+	ServerConfig srvCfg = ServerConfig();
 	int scope = 0;
 	
 	final = this->_eachServer.end();
@@ -76,14 +77,41 @@ void LocationParse::getNextLocation(void){
 		
 		end = (*init).second.end();
 		for(start = (*init).second.begin(); start != end; start++){
+			// Listened Ports
+			if((*start).find("listen") != std::string::npos){
+				const std::string WHITESPACE = " \n\r\t\f\v";
+				srvCfg.setListenedPorts(this->splitPorts(trim((*start).substr((*start).find("listen")+6, std::string::npos))));
+			}
 			
+			// ServerConfig Host IP
+			if((*start).find("host") != std::string::npos and (*start).find("server_name") == std::string::npos){
+				const std::string WHITESPACE = " \n\r\t\f\v";
+				srvCfg.setHost(this->strToIp(trim((*start).substr((*start).find("host")+4, std::string::npos))));
+			}
+
 			// ServerName Parse to identify instance and possible ServerName exceptions
 			if((*start).find("server_name") != std::string::npos){
 				const std::string WHITESPACE = " \n\r\t\f\v";
 				this->_ServerName = trim((*start).substr((*start).find("server_name")+11, std::string::npos));
 				if (this->_ServerName.empty() or this->_ServerName.find_first_of(WHITESPACE) != std::string::npos)
 						throw ParseException("Invalid Server Name");
+				srvCfg.setServerName(this->_ServerName);
+			}
 
+			// Solve ip transform !!!!!!!!!!!
+
+			// ErrorPage Parse and some exceptions
+			if((*start).find("error_page") != std::string::npos){
+				std::string tmp;
+				std::string keyStr;
+				std::string value;
+				const std::string WHITESPACE = " \n\r\t\f\v";
+				tmp = trim((*start).substr((*start).find("error_page")+10, std::string::npos));
+				keyStr = tmp.substr(trim(tmp).find_first_not_of(WHITESPACE), trim(tmp).find_first_of(WHITESPACE));
+				value = trim(tmp.substr(trim(tmp).find_last_of(WHITESPACE), trim(tmp).find_last_not_of(WHITESPACE)));
+				if (!isDigitStr(keyStr) or !isValidPath(value))
+					throw ParseException("Invalid Server Name");
+				srvCfg.setErrorPageMap(atoi(keyStr.c_str()), value);
 			}
 
 			// Extract location scopes from ConfigFileParser class to processing vector
@@ -107,13 +135,13 @@ void LocationParse::getNextLocation(void){
 		if (this->_ProcesingLocation.empty() or scope != 0)
 				throw ParseException("No locations at file or bad scopes");
 		else{
-			this->ParseLocations();
+			this->ParseLocations(srvCfg);
 		}
 	}
 }
 
 // Process RAW data vector and return a new vector of pointers to LocationConfig instances
-void LocationParse::ParseLocations(void){
+void LocationParse::ParseLocations(ServerConfig srvCfg){
 	std::vector<std::string>::iterator start;
 	std::vector<std::string>::iterator end;
 	std::vector<std::string>::iterator it;
@@ -122,7 +150,7 @@ void LocationParse::ParseLocations(void){
 	// This list of valid CFG keys may increase as needed and we should discuss a possible value list.
 	std::string  Keys[] = { "proxy_pass", "method", "upload_enable", "upload_path",
 							"redirection", "docroot", "autoindex", "index" };
-	std::vector<std::string>  filledVector(Keys, Keys + sizeof(Keys)/sizeof(Keys[0]) );
+	std::vector<std::string>  filledVector(Keys, Keys + sizeof(Keys)/sizeof(Keys[0]));
 
 	std::string key;
 	std::string value;
@@ -151,7 +179,10 @@ void LocationParse::ParseLocations(void){
 		this->addParsedLocations(loc);
 		start++;
 	}
-
+	// include locations in ServerConfig instance
+	srvCfg.setLocation(this->_ParsedLocations);
+	// Add ServerConfig instance to ServerConfig vector
+	this->_ParsedCfgs.push_back(srvCfg);
 }
 
 // Is str in vector??
@@ -184,11 +215,11 @@ bool LocationParse::isUrlFormat(const std::string str){
 	return false;
 }
 
-//test path STILL UNUSED!!!
+//test path
 bool LocationParse::isValidPath(const std::string str){
   std::ifstream ifs(str.c_str());
 
-  if (ifs.is_open()) {
+  if (ifs.is_open()){
 	ifs.close();
 	return true;
   }
@@ -198,13 +229,82 @@ bool LocationParse::isValidPath(const std::string str){
 }
 
 // BAD METHOD !!!!!!!!?????? STILL UNUSED!!!
-std::vector<std::string> splitWords(const std::string &s) {
+std::vector<std::string> splitWords(const std::string &s){
     std::stringstream ss(s);
-    std::vector<std::string> words;
+    std::vector<std::string> phrase;
     std::string word;
 
     while (ss >> word)
-        words.push_back(word);
+        phrase.push_back(word);
 
-    return words;
+    return phrase;
+}
+
+// String ports to int vector ports
+std::vector<unsigned int> LocationParse::splitPorts(const std::string &s){
+    std::stringstream ss(s);
+    std::vector<unsigned int> listenedPorts;
+    unsigned int port;
+
+    while (ss >> port)
+		if(port > 0 and port < 65535)
+			listenedPorts.push_back(port);
+		else{
+			throw ParseException("Invalid Port");
+		}
+    return listenedPorts;
+}
+
+//NOT AUTHORIZED FUNCTION !!!!!!!! STILL UNUSED!!!
+// in_addr_t LocationParse::strToIp(const std::string ipString){ 
+//     in_addr_t ipAddress = inet_addr(ipString.c_str());
+
+//     if (ipAddress != INADDR_NONE)
+// 		throw ParseException("Error: La dirección IP no es válida.");
+// 	return ipAddress;
+// }
+
+// String to ip (in_addr_t) only 
+in_addr_t LocationParse::strToIp(const std::string ipString){
+    in_addr_t ipAddr = 0;
+    int shift = 24;
+
+    std::istringstream iss(ipString);
+    std::string token;
+
+    int validTokens = 0;
+
+    while (std::getline(iss, token, '.')){
+        // strTok to intTok
+        int intTok;
+        std::istringstream(token) >> intTok;
+
+        // Valid token??
+        if (intTok < 0 || intTok > 255)
+			throw ParseException("Error: Not valid IP address.");
+
+        // Add token to address
+        // ipAddr |= (static_cast<in_addr_t>(intTok) << shift);
+		// same as:
+		ipAddr = (ipAddr << shift) | static_cast<in_addr_t>(intTok);
+
+        // Move to next byte
+        shift -= 8;
+        validTokens++;
+    }
+
+    // Check 6gcvalid tokens
+    if (validTokens != 4)
+		throw ParseException("Error: Not valid IP address.");
+
+    return ipAddr;
+}
+
+bool LocationParse::isDigitStr(std::string str){
+
+	std::string::const_iterator it;
+	for(it = str.begin(); it!= str.end() && std::isdigit(*it); ++it);
+	if(it != str.end())
+		return false;
+	return true;
 }
