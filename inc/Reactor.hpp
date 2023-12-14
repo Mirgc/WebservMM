@@ -1,5 +1,5 @@
 #ifndef REACTOR_HPP
-#define REACTOR_HPP
+# define REACTOR_HPP
 
 #include <map>
 #include <vector>

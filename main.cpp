@@ -3,6 +3,7 @@
 #include "Reactor.hpp"
 #include "ServerConfig.hpp"
 #include "HTTPHeader.hpp"
+#include "LocationParse.hpp"
 #include "HTTPMethod.hpp"
 
 int startServer (void) {
@@ -40,7 +41,7 @@ int startServer (void) {
 
 	// Stops listening for new connections. Closes sockets
 	virtualHostServer1.stop();
-
+	delete reactor; // Careful if program exit and don't get here!!!!!!
 	return (0);
 }
 
@@ -54,8 +55,11 @@ int main(int argc, char **argv){
 			else{
 				configFile=("./httpd.conf");
 			}
-			ConfigFileParser parse;
+			// ## PARSE INTEGRATION IN PROGRESS ##
+			LocationParse parse;
 			parse.checkFile(configFile);
+			parse.getNextLocation();
+			parse.getParsedLocations();
 		}
 		catch (std::exception &e){
 			std::cerr << e.what() << std::endl;
