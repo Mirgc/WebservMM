@@ -62,10 +62,14 @@ std::string HTTPHeader::generateResponse(void) const
 
 bool HTTPHeader::checkMethod(void) const
 {
+	//t_http_method HttpMethod::getMethod(std::string method)
 	// Aqui vamos a revisar que la version es la correcta. Se podria revisar que el metodo fuera valido.
-	if (!this->ver.compare("HTTP/1.1"))
-		return true;
-	return false;
+	if (this->method.empty() || this->url.empty() || this->ver.empty() || this->ver.compare("HTTP/1.1") != 0)
+		return false;
+	const std::string allowedMethods[] = {"GET", "DELETE", "POST"};
+    const size_t numMethods = sizeof(allowedMethods) / sizeof(allowedMethods[0]);
+    // Verificar si this->method está en el array
+    return std::find(allowedMethods, allowedMethods + numMethods, this->method) != (allowedMethods + numMethods);
 }
 
 void HTTPHeader::parseHTTPHeader(const std::string &request)
@@ -78,18 +82,18 @@ void HTTPHeader::parseHTTPHeader(const std::string &request)
 	this->addMethod(line);
 	if (!this->checkMethod())
 	{
-		std::cout << "Not HTTP correct version" << std::endl;
+		std::cout << "Invalid HTTPRequest" << std::endl;
 		return; // Aqui habria que lanzar una excepcion
 	}
-
 	while (std::getline(iss, line))
 	{
 		line = rtrim(ltrim(line));
 		size_t pos = line.find(':');
-		if (pos != std::string::npos && pos > 0 && pos < line.length() - 1)
+		if (pos != std::string::npos && pos > 0 && pos < line.length() - 1) //ahora hay que ver si podemos meter vacio algo.
+		//que pasa si metemos dos iguales?
 		{
 			std::string key = line.substr(0, pos);
-			std::string value = line.substr(pos + 2); // +2 para omitir el ': ' después del encabezado
+			std::string value = line.substr(pos + 1); // +1 para omitir el ':' después del encabezado
 			this->addHeader(rtrim(key), ltrim(value)); // el rtrim(key), en la realidad, no se hace.
 		}
 		else
