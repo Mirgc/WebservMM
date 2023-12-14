@@ -23,14 +23,14 @@ HTTPHeader &HTTPHeader::operator=(HTTPHeader const &src)
 	return (*this);
 }
 
-std::string ltrim(std::string &s)
+std::string letrim(std::string &s)
 {
 	const std::string WHITESPACE = " \n\r\t";
 	size_t start = s.find_first_not_of(WHITESPACE);
 	return (start == std::string::npos) ? "" : s.substr(start);
 }
 
-std::string rtrim(const std::string &s)
+std::string ritrim(const std::string &s)
 {
 	const std::string WHITESPACE = " \n\r\t";
 	size_t end = s.find_last_not_of(WHITESPACE);
@@ -87,14 +87,14 @@ void HTTPHeader::parseHTTPHeader(const std::string &request)
 	}
 	while (std::getline(iss, line))
 	{
-		line = rtrim(ltrim(line));
+		line = ritrim(letrim(line));
 		size_t pos = line.find(':');
 		if (pos != std::string::npos && pos > 0 && pos < line.length() - 1) //ahora hay que ver si podemos meter vacio algo.
 		//que pasa si metemos dos iguales?
 		{
 			std::string key = line.substr(0, pos);
 			std::string value = line.substr(pos + 1); // +1 para omitir el ':' después del encabezado
-			this->addHeader(rtrim(key), ltrim(value)); // el rtrim(key), en la realidad, no se hace.
+			this->addHeader(ritrim(key), letrim(value)); // el rtrim(key), en la realidad, no se hace.
 		}
 		else
 		{
