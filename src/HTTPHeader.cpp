@@ -1,5 +1,6 @@
 #include "HTTPHeader.hpp"
 #include <sstream>
+#include <algorithm> 
 
 HTTPHeader::HTTPHeader(void)
 {
@@ -73,8 +74,14 @@ bool HTTPHeader::checkMethod(void) const
 		return false;
 	const std::string allowedMethods[] = {"GET", "DELETE", "POST"};
     const size_t numMethods = sizeof(allowedMethods) / sizeof(allowedMethods[0]);
+    bool ver = false;
     // Verificar si this->method está en el array
-	bool ver = std::find(allowedMethods, allowedMethods + numMethods, this->method) != (allowedMethods + numMethods);
+    for (size_t i = 0; i < numMethods; ++i) {
+        if (allowedMethods[i] == this->method) {
+            ver = true;
+            break; // Se encontró el método, salir del bucle
+        }
+    }
 	return ver;
 }
 
