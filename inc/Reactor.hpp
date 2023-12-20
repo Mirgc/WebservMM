@@ -6,6 +6,8 @@
 #include <utility>  // For std::pair
 #include <cstring>
 
+extern bool sC;  // Declaración de la variable global
+
 class EventHandler;
 
 // Official patter sugests makeing this a singleton to avoid having multiple instances of Reactor

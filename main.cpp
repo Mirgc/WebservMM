@@ -5,6 +5,7 @@
 #include "HTTPHeader.hpp"
 #include "LocationParse.hpp"
 #include "HTTPMethod.hpp"
+#include <signal.h>
 
 int startServer (void) {
     // Create an Reactor to dispatch events

@@ -24,11 +24,19 @@ const int BUFFER_SIZE = 30720;
 
 // - ServeRequestEventHandler: Check that a status can move from a valid previous one in setRequestStatus
 
+void ServeRequestEventHandler::manejadorSenal(int senal) {
+    std::cout << "Señal capturada: " << senal << ". Terminando el programa.\n";
+    sC = !sC;
+   // exit(senal);
+}
+
 ServeRequestEventHandler::ServeRequestEventHandler(Reactor& reactor, int fd, const VirtualHostServer & virtualHostServer) 
     : EventHandler(reactor, fd, virtualHostServer) {
     this->httpRequest = NULL;
     this->setRequestStatus(REQUEST_STATUS_WAITING);
     this->bytesRead = 0;
+    signal(SIGINT, manejadorSenal);
+	signal(SIGQUIT, manejadorSenal);
 }
 
 ServeRequestEventHandler::ServeRequestEventHandler(const ServeRequestEventHandler & src)

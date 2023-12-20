@@ -9,6 +9,8 @@
 #include "EventHandler.hpp"
 #include "Log.hpp"
 
+bool sC = true;
+
 Reactor *Reactor::instance = NULL;
 
 Reactor::Reactor() {}
@@ -28,13 +30,23 @@ Reactor& Reactor::operator=(const Reactor &rhs) {
 	return (*this);
 }
 
+extern void	ft_sig_handler(int signo)
+{
+	sC = !sC;
+    std::cout << "\n\n\n Estoy dentro de las senales \n\n\n";
+	(void) signo;
+}
+
 void Reactor::runEventLoop() {
     fd_set readSet;
     fd_set writeSet;
     int maxFd = 0;
 
+	signal(SIGINT, ft_sig_handler);
+	signal(SIGQUIT, ft_sig_handler);
+
     // We will need to deal with ending this loop to free up and gracefully exit
-    while (true) {
+    while (sC) {
         maxFd = 0;
         FD_ZERO(&readSet);
         FD_ZERO(&writeSet);
@@ -60,9 +72,8 @@ void Reactor::runEventLoop() {
 
         if (numReady == -1) {
             std::cerr << "select() error with errno:" << errno << " ( " << strerror(errno) << " )" << std::endl;
-            return;
+            break;
         }
-
         // Any with data?
         if (numReady > 0) {
             // Elements can get deleted from the map as we loop through it. Find a better solution
@@ -77,14 +88,12 @@ void Reactor::runEventLoop() {
                     } else {
                         std::runtime_error("Reactor::runEventLoop not read ready nor write ready. Internal error!");
                     }                    
-
                     // Socket fd has data, disptach the event to the right handler
                     EventHandler* handler = it->second;
                     handler->handleEvent();
                 }
             }
         }
-
         deleteUnregisteredHandlers();
     }
 }
