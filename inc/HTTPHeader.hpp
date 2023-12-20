@@ -20,7 +20,7 @@ class HTTPHeader
 		std::string ver;
 
 		void		addHeader(const std::string & value1, const std::string & value2);
-		void		addMethod(std::string line);
+		bool		addMethod(std::string line);
 		void		printHeader(void) const;
 		bool		checkMethod(void) const;
 

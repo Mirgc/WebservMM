@@ -37,10 +37,15 @@ std::string ritrim(const std::string &s)
 	return (end == std::string::npos) ? "" : s.substr(0, end + 1);
 }
 
-void HTTPHeader::addMethod(std::string line)
+bool HTTPHeader::addMethod(std::string line)
 {
 	std::istringstream lineStream(line);
 	lineStream >> this->method >> this->url >> this->ver;
+	std::string restoDelContenido;
+    std::getline(lineStream, restoDelContenido);
+	if (restoDelContenido[0] == '\0') // Si hay un espacio ni si quiera despues del 1.1, falla
+		return false;
+	return true;
 }
 // Could be null values?? if so, we can check value1 & value2  anf throw exception
 void HTTPHeader::addHeader(const std::string &value1, const std::string &value2)
@@ -69,7 +74,8 @@ bool HTTPHeader::checkMethod(void) const
 	const std::string allowedMethods[] = {"GET", "DELETE", "POST"};
     const size_t numMethods = sizeof(allowedMethods) / sizeof(allowedMethods[0]);
     // Verificar si this->method está en el array
-    return std::find(allowedMethods, allowedMethods + numMethods, this->method) != (allowedMethods + numMethods);
+	bool ver = std::find(allowedMethods, allowedMethods + numMethods, this->method) != (allowedMethods + numMethods);
+	return ver;
 }
 
 void HTTPHeader::parseHTTPHeader(const std::string &request)
@@ -79,8 +85,7 @@ void HTTPHeader::parseHTTPHeader(const std::string &request)
 	std::string tmp;
 
 	std::getline(iss, line);
-	this->addMethod(line);
-	if (!this->checkMethod())
+	if (this->addMethod(line) || !this->checkMethod())
 	{
 		std::cout << "Invalid HTTPRequest" << std::endl;
 		return; // Aqui habria que lanzar una excepcion
