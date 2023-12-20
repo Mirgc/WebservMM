@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <errno.h>
+#include <signal.h>
 
 #include "Reactor.hpp"
 #include "EventHandler.hpp"
