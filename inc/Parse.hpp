@@ -9,7 +9,7 @@
 #include "LocationConfig.hpp"
 #include "ServerConfig.hpp"
 
-class LocationParse: public ConfigFileParser{
+class Parse: public ConfigFileParser{
 
 	protected:
 		std::string   		     		_ServerName;
@@ -18,28 +18,31 @@ class LocationParse: public ConfigFileParser{
 		std::vector<ServerConfig>  		_ParsedCfgs;
 
 	public:
-		LocationParse(void);
-		LocationParse(LocationParse const & src);
-		~LocationParse(void);
+		Parse(void);
+		Parse(Parse const & src);
+		~Parse(void);
 
-		LocationParse & operator=(LocationParse const & rhs);
+		Parse & operator=(Parse const & rhs);
 
 		std::string const & getServerName(void) const;
 		std::vector<std::string>  const & getProcesingLocation(void) const;
 		// get full vector
 		std::vector<LocationConfig>  const & getParsedLocations(void) const;
+		const std::vector<ServerConfig> & getParsedCfgs(void) const;
+		const ServerConfig & getParsedCfgAt(const unsigned int pos) const;
 
 		void setServerName(std::string const &ServerName);
 		void setProcesingLocations(std::vector<std::string> const & ProcesingLocation);
 		void setParsedLocations(std::vector<LocationConfig>  const & ParsedLocation);
 		void setServerCfg(std::vector<std::string> const & serverCfg);
+		void setFullCfg(std::string const & configFile);
 		
 		// add one to vector
 		void addProcesingLocations(std::string const & ProcesingLocation);
 		void addParsedLocations(LocationConfig const & ParsedLocation);
 
-		// Get all locations form ConfigFileParser class _serverConfig to process it
-		void getNextLocation(void);
+		// Get all server config to process it
+		void getNextServer(void);
 		// Process RAW data vector and add a copy from LocationConfig filled instance 
 		void ParseLocations(ServerConfig srvCfg);
 		

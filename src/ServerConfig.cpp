@@ -25,6 +25,7 @@ ServerConfig::ServerConfig(const ServerConfig &copy)
                 this->_index = copy._index;
                 this->_errorPageMap = copy._errorPageMap;
                 this->_locations = copy._locations;
+                this->_listendPorts = copy._listendPorts;
 
         }
         return ;
@@ -42,6 +43,7 @@ ServerConfig &ServerConfig::operator=(const ServerConfig &obj)
                 this->_index = obj._index;
                 this->_errorPageMap = obj._errorPageMap;
                 this->_locations = obj._locations;
+                this->_listendPorts = obj._listendPorts;
         }
         return (*this);
 }
