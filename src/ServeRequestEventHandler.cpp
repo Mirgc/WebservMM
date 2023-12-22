@@ -179,7 +179,8 @@ void ServeRequestEventHandler::setRequestStatus(t_http_request_status requestSta
 
 void ServeRequestEventHandler::processRequest() {
     HTTPRequestFactory httpRequestFactory;
-    this->httpRequest = httpRequestFactory.createHTTPRequest();
+    // TODO: We have to pass both the HTTPHeaders and HTTPBody to the factory to propagate
+    this->httpRequest = httpRequestFactory.createHTTPRequest(/* HttpHeaders, HttpBody */);
     if (!this->httpRequest) {
         this->setRequestStatus(REQUEST_STATUS_CLOSED_ERROR);
         throw std::runtime_error("Error creating HTTPRequest from factory");
