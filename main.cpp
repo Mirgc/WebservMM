@@ -41,7 +41,7 @@ int startServer (void) {
 
 	// Stops listening for new connections. Closes sockets
 	virtualHostServer1.stop();
-
+	delete reactor; // Careful if program exit and don't get here!!!!!!
 	return (0);
 }
 
