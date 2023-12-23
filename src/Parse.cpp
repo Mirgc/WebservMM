@@ -35,6 +35,10 @@ const std::vector<LocationConfig>  & Parse::getParsedLocations(void) const{
 	return(this->_ParsedLocations);
 }
 
+const LocationConfig & Parse::getParsedLocationAt(const unsigned int pos) const{
+	return(this->_ParsedLocations.at(pos));
+}
+
 const std::vector<ServerConfig> & Parse::getParsedCfgs(void) const{
 	return(this->_ParsedCfgs);
 }
@@ -216,8 +220,10 @@ void Parse::ParseLocations(ServerConfig srvCfg){
 		while (start != itend){
 			key = (*start).substr(trim(*start).find_first_not_of(WHITESPACE), trim(*start).find_first_of(WHITESPACE));
 			value = trim((*start).substr(trim(*start).find_last_of(WHITESPACE), trim(*start).find_last_not_of(WHITESPACE)));
-			if(isStrInVector(key, filledVector))
+			if(isStrInVector(key, filledVector)){
+				valueValidation(key, value);
 				loc.setUploadCfg(std::make_pair(key, value));
+			}
 			else
 				throw ParseException("Syntax error near " + key);
 			start++;
@@ -232,6 +238,7 @@ void Parse::ParseLocations(ServerConfig srvCfg){
 	this->_ParsedCfgs.push_back(srvCfg);
 }
 
+// All cfg inizialitation secuence
 void Parse::setFullCfg(std::string const & configFile){
 	this->checkFile(configFile);
 	this->getNextServer();
@@ -353,6 +360,7 @@ in_addr_t Parse::strToIp(const std::string ipString){
     return ipAddr;
 }
 
+// check if a string has only digits
 bool Parse::isDigitStr(std::string str){
 
 	std::string::const_iterator it;
@@ -360,4 +368,24 @@ bool Parse::isDigitStr(std::string str){
 	if(it != str.end())
 		return false;
 	return true;
+}
+
+
+// Locations values validation
+// If the path or file does not exist, we throw an error or create it - DISCUSSSS!!!!!
+void Parse::valueValidation(std::string key, std::string value){
+	struct stat sb;
+
+	if (key == "proxy_pass" or key == "redirection")
+		if(!this->isUrlFormat(value))
+			throw ParseException("Error: Not Valid Location URL format => " + value);
+	if (key == "method")
+		if (value != "GET" and value != "POST" and value!="DELETE")
+			throw ParseException("Error: Not Valid Location Method => " + value);
+	if (key == "upload_enable" or key == "autoindex")
+		if (value != "on" and value != "off")
+			throw ParseException("Error: Not Valid "+ key +" => " + value);
+	if (key == "upload_path" or key == "docroot")
+		if (stat(value.c_str(), &sb) != 0)
+			throw ParseException("Error: Not Valid "+ key +" => " + value);
 }

@@ -26,8 +26,10 @@ class Parse: public ConfigFileParser{
 
 		std::string const & getServerName(void) const;
 		std::vector<std::string>  const & getProcesingLocation(void) const;
+
 		// get full vector
 		std::vector<LocationConfig>  const & getParsedLocations(void) const;
+		const LocationConfig & getParsedLocationAt(const unsigned int pos) const;
 		const std::vector<ServerConfig> & getParsedCfgs(void) const;
 		const ServerConfig & getParsedCfgAt(const unsigned int pos) const;
 
@@ -35,6 +37,8 @@ class Parse: public ConfigFileParser{
 		void setProcesingLocations(std::vector<std::string> const & ProcesingLocation);
 		void setParsedLocations(std::vector<LocationConfig>  const & ParsedLocation);
 		void setServerCfg(std::vector<std::string> const & serverCfg);
+
+		// All cfg inizialitation secuence
 		void setFullCfg(std::string const & configFile);
 		
 		// add one to vector
@@ -56,14 +60,18 @@ class Parse: public ConfigFileParser{
 		// is a valid path?
 		bool isValidPath(const std::string str);
 
+		// String ports to int vector ports
 		std::vector<unsigned int> splitPorts(const std::string &s);
 
+		// transform ip string into in_addr_t
 		in_addr_t strToIp(const std::string ipString);
 
+		// check if a string has only digits
 		bool isDigitStr(std::string str);
 
-		// return a new sting vector contructed from an array
-		// std::vector<std::string> fillInVector(std::string *Keys);
+		// Locations values validation
+		void valueValidation(std::string key, std::string value);
+
 };
 
 #endif
