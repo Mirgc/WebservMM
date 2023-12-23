@@ -131,11 +131,11 @@ void Parse::getNextServer(void){
 				srvCfg.setErrorPageMap(atoi(keyStr.c_str()), value);
 			}
 
-			// ClientMaxBodySize Parse and possible exceptions SET MAX?????
+			// ClientMaxBodySize Parse and possible exceptions SET MAX????? WHICH MAX????
 			if((*start).find("client_max_body_size") != std::string::npos){
 				const std::string WHITESPACE = " \n\r\t\f\v";
 				srvCfg.setClientMaxBodySize(atoi(trim((*start).substr((*start).find("client_max_body_size")+20, std::string::npos)).c_str()));
-				if (srvCfg.getClientMaxBodySize() < 0 or srvCfg.getClientMaxBodySize() > 1024)
+				if (srvCfg.getClientMaxBodySize() > 1024)
 						throw ParseException("Invalid client_max_body_size value");
 			}
 
