@@ -4,10 +4,11 @@
 #include "HTTPRequest.hpp"
 
 class HTTPResponse;
+class LocationConfig;
 
 class StaticFileHTTPRequest: public HTTPRequest {
 public:
-    StaticFileHTTPRequest();
+    StaticFileHTTPRequest(const LocationConfig & location);
     StaticFileHTTPRequest(const StaticFileHTTPRequest & src);
     ~StaticFileHTTPRequest();
 
