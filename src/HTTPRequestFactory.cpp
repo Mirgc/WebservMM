@@ -1,5 +1,7 @@
 #include "HTTPRequestFactory.hpp"
 #include "StaticFileHTTPRequest.hpp"
+#include "LocationConfig.hpp"
+#include "HTTPHeader.hpp"
 
 HTTPRequestFactory::HTTPRequestFactory() {}
 
@@ -25,5 +27,11 @@ HTTPRequest * HTTPRequestFactory::createHTTPRequest(/* parameters needed */) {
     // Upload request
     // Any other?
 
-    return (new StaticFileHTTPRequest());
+    // TODO: We need logic here to identify the right LocationConfig we have to serve from
+    LocationConfig location;
+    location.setUploadPath("/uploads");
+
+    HTTPHeader header;
+
+    return (new StaticFileHTTPRequest(location));
 }
