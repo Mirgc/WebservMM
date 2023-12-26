@@ -69,18 +69,22 @@ void Reactor::runEventLoop() {
             for (std::map<int, EventHandler*>::iterator it = fdHandlerMap.begin(); it != fdHandlerMap.end(); ++it) {
                 int fd = it->first;
                 if (FD_ISSET(fd, &readSet) || FD_ISSET(fd, &writeSet)) {
-                
-                    if (FD_ISSET(fd, &readSet)) {
-                        std::cout << std::endl << "Socket (" << fd << ") is ready to read data" << std::endl;
-                    } else if (FD_ISSET(fd, &writeSet)) {
-                        std::cout << std::endl << "Socket (" << fd << ") is ready to write data" << std::endl;
-                    } else {
-                        std::runtime_error("Reactor::runEventLoop not read ready nor write ready. Internal error!");
-                    }                    
 
                     // Socket fd has data, disptach the event to the right handler
                     EventHandler* handler = it->second;
-                    handler->handleEvent();
+                    if (!handler) {
+                        continue;
+                    }
+
+                    if (FD_ISSET(fd, &readSet)) {
+                        std::cout << std::endl << "Socket (" << fd << ") is ready to read data" << std::endl;
+                        handler->handleEvent(EVENT_HANDLER_TYPE_READ);
+                    } else if (FD_ISSET(fd, &writeSet)) {
+                        std::cout << std::endl << "Socket (" << fd << ") is ready to write data" << std::endl;
+                        handler->handleEvent(EVENT_HANDLER_TYPE_WRITE);
+                    } else {
+                        std::runtime_error("Reactor::runEventLoop not read ready nor write ready. Internal error!");
+                    }                    
                 }
             }
         }
