@@ -7,39 +7,48 @@
 #include <map>
 #include "ConfigFileParser.hpp"
 #include "LocationConfig.hpp"
+#include "ServerConfig.hpp"
 
-class LocationParse: public ConfigFileParser{
+class Parse: public ConfigFileParser{
 
 	protected:
 		std::string   		     		_ServerName;
 		std::vector<std::string>    	_ProcesingLocation;
 		std::vector<LocationConfig>  	_ParsedLocations;
+		std::vector<ServerConfig>  		_ParsedCfgs;
 
 	public:
-		LocationParse(void);
-		LocationParse(LocationParse const & src);
-		~LocationParse(void);
+		Parse(void);
+		Parse(Parse const & src);
+		~Parse(void);
 
-		LocationParse & operator=(LocationParse const & rhs);
+		Parse & operator=(Parse const & rhs);
 
 		std::string const & getServerName(void) const;
 		std::vector<std::string>  const & getProcesingLocation(void) const;
+
 		// get full vector
 		std::vector<LocationConfig>  const & getParsedLocations(void) const;
+		const LocationConfig & getParsedLocationAt(const unsigned int pos) const;
+		const std::vector<ServerConfig> & getParsedCfgs(void) const;
+		const ServerConfig & getParsedCfgAt(const unsigned int pos) const;
 
 		void setServerName(std::string const &ServerName);
 		void setProcesingLocations(std::vector<std::string> const & ProcesingLocation);
 		void setParsedLocations(std::vector<LocationConfig>  const & ParsedLocation);
 		void setServerCfg(std::vector<std::string> const & serverCfg);
+
+		// All cfg inizialitation secuence
+		void setFullCfg(std::string const & configFile);
 		
 		// add one to vector
 		void addProcesingLocations(std::string const & ProcesingLocation);
 		void addParsedLocations(LocationConfig const & ParsedLocation);
 
-		// Get all locations form ConfigFileParser class _serverConfig to process it
-		void getNextLocation(void);
+		// Get all server config to process it
+		void getNextServer(void);
 		// Process RAW data vector and add a copy from LocationConfig filled instance 
-		void ParseLocations(void);
+		void ParseLocations(ServerConfig srvCfg);
 		
 
 		// check if specific string is in vector
@@ -50,9 +59,19 @@ class LocationParse: public ConfigFileParser{
 
 		// is a valid path?
 		bool isValidPath(const std::string str);
-		
-		// return a new sting vector contructed from an array
-		// std::vector<std::string> fillInVector(std::string *Keys);
+
+		// String ports to int vector ports
+		std::vector<unsigned int> splitPorts(const std::string &s);
+
+		// transform ip string into in_addr_t
+		in_addr_t strToIp(const std::string ipString);
+
+		// check if a string has only digits
+		bool isDigitStr(std::string str);
+
+		// Locations values validation
+		void valueValidation(std::string key, std::string value);
+
 };
 
 #endif

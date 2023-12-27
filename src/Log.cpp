@@ -57,7 +57,7 @@ void Log::socketList(const std::string& processFilter) {
     }
 
     // Display column headers
-    std::cout << "PROCESS    PID  USER     FD  TYPE      DEVICE          SIZE/OFF NODE    NAME" << std::endl;
+    std::cout << "PROCESS    PID  USER     FD  TYPE      DEVICE             SIZE/OFF  NODE    NAME" << std::endl;
 
     // Read and display socket information
     char buffer[256];

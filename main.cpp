@@ -3,10 +3,10 @@
 #include "Reactor.hpp"
 #include "ServerConfig.hpp"
 #include "HTTPHeader.hpp"
-#include "LocationParse.hpp"
+#include "Parse.hpp"
 #include "HTTPMethod.hpp"
 
-int startServer (void) {
+int startServer (Parse cfg) {
     // Create an Reactor to dispatch events
     Reactor *reactor = Reactor::getInstance();
 
@@ -14,12 +14,11 @@ int startServer (void) {
     // We will have one socket listening for new connections for this server
     // Pass the VirtualHostConfig class here
 	ServerConfig serverConfig1;
-	serverConfig1.setPort(8080);
+	// getParsedCfg() get full serverConfig Vector getParsedCfgAt() get instance at specific position better for iteration	
+	// Same as getPortAt() and getParsedLocationAt()
+	serverConfig1 = cfg.getParsedCfgAt(0);
+	serverConfig1.setPort(serverConfig1.getPortAt(0));
 
-	// Example location with an allowed http method
-	LocationConfig location1;
-	// TODO: Once ready ... location1.addAllowedMethod(HTTP_METHOD_GET);
-	serverConfig1.setLocation(location1);
     VirtualHostServer virtualHostServer1(*reactor, serverConfig1);
     // As well as start litening the VirtualHostServer registers its socket with the Reactor.
     virtualHostServer1.listen();
@@ -56,10 +55,9 @@ int main(int argc, char **argv){
 				configFile=("./httpd.conf");
 			}
 			// ## PARSE INTEGRATION IN PROGRESS ##
-			LocationParse parse;
-			parse.checkFile(configFile);
-			parse.getNextLocation();
-			parse.getParsedLocations();
+			Parse parse;
+			parse.setFullCfg(configFile);
+			startServer(parse);
 		}
 		catch (std::exception &e){
 			std::cerr << e.what() << std::endl;
@@ -70,5 +68,5 @@ int main(int argc, char **argv){
 		std::cout << "ERROR: Wrong parameters." << std::endl;
 		return (1);
 	}
-	return (startServer());
+	return (0);
 }
