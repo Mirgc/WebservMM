@@ -1,4 +1,5 @@
 #include "HTTPHeader.hpp"
+#include "StringTools.hpp"
 #include <sstream>
 #include <algorithm> 
 
@@ -22,20 +23,6 @@ HTTPHeader &HTTPHeader::operator=(HTTPHeader const &src)
 		this->header = src.header;
 	}
 	return (*this);
-}
-
-std::string letrim(std::string &s)
-{
-	const std::string WHITESPACE = " \n\r\t";
-	size_t start = s.find_first_not_of(WHITESPACE);
-	return (start == std::string::npos) ? "" : s.substr(start);
-}
-
-std::string ritrim(const std::string &s)
-{
-	const std::string WHITESPACE = " \n\r\t";
-	size_t end = s.find_last_not_of(WHITESPACE);
-	return (end == std::string::npos) ? "" : s.substr(0, end + 1);
 }
 
 bool HTTPHeader::addMethod(std::string line)
@@ -99,14 +86,14 @@ void HTTPHeader::parseHTTPHeader(const std::string &request)
 	}
 	while (std::getline(iss, line))
 	{
-		line = ritrim(letrim(line));
+		line = StringTools::trim(line, " \n\r\t");
 		size_t pos = line.find(':');
 		if (pos != std::string::npos && pos > 0 && pos < line.length() - 1) //ahora hay que ver si podemos meter vacio algo.
 		//que pasa si metemos dos iguales?
 		{
 			std::string key = line.substr(0, pos);
 			std::string value = line.substr(pos + 1); // +1 para omitir el ':' después del encabezado
-			this->addHeader(ritrim(key), letrim(value)); // el rtrim(key), en la realidad, no se hace.
+			this->addHeader(StringTools::rtrim(key, " \n\r\t"), StringTools::ltrim(value, " \n\r\t")); // el rtrim(key), en la realidad, no se hace.
 		}
 		else
 		{

@@ -8,6 +8,7 @@
 #include "ConfigFileParser.hpp"
 #include "LocationConfig.hpp"
 #include "ServerConfig.hpp"
+#include "StringTools.hpp"
 
 class Parse: public ConfigFileParser{
 
