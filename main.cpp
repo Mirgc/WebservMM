@@ -41,7 +41,7 @@ int startServer (Parse cfg) {
 	// Stops listening for new connections. Closes sockets
 	virtualHostServer1.stop();
 	delete reactor; // Careful if program exit and don't get here!!!!!!
-	return (1);
+	return (0);
 }
 
 int main(int argc, char **argv){
@@ -61,12 +61,12 @@ int main(int argc, char **argv){
 		}
 		catch (std::exception &e){
 			std::cerr << e.what() << std::endl;
-			return (0);
+			return (1);
 		}	
 	}
 	else {
 		std::cout << "ERROR: Wrong parameters." << std::endl;
-		return (0);
+		return (1);
 	}
 	return (0);
 }
