@@ -13,7 +13,7 @@ public:
 
     AcceptConnectionEventHandler & operator=(AcceptConnectionEventHandler const & rhs);
 
-    void handleEvent();
+    void handleEvent(const t_event_handler_type eventType = EVENT_HANDLER_TYPE_NONE);
 };
 
 #endif

@@ -17,7 +17,7 @@ public:
 
     ServeRequestEventHandler & operator=(ServeRequestEventHandler const & rhs);
 
-    void handleEvent();
+    void handleEvent(const t_event_handler_type eventType = EVENT_HANDLER_TYPE_NONE);
 
 private:
 
@@ -25,6 +25,9 @@ private:
     HTTPRequestStatus requestStatus;
     ssize_t bytesRead;
     HTTPResponse httpResponse;
+
+    // TODO: To delete when we removed the hardcoded html response.
+    bool bIsFaviconRequest;
 
     void copyHTTPRequest(HTTPRequest * src);
     void freeHTTPRequest();

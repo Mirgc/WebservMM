@@ -27,7 +27,12 @@ AcceptConnectionEventHandler& AcceptConnectionEventHandler::operator=(const Acce
 	return (*this);
 }
 
-void AcceptConnectionEventHandler::handleEvent() {
+void AcceptConnectionEventHandler::handleEvent(const t_event_handler_type eventType) {
+
+    if (eventType != EVENT_HANDLER_TYPE_READ) {
+        return;
+    }
+
     unsigned int socketAddressSize;
     struct sockaddr_in socketAddress;
 
@@ -36,7 +41,7 @@ void AcceptConnectionEventHandler::handleEvent() {
     int newSocketfd = accept(fd, (sockaddr *)&socketAddress, &socketAddressSize);
     if (newSocketfd < 0)
     {
-        throw std::runtime_error("Server failed to accept incoming connection from ADDRESS: ");// << inet_ntoa(socketAddress.sin_addr) << "; PORT: " << ntohs(socketAddress.sin_port));
+        throw std::runtime_error("Server failed to accept incoming connection.");
     }
 
     std::cout << "Registering event(fd = " << newSocketfd << ") ServeRequestEventHandler" << std::endl;

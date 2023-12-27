@@ -71,12 +71,20 @@ ServeRequestEventHandler& ServeRequestEventHandler::operator=(const ServeRequest
 	return (*this);
 }
 
-void ServeRequestEventHandler::handleEvent() {
+void ServeRequestEventHandler::handleEvent(const t_event_handler_type eventType) {
 
     std::cout << "ServeRequestEventHandler::handleEvent() (fd = " << fd << ") (request status: " << (std::string)this->requestStatus << ")" << std::endl;
 
     switch(this->requestStatus.getStatus()) {
         case REQUEST_STATUS_WAITING:
+
+            if (eventType != EVENT_HANDLER_TYPE_READ) {
+                std::cout << "ServeRequestEventHandler::handleEvent() REQUEST_STATUS_WAITING ignoring write event when no data has been read yet." << std::endl;
+                this->setRequestStatus(REQUEST_STATUS_CLOSED_OK);
+                reactor.unregisterEventHandler(fd);
+                break;
+            }
+
             this->setRequestStatus(REQUEST_STATUS_READING_HEADERS);
         case REQUEST_STATUS_READING_HEADERS:
             // TODO: How do we know here we have or not read the whole headers request?
@@ -130,6 +138,14 @@ void ServeRequestEventHandler::handleEvent() {
             break;
 
         case REQUEST_STATUS_SENDING_COMPLETE:
+
+            if (eventType != EVENT_HANDLER_TYPE_READ) {
+                std::cout << "ServeRequestEventHandler::handleEvent() REQUEST_STATUS_SENDING_COMPLETE ignoring write event when no data has been read yet." << std::endl;
+                this->setRequestStatus(REQUEST_STATUS_CLOSED_OK);
+                reactor.unregisterEventHandler(fd);
+                break;
+            }
+
             // TODO: We have to control here connection keep alive. That would do for now
             // until we have the headers
             this->readOrCloseRequest();
@@ -194,6 +210,25 @@ void ServeRequestEventHandler::sendResponse() {
     ssize_t bytesSent;
     std::string response = this->httpResponse.getResponse();
 
+    // TODO: To be removed. For now we tell the broser that there is no favico file
+    if (this->bIsFaviconRequest) {
+        std::string bodyContent = "<!DOCTYPE html><html><body><h1>404 Not Found.</h1></body></html>";
+        std::stringstream ss;
+
+        ss << "HTTP/1.1 404\r\n"
+            << "Content-Type: text/html\r\n"
+            << "Content-Length: " << bodyContent.size()
+            << "\r\n\r\n"
+            << bodyContent;
+
+        response = ss.str();
+    }
+    else
+    {
+        response = this->httpResponse.getResponse();
+    }
+
+
     bytesSent = send(fd, response.c_str(), response.size(), 0);
 
     // Process the received data, send responses back to the client here...
@@ -218,6 +253,16 @@ void ServeRequestEventHandler::readOrCloseRequest() {
 
     bytesRead = recv(fd, buffer, BUFFER_SIZE, 0);
     std::cout << "ServeRequestEventHandler read data from (fd = " << fd << ") (bytesRead = " << bytesRead << ")" << std::endl;
+
+    // TODO: Remove hardcoded check to differentiate from the index.hml and the favico
+    // GET /favicon.ico HTTP/1.1
+    // We always return for now a hardocded html even when chrome requests the favico
+    // We are confusing Chrome 
+    if (strstr(buffer, "GET /favicon.ico") != NULL) {
+        bIsFaviconRequest = true;
+    } else {
+        bIsFaviconRequest = false;
+    }
 
     if (bytesRead == -1) {
         this->setRequestStatus(REQUEST_STATUS_CLOSED_ERROR);
