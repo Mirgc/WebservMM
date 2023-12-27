@@ -27,9 +27,6 @@ class ConfigFileParser{
 		std::vector<std::string>  const & getServerCfg(void) const;
 		void splitServers();
 		void eachServerCfg();
-		
-		// trim " }\n\r\t\f\v{" from string
-		std::string trim(const std::string &s);
 
 		class ParseException : public std::exception
 		{

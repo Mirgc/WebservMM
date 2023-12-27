@@ -92,15 +92,13 @@ void Parse::getNextServer(void){
 		for(start = (*init).second.begin(); start != end; start++){
 			// Listened Ports
 			if((*start).find("listen") != std::string::npos){
-				const std::string WHITESPACE = " \n\r\t\f\v";
-				srvCfg.setListenedPorts(this->splitPorts(trim((*start).substr((*start).find("listen")+6, std::string::npos))));
+				srvCfg.setListenedPorts(this->splitPorts(StringTools::trim((*start).substr((*start).find("listen")+6, std::string::npos))));
 			}
 			
 			// ServerConfig Host IP
 			if((*start).find("host") != std::string::npos and (*start).find("server_name") == std::string::npos){
-				const std::string WHITESPACE = " \n\r\t\f\v";
 				std::string tmp;
-				tmp = trim((*start).substr((*start).find("host")+4, std::string::npos));
+				tmp = StringTools::trim((*start).substr((*start).find("host")+4, std::string::npos));
 				if (tmp.compare("localhost") == 0)
 					srvCfg.setHost(this->strToIp("127.0.0.1"));
 				else{
@@ -111,7 +109,7 @@ void Parse::getNextServer(void){
 			// ServerName Parse to identify instance and possible ServerName exceptions
 			if((*start).find("server_name") != std::string::npos){
 				const std::string WHITESPACE = " \n\r\t\f\v";
-				this->_ServerName = trim((*start).substr((*start).find("server_name")+11, std::string::npos));
+				this->_ServerName = StringTools::trim((*start).substr((*start).find("server_name")+11, std::string::npos));
 				if (this->_ServerName.empty() or this->_ServerName.find_first_of(WHITESPACE) != std::string::npos)
 						throw ParseException("Invalid Server Name");
 				srvCfg.setServerName(this->_ServerName);
@@ -123,9 +121,9 @@ void Parse::getNextServer(void){
 				std::string keyStr;
 				std::string value;
 				const std::string WHITESPACE = " \n\r\t\f\v";
-				tmp = trim((*start).substr((*start).find("error_page")+10, std::string::npos));
-				keyStr = tmp.substr(trim(tmp).find_first_not_of(WHITESPACE), trim(tmp).find_first_of(WHITESPACE));
-				value = trim(tmp.substr(trim(tmp).find_last_of(WHITESPACE), trim(tmp).find_last_not_of(WHITESPACE)));
+				tmp = StringTools::trim((*start).substr((*start).find("error_page")+10, std::string::npos));
+				keyStr = tmp.substr(StringTools::trim(tmp).find_first_not_of(WHITESPACE), StringTools::trim(tmp).find_first_of(WHITESPACE));
+				value = StringTools::trim(tmp.substr(StringTools::trim(tmp).find_last_of(WHITESPACE), StringTools::trim(tmp).find_last_not_of(WHITESPACE)));
 				if (!isDigitStr(keyStr) or !isValidPath(value))
 					throw ParseException("Invalid error page path");
 				srvCfg.setErrorPageMap(atoi(keyStr.c_str()), value);
@@ -133,8 +131,7 @@ void Parse::getNextServer(void){
 
 			// ClientMaxBodySize Parse and possible exceptions SET MAX????? WHICH MAX????
 			if((*start).find("client_max_body_size") != std::string::npos){
-				const std::string WHITESPACE = " \n\r\t\f\v";
-				srvCfg.setClientMaxBodySize(atoi(trim((*start).substr((*start).find("client_max_body_size")+20, std::string::npos)).c_str()));
+				srvCfg.setClientMaxBodySize(atoi(StringTools::trim((*start).substr((*start).find("client_max_body_size")+20, std::string::npos)).c_str()));
 				if (srvCfg.getClientMaxBodySize() > 1024)
 						throw ParseException("Invalid client_max_body_size value");
 			}
@@ -142,8 +139,7 @@ void Parse::getNextServer(void){
 			// docroot Parse and possible exceptions SET MAX?????
 			if((*start).find("docroot") != std::string::npos){
 				std::string tmp;
-				const std::string WHITESPACE = " \n\r\t\f\v";
-				tmp = trim((*start).substr((*start).find("docroot")+7, std::string::npos));
+				tmp = StringTools::trim((*start).substr((*start).find("docroot")+7, std::string::npos));
 				if (tmp.empty())
 					throw ParseException("Invalid docroot path");
 				srvCfg.setDocRoot(tmp);
@@ -153,8 +149,7 @@ void Parse::getNextServer(void){
 			if((*start).find("index") != std::string::npos){
 				std::string tmp;
 				std::string root;
-				const std::string WHITESPACE = " \n\r\t\f\v";
-				tmp = trim((*start).substr((*start).find("index")+5, std::string::npos));
+				tmp = StringTools::trim((*start).substr((*start).find("index")+5, std::string::npos));
 				root = srvCfg.getDocRoot();
 				if(isValidPath(srvCfg.getDocRoot()+"index.html") or isValidPath(srvCfg.getDocRoot()+tmp)){
 					if (tmp.empty())
@@ -214,12 +209,12 @@ void Parse::ParseLocations(ServerConfig srvCfg){
 	while (start != end)
 	{
 		LocationConfig loc = LocationConfig();
-		loc.setUploadPath(trim((*start).substr((*start).find("location")+8, std::string::npos)));
+		loc.setUploadPath(StringTools::trim((*start).substr((*start).find("location")+8, std::string::npos)));
 		start++;
 		itend = std::find(start, end, "}");
 		while (start != itend){
-			key = (*start).substr(trim(*start).find_first_not_of(WHITESPACE), trim(*start).find_first_of(WHITESPACE));
-			value = trim((*start).substr(trim(*start).find_last_of(WHITESPACE), trim(*start).find_last_not_of(WHITESPACE)));
+			key = (*start).substr(StringTools::trim(*start).find_first_not_of(WHITESPACE), StringTools::trim(*start).find_first_of(WHITESPACE));
+			value = StringTools::trim((*start).substr(StringTools::trim(*start).find_last_of(WHITESPACE), StringTools::trim(*start).find_last_not_of(WHITESPACE)));
 			if(isStrInVector(key, filledVector)){
 				valueValidation(key, value);
 				loc.setUploadCfg(std::make_pair(key, value));
