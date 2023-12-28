@@ -314,12 +314,12 @@ std::vector<unsigned int> Parse::splitPorts(const std::string &s){
 // in_addr_t Parse::strToIp(const std::string ipString){ 
 //     in_addr_t ipAddress = inet_addr(ipString.c_str());
 
-//     if (ipAddress != INADDR_NONE)
+//     if (ipAddress == INADDR_NONE)
 // 		throw ParseException("Error: La dirección IP no es válida.");
 // 	return ipAddress;
 // }
 
-// String to ip (in_addr_t) only 
+// String to ip (in_addr_t) only Big-Endian 
 in_addr_t Parse::strToIp(const std::string ipString){
     in_addr_t ipAddr = 0;
     int shift = 24;
@@ -348,12 +348,45 @@ in_addr_t Parse::strToIp(const std::string ipString){
         validTokens++;
     }
 
-    // Check 6gcvalid tokens
+    // Check valid tokens
     if (validTokens != 4)
 		throw ParseException("Error: Not valid IP address.");
 
     return ipAddr;
 }
+
+// String to ip (in_addr_t) only Litte-Endian - STILL UNUSED!!! 
+// in_addr_t Parse::strToIp(const std::string ipString){
+//     in_addr_t ipAddr = 0;
+
+//     std::istringstream iss(ipString);
+//     std::string token;
+
+//     int validTokens = 0;
+
+//     while (std::getline(iss, token, '.')){
+//         // strTok to intTok
+//         int intTok;
+//         std::istringstream(token) >> intTok;
+
+//         // Valid token??
+//         if (intTok < 0 || intTok > 255)
+// 			throw ParseException("Error: Not valid IP address.");
+
+//         // Add token to address
+//         ipAddr = (ipAddr >> 8) | (static_cast<in_addr_t>(intTok) << 24);
+
+//         // Move to next byte
+//         validTokens++;
+//     }
+
+//     // Check valid tokens
+//     if (validTokens != 4)
+// 		throw ParseException("Error: Not valid IP address.");
+
+
+//     return ipAddr;
+// }
 
 // check if a string has only digits
 bool Parse::isDigitStr(std::string str){
@@ -364,7 +397,6 @@ bool Parse::isDigitStr(std::string str){
 		return false;
 	return true;
 }
-
 
 // Locations values validation
 // If the path or file does not exist, we throw an error or create it - DISCUSSSS!!!!!

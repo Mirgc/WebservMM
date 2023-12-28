@@ -19,7 +19,7 @@ VirtualHostServer::VirtualHostServer(Reactor& reactor, const ServerConfig & conf
 
     // Set up the address for IP4 on 0.0.0.0:port
     Address.sin_family = AF_INET;
-    Address.sin_addr.s_addr = INADDR_ANY;
+    Address.sin_addr.s_addr = htonl(config.getHost());
     Address.sin_port = htons(config.getPort());
 
     int reuse = 1;
