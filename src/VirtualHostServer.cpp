@@ -20,7 +20,9 @@ VirtualHostServer::VirtualHostServer(Reactor& reactor, const ServerConfig & conf
     // Set up the address for IP4 on 0.0.0.0:port
     Address.sin_family = AF_INET;
     Address.sin_addr.s_addr = htonl(config.getHost());
-    Address.sin_port = htons(config.getPort());
+    // "getPortAt()"" retrieves the value at a specific position from the "_listendPorts" vector.
+    // Should we iterate to change the value before binding, or should we instantiate a new `VirtualHostServer` for each port?
+    Address.sin_port = htons(config.getPortAt(0));
 
     int reuse = 1;
     if (setsockopt(listenSocket, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) < 0)
