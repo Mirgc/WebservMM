@@ -17,7 +17,6 @@ int startServer (Parse cfg) {
 	// getParsedCfg() get full serverConfig Vector getParsedCfgAt() get instance at specific position better for iteration	
 	// Same as getPortAt() and getParsedLocationAt()
 	serverConfig1 = cfg.getParsedCfgAt(0);
-	serverConfig1.setPort(serverConfig1.getPortAt(0));
 
     VirtualHostServer virtualHostServer1(*reactor, serverConfig1);
     // As well as start litening the VirtualHostServer registers its socket with the Reactor.
