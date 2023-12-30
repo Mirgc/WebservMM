@@ -9,9 +9,16 @@
 #include "EventHandler.hpp"
 #include "Log.hpp"
 
-Reactor *Reactor::instance = NULL;
+Reactor* Reactor::_instance = NULL;
 
 Reactor::Reactor() {}
+
+// Official patter sugests makeing this a singleton to avoid having multiple instances of Reactor
+Reactor* Reactor::getInstance(){
+if (NULL == _instance)
+    _instance = new Reactor();
+return _instance;
+}
 
 Reactor::Reactor(const Reactor & src) {
 	*this = src;

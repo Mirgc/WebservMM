@@ -2,12 +2,12 @@
 
 ServerConfig::ServerConfig()
 {
-        this->_port = 0;
-        this->_host = 0;
-        this->_serverName = "";
-        this->_docRoot = "";
-        this->_clientMaxBodySize = 0;
-        this->_index = "";
+        // Default values ​​will be overwritten with httpd.conf values ​​if they exist
+        this->_host = 16777343;
+        this->_serverName = "localhost";
+        this->_docRoot = "/";
+        this->_clientMaxBodySize = 1024;
+        this->_index = "index.html";
 }
 
 ServerConfig::~ServerConfig() {}
@@ -15,20 +15,7 @@ ServerConfig::~ServerConfig() {}
 /* copy constructor */
 ServerConfig::ServerConfig(const ServerConfig &copy)
 {
-        if (this != &copy)
-        {
-                this->_port = copy._port;
-                this->_host = copy._host;
-                this->_serverName = copy._serverName;
-                this->_docRoot = copy._docRoot;
-                this->_clientMaxBodySize= copy._clientMaxBodySize;
-                this->_index = copy._index;
-                this->_errorPageMap = copy._errorPageMap;
-                this->_locations = copy._locations;
-                this->_listendPorts = copy._listendPorts;
-
-        }
-        return ;
+	*this = copy;
 }
 
 ServerConfig &ServerConfig::operator=(const ServerConfig &obj)
@@ -98,6 +85,10 @@ const unsigned int &ServerConfig::getPortAt(unsigned int pos) const{
 
 const unsigned int &ServerConfig::getPort() const{
 	return (this->_port);
+}
+
+const std::vector<unsigned int> &ServerConfig::getListenPorts() const{
+        return (this->_listendPorts);
 }
  
 const in_addr_t	&ServerConfig::getHost() const{

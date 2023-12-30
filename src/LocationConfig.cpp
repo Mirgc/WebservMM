@@ -58,3 +58,13 @@ std::ostream & operator<<(std::ostream & o, LocationConfig const & rhs){
 		std::cout << (*it).first << " : " << (*it).second << std::endl;
 	return (o);
 }
+
+// specific method validation
+bool LocationConfig::isMethodInLocation(std::string verb){
+	for(std::vector<std::pair<std::string, std::string> >::const_iterator it = this->getUploadCfg().begin();
+		it != this->getUploadCfg().end(); ++it){
+			if ((*it).first == "method" and (*it).second == verb)
+				return true;
+		}
+	return false;
+}

@@ -46,6 +46,7 @@ class ServerConfig{
 	const std::string &getIndex() const;
 	const std::map<int, std::string> &getErrorPageMap() const;
 	const std::vector<LocationConfig> &getLocations() const;
+	const std::vector<unsigned int> &getListenPorts() const;
 
 };
 #endif

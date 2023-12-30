@@ -81,12 +81,14 @@ void Parse::getNextServer(void){
 	std::vector<std::string>::iterator end;
 	std::vector<std::string>::iterator it;
 	std::vector<std::string>::iterator itend;
-	ServerConfig srvCfg = ServerConfig();
 	int scope = 0;
 	
 	final = this->_eachServer.end();
 
 	for(init =	this->_eachServer.begin(); init != final; init++){
+		// Init a cleared ServerConfig instance from each server config scope
+		this->_ProcesingLocation.clear();
+		ServerConfig srvCfg = ServerConfig();
 		
 		end = (*init).second.end();
 		for(start = (*init).second.begin(); start != end; start++){
@@ -178,7 +180,11 @@ void Parse::getNextServer(void){
 			}
 		}
 
-		if (this->_ProcesingLocation.empty() or scope != 0)
+		// Check if mandatory listen exists at cfg
+		if (srvCfg.getListenPorts().empty())
+				throw ParseException("No listened ports at config file");
+		// And if location exists and well "scoped" 
+		else if (this->_ProcesingLocation.empty() or scope != 0)
 				throw ParseException("No locations at file or bad scopes");
 		else{
 			this->ParseLocations(srvCfg);
@@ -227,8 +233,11 @@ void Parse::ParseLocations(ServerConfig srvCfg){
 		this->addParsedLocations(loc);
 		start++;
 	}
-	// include locations in ServerConfig instance
-	srvCfg.setLocation(this->_ParsedLocations);
+	// include locations in ServerConfig instance and clear from next server
+	if(!this->_ParsedLocations.empty()){ 
+		srvCfg.setLocation(this->_ParsedLocations);
+		this->_ParsedLocations.clear();
+	}
 	// Add ServerConfig instance to ServerConfig vector
 	this->_ParsedCfgs.push_back(srvCfg);
 }
@@ -302,10 +311,16 @@ std::vector<unsigned int> Parse::splitPorts(const std::string &s){
     unsigned int port;
 
     while (ss >> port)
-		if(port > 0 and port < 65535)
+		// Should we exclude "non-bindable" reserved ports??? DISCUSSS!!!!
+		// Reserved ports are only bindable with super user privileges
+		// Option: Accept all ports and let the binding fail and throw an exception,
+		// having to know and justify the reason for the failure.
+		// Or maybe print that phrase here instead of throwing an exception 
+		// to complete the explanation by breaking the bind?
+		if(port > 1023 and port < 65535)
 			listenedPorts.push_back(port);
 		else{
-			throw ParseException("Invalid Port");
+			throw ParseException("Invalid or reserved Port");
 		}
     return listenedPorts;
 }
