@@ -319,8 +319,14 @@ std::vector<unsigned int> Parse::splitPorts(const std::string &s){
 		// to complete the explanation by breaking the bind?
 		if(port > 1023 and port < 65535)
 			listenedPorts.push_back(port);
+		else if (port > 0 and port < 1024){
+			char str[4];
+			snprintf(str, 4, "%d", port);
+			std::string sport(str);
+			throw ParseException("Reserved Port => " + sport);
+		}
 		else{
-			throw ParseException("Invalid or reserved Port");
+			throw ParseException("Invalid port number");
 		}
     return listenedPorts;
 }
