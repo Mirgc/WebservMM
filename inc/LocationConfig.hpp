@@ -23,6 +23,8 @@ class LocationConfig{
 
 		// get specific fg value by name 
 		const std::string & getCfgValueFrom(std::string const & Key);
+		// specific method validation
+		bool isMethodInLocation(std::string verb);
 
 		void setUploadPath(std::string const &UploadPath);
 		void setUploadCfg(std::pair<std::string, std::string> const &pair);
