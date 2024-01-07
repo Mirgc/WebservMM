@@ -54,12 +54,15 @@ class Parse: public ConfigFileParser{
 
 		// check if specific string is in vector
 		bool isStrInVector(const std::string &s, std::vector<std::string> const & vector);
+		bool isPartialStrInVector(const std::string &s, std::vector<std::string> &vector);
 
 		// is a valid url format?
 		bool isUrlFormat(const std::string str);
 
 		// is a valid path?
 		bool isValidPath(const std::string str);
+		bool isPyCgi(std::string path);
+		std::string relativizePath(std::string path);
 
 		// String ports to int vector ports
 		std::vector<unsigned int> splitPorts(const std::string &s);
