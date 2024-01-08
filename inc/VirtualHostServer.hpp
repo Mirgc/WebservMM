@@ -13,11 +13,14 @@ public:
     VirtualHostServer & operator=(VirtualHostServer const & rhs);
 
     struct sockaddr_in getAddress(void);
-    void            listen();
+    void            start();
     void            stop();
     unsigned int    getPort() const;
 
 private:
+
+    void            listen();
+
     Reactor& reactor;
     ServerConfig config;
     int listenSocket;

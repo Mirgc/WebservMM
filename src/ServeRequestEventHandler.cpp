@@ -10,6 +10,8 @@
 #include "ServeRequestEventHandler.hpp"
 #include "Reactor.hpp"
 #include "HTTPRequestFactory.hpp"
+#include "HTTPHeader.hpp"
+#include "HTTPBody.hpp"
 
 const int BUFFER_SIZE = 30720;
 
@@ -195,8 +197,13 @@ void ServeRequestEventHandler::setRequestStatus(t_http_request_status requestSta
 
 void ServeRequestEventHandler::processRequest() {
     HTTPRequestFactory httpRequestFactory;
+
+    HTTPHeader httpHeader;
+    HTTPBody httpBody;
+    ServerConfig serverConfig;
+
     // TODO: We have to pass both the HTTPHeaders and HTTPBody to the factory to propagate
-    this->httpRequest = httpRequestFactory.createHTTPRequest(/* HttpHeaders, HttpBody */);
+    this->httpRequest = httpRequestFactory.createHTTPRequest(serverConfig, httpHeader, httpBody);
     if (!this->httpRequest) {
         this->setRequestStatus(REQUEST_STATUS_CLOSED_ERROR);
         throw std::runtime_error("Error creating HTTPRequest from factory");

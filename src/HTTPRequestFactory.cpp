@@ -1,23 +1,32 @@
 #include "HTTPRequestFactory.hpp"
 #include "StaticFileHTTPRequest.hpp"
 #include "LocationConfig.hpp"
+#include "ServerConfig.hpp"
 #include "HTTPHeader.hpp"
+#include "HTTPBody.hpp"
 
-HTTPRequestFactory::HTTPRequestFactory() {}
+HTTPRequestFactory::HTTPRequestFactory()
+{
+}
 
-HTTPRequestFactory::HTTPRequestFactory(const HTTPRequestFactory & src) {
+HTTPRequestFactory::HTTPRequestFactory(const HTTPRequestFactory &src)
+{
     *this = src;
 }
 
 HTTPRequestFactory::~HTTPRequestFactory() {}
 
-HTTPRequestFactory& HTTPRequestFactory::operator=(const HTTPRequestFactory &rhs) {
-    (void) rhs;
-	return (*this);
+HTTPRequestFactory &HTTPRequestFactory::operator=(const HTTPRequestFactory &rhs)
+{
+    if (this != &rhs)
+    {
+    }
+
+    return (*this);
 }
 
-HTTPRequest * HTTPRequestFactory::createHTTPRequest(/* parameters needed */) {
-    // TODO: add parameters so that the factory knows what concrete instance should create
+HTTPRequest *HTTPRequestFactory::createHTTPRequest(const ServerConfig &serverConfig, const HTTPHeader &httpHeader, const HTTPBody &httpBody)
+{
 
     // Types could be:
     // Static file request; find a file, read it, send content to client
@@ -27,11 +36,13 @@ HTTPRequest * HTTPRequestFactory::createHTTPRequest(/* parameters needed */) {
     // Upload request
     // Any other?
 
+    (void)serverConfig;
+    (void)httpHeader;
+    (void)httpBody;
+
     // TODO: We need logic here to identify the right LocationConfig we have to serve from
     LocationConfig location;
     location.setUploadPath("/uploads");
-
-    HTTPHeader header;
 
     return (new StaticFileHTTPRequest(location));
 }
