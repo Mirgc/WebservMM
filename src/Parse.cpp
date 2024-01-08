@@ -174,6 +174,12 @@ void Parse::getNextServer(void){
 						this->_ProcesingLocation.push_back(*start);
 						start++;
 					}
+					// Check if docroot and index do not exist in the location and add the global ones 
+					// and if they do not exist, the default ones are kept.
+					if(!this->isPartialStrInVector("docroot", this->_ProcesingLocation))
+						this->_ProcesingLocation.push_back("docroot " + srvCfg.getDocRoot());
+					if(!this->isPartialStrInVector(" index", this->_ProcesingLocation))
+						this->_ProcesingLocation.push_back("index " + srvCfg.getIndex());
 					this->_ProcesingLocation.push_back("}");
 					scope--;
 				}
@@ -223,6 +229,12 @@ void Parse::ParseLocations(ServerConfig srvCfg){
 			value = StringTools::trim((*start).substr(StringTools::trim(*start).find_last_of(WHITESPACE), StringTools::trim(*start).find_last_not_of(WHITESPACE)));
 			if(isStrInVector(key, filledVector)){
 				valueValidation(key, value);
+				// if the location has a default doocroot path and the upload path is not a cgi path, 
+				// docroot will be set to the location's upload path name
+					if(key == "docroot" and value == "/" and !this->isPyCgi(loc.getUploadPath()))
+						// When global docroot does not exist, the Upload Paths are changed as relative paths before configuring it as docroot 
+						// and it is checked if it is a valid path
+						this->isValidPath(value = this->relativizePath(loc.getUploadPath()));
 				loc.setUploadCfg(std::make_pair(key, value));
 			}
 			else
@@ -255,6 +267,43 @@ bool Parse::isStrInVector(const std::string &s, std::vector<std::string> const &
 	if(std::find(v.begin(), v.end(), s) != v.end())
 		return (true);
 	return false;
+}
+
+// looks for a partial match in a string within a vector
+bool Parse::isPartialStrInVector(const std::string &s, std::vector<std::string> &v){
+	
+	std::vector<std::string>::iterator start;
+	std::vector<std::string>::iterator begin;
+	std::vector<std::string>::reverse_iterator iter;
+	
+	begin = v.begin();
+	// only from the end of the previous location onwards
+	if((iter = std::find(v.rbegin(), v.rend(), "}")) != v.rend())
+		begin = iter.base();
+
+	for(start = begin; start != v.end(); start++)
+		if((*start).find(s) != std::string::npos)
+			return (true);
+	return false;
+}
+
+bool Parse::isPyCgi(std::string path){
+
+	if(path.compare(".py") == 0)
+		return true;
+	return false;
+}
+
+std::string Parse::relativizePath(std::string path){
+
+	if(path.at(0) == '.')
+		path.erase(0,1);
+	if(path.at(0) != '/')
+		path.insert(0, "/");
+	if(path.at(0) != '.')
+		path.insert(0, ".");
+	
+	return path;
 }
 
 // is a valid url format?? STILL UNUSED!!!
