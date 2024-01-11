@@ -81,12 +81,14 @@ void Parse::getNextServer(void){
 	std::vector<std::string>::iterator end;
 	std::vector<std::string>::iterator it;
 	std::vector<std::string>::iterator itend;
-	ServerConfig srvCfg = ServerConfig();
 	int scope = 0;
 	
 	final = this->_eachServer.end();
 
 	for(init =	this->_eachServer.begin(); init != final; init++){
+		// Init a cleared ServerConfig instance from each server config scope
+		this->_ProcesingLocation.clear();
+		ServerConfig srvCfg = ServerConfig();
 		
 		end = (*init).second.end();
 		for(start = (*init).second.begin(); start != end; start++){
@@ -172,13 +174,23 @@ void Parse::getNextServer(void){
 						this->_ProcesingLocation.push_back(*start);
 						start++;
 					}
+					// Check if docroot and index do not exist in the location and add the global ones 
+					// and if they do not exist, the default ones are kept.
+					if(!this->isPartialStrInVector("docroot", this->_ProcesingLocation))
+						this->_ProcesingLocation.push_back("docroot " + srvCfg.getDocRoot());
+					if(!this->isPartialStrInVector(" index", this->_ProcesingLocation))
+						this->_ProcesingLocation.push_back("index " + srvCfg.getIndex());
 					this->_ProcesingLocation.push_back("}");
 					scope--;
 				}
 			}
 		}
 
-		if (this->_ProcesingLocation.empty() or scope != 0)
+		// Check if mandatory listen exists at cfg
+		if (srvCfg.getListenPorts().empty())
+				throw ParseException("No listened ports at config file");
+		// And if location exists and well "scoped" 
+		else if (this->_ProcesingLocation.empty() or scope != 0)
 				throw ParseException("No locations at file or bad scopes");
 		else{
 			this->ParseLocations(srvCfg);
@@ -217,6 +229,12 @@ void Parse::ParseLocations(ServerConfig srvCfg){
 			value = StringTools::trim((*start).substr(StringTools::trim(*start).find_last_of(WHITESPACE), StringTools::trim(*start).find_last_not_of(WHITESPACE)));
 			if(isStrInVector(key, filledVector)){
 				valueValidation(key, value);
+				// if the location has a default doocroot path and the upload path is not a cgi path, 
+				// docroot will be set to the location's upload path name
+					if(key == "docroot" and value == "/" and !this->isPyCgi(loc.getUploadPath()))
+						// When global docroot does not exist, the Upload Paths are changed as relative paths before configuring it as docroot 
+						// and it is checked if it is a valid path
+						this->isValidPath(value = this->relativizePath(loc.getUploadPath()));
 				loc.setUploadCfg(std::make_pair(key, value));
 			}
 			else
@@ -227,8 +245,11 @@ void Parse::ParseLocations(ServerConfig srvCfg){
 		this->addParsedLocations(loc);
 		start++;
 	}
-	// include locations in ServerConfig instance
-	srvCfg.setLocation(this->_ParsedLocations);
+	// include locations in ServerConfig instance and clear from next server
+	if(!this->_ParsedLocations.empty()){ 
+		srvCfg.setLocation(this->_ParsedLocations);
+		this->_ParsedLocations.clear();
+	}
 	// Add ServerConfig instance to ServerConfig vector
 	this->_ParsedCfgs.push_back(srvCfg);
 }
@@ -246,6 +267,43 @@ bool Parse::isStrInVector(const std::string &s, std::vector<std::string> const &
 	if(std::find(v.begin(), v.end(), s) != v.end())
 		return (true);
 	return false;
+}
+
+// looks for a partial match in a string within a vector
+bool Parse::isPartialStrInVector(const std::string &s, std::vector<std::string> &v){
+	
+	std::vector<std::string>::iterator start;
+	std::vector<std::string>::iterator begin;
+	std::vector<std::string>::reverse_iterator iter;
+	
+	begin = v.begin();
+	// only from the end of the previous location onwards
+	if((iter = std::find(v.rbegin(), v.rend(), "}")) != v.rend())
+		begin = iter.base();
+
+	for(start = begin; start != v.end(); start++)
+		if((*start).find(s) != std::string::npos)
+			return (true);
+	return false;
+}
+
+bool Parse::isPyCgi(std::string path){
+
+	if(path.compare(".py") == 0)
+		return true;
+	return false;
+}
+
+std::string Parse::relativizePath(std::string path){
+
+	if(path.at(0) == '.')
+		path.erase(0,1);
+	if(path.at(0) != '/')
+		path.insert(0, "/");
+	if(path.at(0) != '.')
+		path.insert(0, ".");
+	
+	return path;
 }
 
 // is a valid url format?? STILL UNUSED!!!
@@ -302,10 +360,22 @@ std::vector<unsigned int> Parse::splitPorts(const std::string &s){
     unsigned int port;
 
     while (ss >> port)
-		if(port > 0 and port < 65535)
+		// Should we exclude "non-bindable" reserved ports??? DISCUSSS!!!!
+		// Reserved ports are only bindable with super user privileges
+		// Option: Accept all ports and let the binding fail and throw an exception,
+		// having to know and justify the reason for the failure.
+		// Or maybe print that phrase here instead of throwing an exception 
+		// to complete the explanation by breaking the bind?
+		if(port > 1023 and port < 65535)
 			listenedPorts.push_back(port);
+		else if (port > 0 and port < 1024){
+			char str[4];
+			snprintf(str, 4, "%d", port);
+			std::string sport(str);
+			throw ParseException("Reserved Port => " + sport);
+		}
 		else{
-			throw ParseException("Invalid Port");
+			throw ParseException("Invalid port number");
 		}
     return listenedPorts;
 }
@@ -314,12 +384,12 @@ std::vector<unsigned int> Parse::splitPorts(const std::string &s){
 // in_addr_t Parse::strToIp(const std::string ipString){ 
 //     in_addr_t ipAddress = inet_addr(ipString.c_str());
 
-//     if (ipAddress != INADDR_NONE)
+//     if (ipAddress == INADDR_NONE)
 // 		throw ParseException("Error: La dirección IP no es válida.");
 // 	return ipAddress;
 // }
 
-// String to ip (in_addr_t) only 
+// String to ip (in_addr_t) only Big-Endian 
 in_addr_t Parse::strToIp(const std::string ipString){
     in_addr_t ipAddr = 0;
     int shift = 24;
@@ -348,12 +418,45 @@ in_addr_t Parse::strToIp(const std::string ipString){
         validTokens++;
     }
 
-    // Check 6gcvalid tokens
+    // Check valid tokens
     if (validTokens != 4)
 		throw ParseException("Error: Not valid IP address.");
 
     return ipAddr;
 }
+
+// String to ip (in_addr_t) only Litte-Endian - STILL UNUSED!!! 
+// in_addr_t Parse::strToIp(const std::string ipString){
+//     in_addr_t ipAddr = 0;
+
+//     std::istringstream iss(ipString);
+//     std::string token;
+
+//     int validTokens = 0;
+
+//     while (std::getline(iss, token, '.')){
+//         // strTok to intTok
+//         int intTok;
+//         std::istringstream(token) >> intTok;
+
+//         // Valid token??
+//         if (intTok < 0 || intTok > 255)
+// 			throw ParseException("Error: Not valid IP address.");
+
+//         // Add token to address
+//         ipAddr = (ipAddr >> 8) | (static_cast<in_addr_t>(intTok) << 24);
+
+//         // Move to next byte
+//         validTokens++;
+//     }
+
+//     // Check valid tokens
+//     if (validTokens != 4)
+// 		throw ParseException("Error: Not valid IP address.");
+
+
+//     return ipAddr;
+// }
 
 // check if a string has only digits
 bool Parse::isDigitStr(std::string str){
@@ -364,7 +467,6 @@ bool Parse::isDigitStr(std::string str){
 		return false;
 	return true;
 }
-
 
 // Locations values validation
 // If the path or file does not exist, we throw an error or create it - DISCUSSSS!!!!!

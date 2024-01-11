@@ -11,12 +11,8 @@ class EventHandler;
 // Official patter sugests makeing this a singleton to avoid having multiple instances of Reactor
 class Reactor {
 public:
-    static Reactor *getInstance(){
-	if (NULL == instance)
-		instance = new Reactor();
-	return instance;
-    }
-
+    static Reactor* getInstance();
+    
     ~Reactor();
     void runEventLoop();
     void stopEventLoop();
@@ -34,7 +30,7 @@ private:
     // Garbage collector (indexed by fd) so that instances can unregister themselves on a deferred basis
     std::vector<int> handlersToDelete;
 
-    static Reactor *instance;
+    static Reactor *_instance;
 };
 
 #endif

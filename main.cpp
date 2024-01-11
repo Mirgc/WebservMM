@@ -45,7 +45,6 @@ int main(int argc, char **argv){
 			else{
 				configFile=("./httpd.conf");
 			}
-			// ## PARSE INTEGRATION IN PROGRESS ##
 			Parse parse;
 			parse.setFullCfg(configFile);
 			startServer(parse);
