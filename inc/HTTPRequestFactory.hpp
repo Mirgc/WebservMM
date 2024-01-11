@@ -17,6 +17,11 @@ public:
 
     // TODO: add parameters so that the factory knows what concrete instance should create
     HTTPRequest * createHTTPRequest(const ServerConfig &serverConfig, const HTTPHeader & httpHeader, const HTTPBody & httpBody);
+
+    const LocationConfig& getLocationWithRequest(
+        const ServerConfig &serverConfig,
+        const HTTPHeader &httpHeader
+    );
 };
 
 #endif

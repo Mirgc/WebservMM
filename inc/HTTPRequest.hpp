@@ -2,12 +2,17 @@
 #define HTTP_REQUEST_HPP
 
 #include "LocationConfig.hpp"
-
-class HTTPResponse;
+#include "HTTPResponse.hpp"
+#include "ServerConfig.hpp"
+#include "HTTPHeader.hpp"
 
 class HTTPRequest {
-public:
-    HTTPRequest(const LocationConfig & location);
+public: 
+    HTTPRequest(
+        const ServerConfig & serverConfig,
+        const LocationConfig & location,
+        const HTTPHeader & httpHeader
+    );
     HTTPRequest(const HTTPRequest & src);
     virtual ~HTTPRequest();
 
@@ -17,8 +22,9 @@ public:
     virtual HTTPRequest* clone() = 0;
     virtual HTTPResponse process() = 0;
 
+    ServerConfig serverConfig;
     LocationConfig location;
-
+    HTTPHeader httpHeader;
 };
 
 #endif

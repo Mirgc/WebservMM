@@ -13,8 +13,6 @@
 #include "HTTPHeader.hpp"
 #include "HTTPBody.hpp"
 
-const int BUFFER_SIZE = 30720;
-
 // To be done:
 
 // - ServeRequestEventHandler: Read data in chunks, let select call us again. Upload a big file with POST to test
@@ -67,6 +65,8 @@ ServeRequestEventHandler& ServeRequestEventHandler::operator=(const ServeRequest
         this->requestStatus = rhs.requestStatus;
         this->bytesRead = rhs.bytesRead;
         this->httpResponse = rhs.httpResponse;
+        // TODO: This will be moved to a property class to handle the buffer properly
+        memcpy(&this->buffer, &rhs.buffer, BUFFER_SIZE);
         this->copyHTTPRequest(rhs.httpRequest);
     }
 
@@ -198,12 +198,18 @@ void ServeRequestEventHandler::setRequestStatus(t_http_request_status requestSta
 void ServeRequestEventHandler::processRequest() {
     HTTPRequestFactory httpRequestFactory;
 
-    HTTPHeader httpHeader;
+    // TODO: Body remains empty for now until we work on moving the buffer to it own class
     HTTPBody httpBody;
-    ServerConfig serverConfig;
+    HTTPHeader httpHeader;
 
-    // TODO: We have to pass both the HTTPHeaders and HTTPBody to the factory to propagate
-    this->httpRequest = httpRequestFactory.createHTTPRequest(serverConfig, httpHeader, httpBody);
+    httpHeader.parseHTTPHeader(this->buffer);
+
+    this->httpRequest = httpRequestFactory.createHTTPRequest(
+        this->virtualHostServer.getServerConfig(),
+        httpHeader,
+        httpBody
+    );
+
     if (!this->httpRequest) {
         this->setRequestStatus(REQUEST_STATUS_CLOSED_ERROR);
         throw std::runtime_error("Error creating HTTPRequest from factory");
@@ -250,11 +256,9 @@ void ServeRequestEventHandler::sendResponse() {
 }
 
 void ServeRequestEventHandler::readOrCloseRequest() {
-    // TODO: This buffer is local to this function, because we do not do anything with it quite yet
-    // But would need to be moved to a class property, so that multiple reads will concatenate to
-    // the class buffer containing the whole request read.
-    char buffer[BUFFER_SIZE];
-    memset(&buffer, 0, BUFFER_SIZE);
+
+    // TODO: This needs to be improved with the issue about reading in chunks.
+    memset(&this->buffer, 0, BUFFER_SIZE);
 
     std::cout << "ServeRequestEventHandler reading data from (fd = " << fd << ")" << std::endl;
 

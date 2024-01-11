@@ -36,13 +36,33 @@ HTTPRequest *HTTPRequestFactory::createHTTPRequest(const ServerConfig &serverCon
     // Upload request
     // Any other?
 
-    (void)serverConfig;
-    (void)httpHeader;
     (void)httpBody;
 
-    // TODO: We need logic here to identify the right LocationConfig we have to serve from
-    LocationConfig location;
-    location.setUploadPath("/uploads");
+    const LocationConfig &location = this->getLocationWithRequest(serverConfig, httpHeader);
+    // TODO: Check it is a valid verb and if not, return a 405 Method Not Allowed
 
-    return (new StaticFileHTTPRequest(location));
+    return (new StaticFileHTTPRequest(serverConfig, location, httpHeader));
 }
+
+const LocationConfig& HTTPRequestFactory::getLocationWithRequest(
+    const ServerConfig &serverConfig,
+    const HTTPHeader &httpHeader
+)
+{
+    std::vector<LocationConfig> locations = serverConfig.getLocations();
+    for (size_t i = 0; i < locations.size(); ++i) {
+        // TODO: We need to identify CGI locations
+        // Checks for cgi extension match
+        // if (httpHeader.getExtension() == locations[i].getPath()) {
+        //     return locations[i];
+        // }
+
+        // Checks for part starting with
+        if (httpHeader.getUrl().find(locations[i].getUploadPath()) == 0) {
+            return locations[i];
+        }
+    }
+
+    throw std::runtime_error("Location not found for path: " + httpHeader.getUrl());
+}
+
