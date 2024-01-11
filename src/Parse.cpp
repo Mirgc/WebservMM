@@ -222,7 +222,7 @@ void Parse::ParseLocations(ServerConfig srvCfg){
 	{
 		LocationConfig loc = LocationConfig();
 		loc.setUploadPath(StringTools::trim((*start).substr((*start).find("location")+8, std::string::npos)));
-		if(loc.getUploadPath().at(0) != '/'  and !this->isPyCgi(loc.getUploadPath()))
+		if(loc.getUploadPath().at(0) != '/' and !this->isPyCgi(loc.getUploadPath()))
 			throw ParseException("Invalid location format => " + (loc.getUploadPath()));
 		start++;
 		itend = std::find(start, end, "}");
@@ -298,7 +298,7 @@ bool Parse::isPyCgi(std::string path){
 
 std::string Parse::relativizePath(std::string path){
 
-	if(path.at(0) == '.' and path.at(1) != '.')
+	if(path.at(0) == '.')
 		path.erase(0,1);
 	if(path.at(0) != '/')
 		path.insert(0, "/");
