@@ -44,6 +44,7 @@ class ServerConfig{
 	const std::string &getDocRoot() const;
 	unsigned int getClientMaxBodySize() const;
 	const std::string &getIndex() const;
+	int   getListenPortsSize() const;
 	const std::map<int, std::string> &getErrorPageMap() const;
 	const std::vector<LocationConfig> &getLocations() const;
 	const std::vector<unsigned int> &getListenPorts() const;

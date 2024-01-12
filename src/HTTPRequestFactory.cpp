@@ -44,7 +44,7 @@ HTTPRequest *HTTPRequestFactory::createHTTPRequest(const ServerConfig &serverCon
     return (new StaticFileHTTPRequest(serverConfig, location, httpHeader));
 }
 
-const LocationConfig& HTTPRequestFactory::getLocationWithRequest(
+const LocationConfig HTTPRequestFactory::getLocationWithRequest(
     const ServerConfig &serverConfig,
     const HTTPHeader &httpHeader
 )

@@ -13,7 +13,7 @@ public:
 
     VirtualHostServer &operator=(VirtualHostServer const &rhs);
 
-    struct sockaddr_in getAddress(void);
+    struct sockaddr_in getAddress(int i);
     void start();
     void stop();
     unsigned int getPort() const;
@@ -24,8 +24,8 @@ private:
 
     Reactor &reactor;
     ServerConfig config;
-    int listenSocket;
-    struct sockaddr_in Address;
+    std::vector<int> listenSocket;
+    std::vector<struct sockaddr_in> Address;
 };
 
 #endif
