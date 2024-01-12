@@ -25,6 +25,16 @@ HTTPHeader &HTTPHeader::operator=(HTTPHeader const &src)
 	return (*this);
 }
 
+std::string HTTPHeader::getMethod() const
+{
+	return (this->method);
+}
+
+std::string HTTPHeader::getUrl() const
+{
+	return (this->url);
+}
+
 bool HTTPHeader::addMethod(std::string line)
 {
 	std::istringstream lineStream(line);

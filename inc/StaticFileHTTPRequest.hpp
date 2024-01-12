@@ -8,7 +8,11 @@ class LocationConfig;
 
 class StaticFileHTTPRequest: public HTTPRequest {
 public:
-    StaticFileHTTPRequest(const LocationConfig & location);
+    StaticFileHTTPRequest(
+        const ServerConfig & serverConfig,
+        const LocationConfig & location,
+        const HTTPHeader & httpHeader
+    );
     StaticFileHTTPRequest(const StaticFileHTTPRequest & src);
     ~StaticFileHTTPRequest();
 

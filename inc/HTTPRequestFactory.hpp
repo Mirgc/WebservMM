@@ -3,6 +3,10 @@
 
 #include "HTTPRequest.hpp"
 
+class ServerConfig;
+class HTTPHeader;
+class HTTPBody;
+
 class HTTPRequestFactory {
 public:
     HTTPRequestFactory();
@@ -12,7 +16,12 @@ public:
     HTTPRequestFactory & operator=(HTTPRequestFactory const & rhs);
 
     // TODO: add parameters so that the factory knows what concrete instance should create
-    HTTPRequest * createHTTPRequest(/* parameters needed */);
+    HTTPRequest * createHTTPRequest(const ServerConfig &serverConfig, const HTTPHeader & httpHeader, const HTTPBody & httpBody);
+
+    const LocationConfig& getLocationWithRequest(
+        const ServerConfig &serverConfig,
+        const HTTPHeader &httpHeader
+    );
 };
 
 #endif

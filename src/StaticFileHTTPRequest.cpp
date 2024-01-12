@@ -8,11 +8,15 @@
 #include "HTTPResponse404.hpp"
 #include "HTTPResponse500.hpp"
 
-StaticFileHTTPRequest::StaticFileHTTPRequest(const LocationConfig & location): HTTPRequest(location) {
+StaticFileHTTPRequest::StaticFileHTTPRequest(
+    const ServerConfig & serverConfig,
+    const LocationConfig & location,
+    const HTTPHeader & httpHeader
+): HTTPRequest(serverConfig, location, httpHeader) {
 }
 
 StaticFileHTTPRequest::StaticFileHTTPRequest(const StaticFileHTTPRequest & src)
-    : HTTPRequest(src.location) {
+    : HTTPRequest(src.serverConfig, src.location, src.httpHeader) {
         *this = src;
 }
 
@@ -32,7 +36,7 @@ HTTPResponse StaticFileHTTPRequest::process() {
     HTTPResponse response;
 
     try {
-        std::string bodyContent = "<!DOCTYPE html><html><body><h1> StaticFileHTTPRequest </h1><p> Static file served from location with upload path = " + this->location.getUploadPath() + " </p></body></html>";
+        std::string bodyContent = "<!DOCTYPE html><html><body><h1> StaticFileHTTPRequest </h1><p> Static file served from location with path = " + this->location.getUploadPath() + " </p></body></html>";
         std::stringstream ss;
 
         ss << "HTTP/1.1 200 OK\r\n"

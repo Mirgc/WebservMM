@@ -11,6 +11,24 @@
 
 VirtualHostServer::VirtualHostServer(Reactor& reactor, const ServerConfig & config):
     reactor(reactor), config(config) {
+}
+
+VirtualHostServer::VirtualHostServer(const VirtualHostServer & src) : reactor(src.reactor) {
+	*this = src;
+}
+
+VirtualHostServer::~VirtualHostServer() {}
+
+VirtualHostServer& VirtualHostServer::operator=(const VirtualHostServer &rhs) {
+	if (this != &rhs) {
+        this->config = rhs.config;
+        this->listenSocket = rhs.listenSocket;
+	}
+	return (*this);
+}
+
+void VirtualHostServer::start()
+{
     // Create a socket for listening
     listenSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (listenSocket < 0) {
@@ -36,20 +54,8 @@ VirtualHostServer::VirtualHostServer(Reactor& reactor, const ServerConfig & conf
         close(listenSocket);
         throw std::runtime_error("Failed to bind the listening socket");
     }
-}
 
-VirtualHostServer::VirtualHostServer(const VirtualHostServer & src) : reactor(src.reactor) {
-	*this = src;
-}
-
-VirtualHostServer::~VirtualHostServer() {}
-
-VirtualHostServer& VirtualHostServer::operator=(const VirtualHostServer &rhs) {
-	if (this != &rhs) {
-        this->config = rhs.config;
-        this->listenSocket = rhs.listenSocket;
-	}
-	return (*this);
+    listen();
 }
 
 void VirtualHostServer::listen() {
@@ -62,11 +68,12 @@ void VirtualHostServer::listen() {
     std::cout << "Registering event (fd = " << listenSocket << ") AcceptConnectionEventHandler" << std::endl;
 
     // This handler will accept new connections to this Server/VirtualHost
-    EventHandler *acceptNewConnectionHandler = new AcceptConnectionEventHandler(reactor, listenSocket, *this);
+    EventHandler *acceptNewConnectionHandler = new AcceptConnectionEventHandler(reactor, listenSocket, *this, this->getAddress());
     reactor.registerEventHandler(listenSocket, acceptNewConnectionHandler);
 }
 
-void VirtualHostServer::stop() {
+void VirtualHostServer::stop()
+{
 
     std::cout << "VirtualHostServer::stop() closing the server socket!!" << std::endl;
 
@@ -81,5 +88,10 @@ struct sockaddr_in VirtualHostServer::getAddress(void) {
 }
 
 unsigned int VirtualHostServer::getPort() const {
-    return this->config.getPort();
+    return this->config.getPortAt(0);
+}
+
+const ServerConfig & VirtualHostServer::getServerConfig() const
+{
+    return (this->config);
 }
