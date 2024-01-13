@@ -9,22 +9,25 @@
 #include "VirtualHostServer.hpp"
 #include "AcceptConnectionEventHandler.hpp"
 
-VirtualHostServer::VirtualHostServer(Reactor& reactor, const ServerConfig & config):
-    reactor(reactor), config(config) {
+VirtualHostServer::VirtualHostServer(Reactor &reactor, const ServerConfig &config) : reactor(reactor), config(config)
+{
 }
 
-VirtualHostServer::VirtualHostServer(const VirtualHostServer & src) : reactor(src.reactor) {
-	*this = src;
+VirtualHostServer::VirtualHostServer(const VirtualHostServer &src) : reactor(src.reactor)
+{
+    *this = src;
 }
 
 VirtualHostServer::~VirtualHostServer() {}
 
-VirtualHostServer& VirtualHostServer::operator=(const VirtualHostServer &rhs) {
-	if (this != &rhs) {
+VirtualHostServer &VirtualHostServer::operator=(const VirtualHostServer &rhs)
+{
+    if (this != &rhs)
+    {
         this->config = rhs.config;
         this->listenSocket = rhs.listenSocket;
-	}
-	return (*this);
+    }
+    return (*this);
 }
 
 void VirtualHostServer::start()
@@ -75,7 +78,8 @@ void VirtualHostServer::start()
     listen();
 }
 
-void VirtualHostServer::listen() {
+void VirtualHostServer::listen()
+{
     // Start listening for incoming connections
     int size = this->getServerConfig().getListenPortsSize();
     for (int i = 0; i < size; i++)
@@ -98,8 +102,10 @@ void VirtualHostServer::stop()
 {
     std::cout << "VirtualHostServer::stop() closing the server socket!!" << std::endl;
 
-    if (!listenSocket.empty()) {
-        for (std::vector<int>::size_type i = 0; i < listenSocket.size(); ++i) {
+    if (!listenSocket.empty())
+    {
+        for (std::vector<int>::size_type i = 0; i < listenSocket.size(); ++i)
+        {
             close(listenSocket[i]);
             listenSocket[i] = 0;
         }
@@ -107,11 +113,12 @@ void VirtualHostServer::stop()
     listenSocket.clear();
 }
 
-struct sockaddr_in VirtualHostServer::getAddress(int i) {
+struct sockaddr_in VirtualHostServer::getAddress(int i)
+{
     return (Address[i]);
 }
 
-const ServerConfig & VirtualHostServer::getServerConfig() const
+const ServerConfig &VirtualHostServer::getServerConfig() const
 {
     return (this->config);
 }

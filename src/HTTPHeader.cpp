@@ -21,6 +21,9 @@ HTTPHeader &HTTPHeader::operator=(HTTPHeader const &src)
 	if (this != &src)
 	{
 		this->header = src.header;
+		this->method = src.method;
+		this->url = src.url;
+		this->ver = src.ver;
 	}
 	return (*this);
 }
@@ -41,7 +44,7 @@ bool HTTPHeader::addMethod(std::string line)
 	lineStream >> this->method >> this->url >> this->ver;
 	std::string restoDelContenido;
     std::getline(lineStream, restoDelContenido);
-	if (restoDelContenido[0] == '\0') // Si hay un espacio ni si quiera despues del 1.1, falla
+	if (!restoDelContenido.compare("\r")) // Si hay un espacio ni si quiera despues del 1.1, falla
 		return false;
 	return true;
 }
