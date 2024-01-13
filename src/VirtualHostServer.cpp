@@ -29,15 +29,14 @@ VirtualHostServer& VirtualHostServer::operator=(const VirtualHostServer &rhs) {
 
 void VirtualHostServer::start()
 {
-    std::vector<int>::size_type t;
-    t = this->getServerConfig().getListenPorts().size();
-    int size = static_cast<int>(t);
+    int size = this->getServerConfig().getListenPortsSize();
     // Create a socket for listening
     for (int i = 0; i < size; i++)
     {
         listenSocket.push_back(socket(AF_INET, SOCK_STREAM, 0));
         if (listenSocket[i] < 0)
         {
+            this->stop();
             throw std::runtime_error("Failed to create a listening socket");
         }
     }
@@ -54,18 +53,12 @@ void VirtualHostServer::start()
         Address.push_back(tmpAddress);
         memset(&tmpAddress, 0, sizeof(tmpAddress));
     }
-    int reuse[2];
-    for (int i = 0; i < size; i++) {
-        reuse[i] = 1;
-    }
+    int reuse = 1;
     for (int l = 0; l < size; l++)
     {
-        if (setsockopt(listenSocket[l], SOL_SOCKET, SO_REUSEADDR, &reuse[l], sizeof(reuse[l])) < 0)
+        if (setsockopt(listenSocket[l], SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) < 0)
         {
-            for (int j = l; j >= 0; j--)
-            {
-                close(listenSocket[j]);
-            }
+            this->stop();
             throw std::runtime_error("Failed to set socket option");
         }
     }
@@ -75,10 +68,7 @@ void VirtualHostServer::start()
     {
         if (bind(listenSocket[i], (struct sockaddr *)&Address[i], sizeof(Address[i])) < 0)
         {
-            for (int j = i; j >= 0; j--)
-            {
-                close(listenSocket[j]);
-            }
+            this->stop();
             throw std::runtime_error("Failed to bind the listening socket");
         }
     }
@@ -87,18 +77,13 @@ void VirtualHostServer::start()
 
 void VirtualHostServer::listen() {
     // Start listening for incoming connections
-    std::vector<int>::size_type t;
-    t = this->getServerConfig().getListenPorts().size();
-    int size = static_cast<int>(t);
+    int size = this->getServerConfig().getListenPortsSize();
     for (int i = 0; i < size; i++)
     {
         // Start listening for incoming connections
         if (::listen(listenSocket[i], SOMAXCONN) == -1)
         {
-            for (int j = i; j >= 0; j--)
-            {
-                close(listenSocket[j]);
-            }
+            this->stop();
             throw std::runtime_error("Failed to start listening on the socket");
         }
         std::cout << "Registering event (fd = " << listenSocket[i] << ") AcceptConnectionEventHandler" << std::endl;
@@ -124,10 +109,6 @@ void VirtualHostServer::stop()
 
 struct sockaddr_in VirtualHostServer::getAddress(int i) {
     return (Address[i]);
-}
-
-unsigned int VirtualHostServer::getPort() const {
-    return this->config.getPortAt(0);
 }
 
 const ServerConfig & VirtualHostServer::getServerConfig() const
