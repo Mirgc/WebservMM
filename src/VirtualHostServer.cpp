@@ -29,66 +29,86 @@ VirtualHostServer& VirtualHostServer::operator=(const VirtualHostServer &rhs) {
 
 void VirtualHostServer::start()
 {
+    int size = this->getServerConfig().getListenPortsSize();
     // Create a socket for listening
-    listenSocket = socket(AF_INET, SOCK_STREAM, 0);
-    if (listenSocket < 0) {
-        throw std::runtime_error("Failed to create a listening socket");
-    }
-
-    // Set up the address for IP4 on 0.0.0.0:port
-    Address.sin_family = AF_INET;
-    Address.sin_addr.s_addr = htonl(config.getHost());
-    // "getPortAt()"" retrieves the value at a specific position from the "_listendPorts" vector.
-    // Should we iterate to change the value before binding, or should we instantiate a new `VirtualHostServer` for each port?
-    Address.sin_port = htons(config.getPortAt(0));
-
-    int reuse = 1;
-    if (setsockopt(listenSocket, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) < 0)
+    for (int i = 0; i < size; i++)
     {
-        close(listenSocket);
-        throw std::runtime_error("Failed to set socket option");
+        listenSocket.push_back(socket(AF_INET, SOCK_STREAM, 0));
+        if (listenSocket[i] < 0)
+        {
+            this->stop();
+            throw std::runtime_error("Failed to create a listening socket");
+        }
     }
-
-    // Bind the socket to the address
-    if (bind(listenSocket, (struct sockaddr*)&Address, sizeof(Address)) < 0) {
-        close(listenSocket);
-        throw std::runtime_error("Failed to bind the listening socket");
+    // Set up the address for IP4 on 0.0.0.0:port
+    struct sockaddr_in tmpAddress;
+    memset(&tmpAddress, 0, sizeof(tmpAddress));
+    for (int x = 0; x < size; x++)
+    {
+        tmpAddress.sin_family = AF_INET;
+        tmpAddress.sin_addr.s_addr = htonl(config.getHost());
+        // "getPortAt()"" retrieves the value at a specific position from the "_listendPorts" vector.
+        // Should we iterate to change the value before binding, or should we instantiate a new `VirtualHostServer` for each port?
+        tmpAddress.sin_port = htons(config.getPortAt(x));
+        Address.push_back(tmpAddress);
+        memset(&tmpAddress, 0, sizeof(tmpAddress));
     }
+    int reuse = 1;
+    for (int l = 0; l < size; l++)
+    {
+        if (setsockopt(listenSocket[l], SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) < 0)
+        {
+            this->stop();
+            throw std::runtime_error("Failed to set socket option");
+        }
+    }
+    // Bind the sockets to the address
 
+    for (int i = 0; i < size; i++)
+    {
+        if (bind(listenSocket[i], (struct sockaddr *)&Address[i], sizeof(Address[i])) < 0)
+        {
+            this->stop();
+            throw std::runtime_error("Failed to bind the listening socket");
+        }
+    }
     listen();
 }
 
 void VirtualHostServer::listen() {
     // Start listening for incoming connections
-    if (::listen(listenSocket, SOMAXCONN) == -1) {
-        close(listenSocket);
-        throw std::runtime_error("Failed to start listening on the socket");
+    int size = this->getServerConfig().getListenPortsSize();
+    for (int i = 0; i < size; i++)
+    {
+        // Start listening for incoming connections
+        if (::listen(listenSocket[i], SOMAXCONN) == -1)
+        {
+            this->stop();
+            throw std::runtime_error("Failed to start listening on the socket");
+        }
+        std::cout << "Registering event (fd = " << listenSocket[i] << ") AcceptConnectionEventHandler" << std::endl;
+
+        // This handler will accept new connections to this Server/VirtualHost
+        EventHandler *acceptNewConnectionHandler = new AcceptConnectionEventHandler(reactor, listenSocket[i], *this, this->getAddress(i));
+        reactor.registerEventHandler(listenSocket[i], acceptNewConnectionHandler);
     }
-
-    std::cout << "Registering event (fd = " << listenSocket << ") AcceptConnectionEventHandler" << std::endl;
-
-    // This handler will accept new connections to this Server/VirtualHost
-    EventHandler *acceptNewConnectionHandler = new AcceptConnectionEventHandler(reactor, listenSocket, *this, this->getAddress());
-    reactor.registerEventHandler(listenSocket, acceptNewConnectionHandler);
 }
 
 void VirtualHostServer::stop()
 {
-
     std::cout << "VirtualHostServer::stop() closing the server socket!!" << std::endl;
 
-    if (listenSocket) {
-        close(listenSocket);
-        listenSocket = 0;
+    if (!listenSocket.empty()) {
+        for (std::vector<int>::size_type i = 0; i < listenSocket.size(); ++i) {
+            close(listenSocket[i]);
+            listenSocket[i] = 0;
+        }
     }
+    listenSocket.clear();
 }
 
-struct sockaddr_in VirtualHostServer::getAddress(void) {
-    return (Address);
-}
-
-unsigned int VirtualHostServer::getPort() const {
-    return this->config.getPortAt(0);
+struct sockaddr_in VirtualHostServer::getAddress(int i) {
+    return (Address[i]);
 }
 
 const ServerConfig & VirtualHostServer::getServerConfig() const

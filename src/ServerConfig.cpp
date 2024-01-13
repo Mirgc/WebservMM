@@ -90,6 +90,13 @@ const unsigned int &ServerConfig::getPort() const{
 const std::vector<unsigned int> &ServerConfig::getListenPorts() const{
         return (this->_listendPorts);
 }
+
+int     ServerConfig::getListenPortsSize() const{
+    std::vector<int>::size_type t;
+    t = this->_listendPorts.size();
+    int size = static_cast<int>(t);
+    return size;
+}
  
 const in_addr_t	&ServerConfig::getHost() const{
 	return (this->_host);
