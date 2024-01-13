@@ -11,8 +11,8 @@
 #include "ServeRequestEventHandler.hpp"
 #include "Reactor.hpp"
 #include "HTTPRequestFactory.hpp"
-
-const int BUFFER_SIZE = 30720;
+#include "HTTPHeader.hpp"
+#include "HTTPBody.hpp"
 
 // To be done:
 
@@ -74,18 +74,28 @@ ServeRequestEventHandler& ServeRequestEventHandler::operator=(const ServeRequest
         this->requestStatus = rhs.requestStatus;
         this->bytesRead = rhs.bytesRead;
         this->httpResponse = rhs.httpResponse;
+        // TODO: This will be moved to a property class to handle the buffer properly
+        memcpy(&this->buffer, &rhs.buffer, BUFFER_SIZE);
         this->copyHTTPRequest(rhs.httpRequest);
     }
 
 	return (*this);
 }
 
-void ServeRequestEventHandler::handleEvent() {
+void ServeRequestEventHandler::handleEvent(const t_event_handler_type eventType) {
 
     std::cout << "ServeRequestEventHandler::handleEvent() (fd = " << fd << ") (request status: " << (std::string)this->requestStatus << ")" << std::endl;
 
     switch(this->requestStatus.getStatus()) {
         case REQUEST_STATUS_WAITING:
+
+            if (eventType != EVENT_HANDLER_TYPE_READ) {
+                std::cout << "ServeRequestEventHandler::handleEvent() REQUEST_STATUS_WAITING ignoring write event when no data has been read yet." << std::endl;
+                this->setRequestStatus(REQUEST_STATUS_CLOSED_OK);
+                reactor.unregisterEventHandler(fd);
+                break;
+            }
+
             this->setRequestStatus(REQUEST_STATUS_READING_HEADERS);
         case REQUEST_STATUS_READING_HEADERS:
             // TODO: How do we know here we have or not read the whole headers request?
@@ -139,6 +149,14 @@ void ServeRequestEventHandler::handleEvent() {
             break;
 
         case REQUEST_STATUS_SENDING_COMPLETE:
+
+            if (eventType != EVENT_HANDLER_TYPE_READ) {
+                std::cout << "ServeRequestEventHandler::handleEvent() REQUEST_STATUS_SENDING_COMPLETE ignoring write event when no data has been read yet." << std::endl;
+                this->setRequestStatus(REQUEST_STATUS_CLOSED_OK);
+                reactor.unregisterEventHandler(fd);
+                break;
+            }
+
             // TODO: We have to control here connection keep alive. That would do for now
             // until we have the headers
             this->readOrCloseRequest();
@@ -188,7 +206,19 @@ void ServeRequestEventHandler::setRequestStatus(t_http_request_status requestSta
 
 void ServeRequestEventHandler::processRequest() {
     HTTPRequestFactory httpRequestFactory;
-    this->httpRequest = httpRequestFactory.createHTTPRequest();
+
+    // TODO: Body remains empty for now until we work on moving the buffer to it own class
+    HTTPBody httpBody;
+    HTTPHeader httpHeader;
+
+    httpHeader.parseHTTPHeader(this->buffer);
+
+    this->httpRequest = httpRequestFactory.createHTTPRequest(
+        this->virtualHostServer.getServerConfig(),
+        httpHeader,
+        httpBody
+    );
+
     if (!this->httpRequest) {
         this->setRequestStatus(REQUEST_STATUS_CLOSED_ERROR);
         throw std::runtime_error("Error creating HTTPRequest from factory");
@@ -201,6 +231,25 @@ void ServeRequestEventHandler::processRequest() {
 void ServeRequestEventHandler::sendResponse() {
     ssize_t bytesSent;
     std::string response = this->httpResponse.getResponse();
+
+    // TODO: To be removed. For now we tell the broser that there is no favico file
+    if (this->bIsFaviconRequest) {
+        std::string bodyContent = "<!DOCTYPE html><html><body><h1>404 Not Found.</h1></body></html>";
+        std::stringstream ss;
+
+        ss << "HTTP/1.1 404\r\n"
+            << "Content-Type: text/html\r\n"
+            << "Content-Length: " << bodyContent.size()
+            << "\r\n\r\n"
+            << bodyContent;
+
+        response = ss.str();
+    }
+    else
+    {
+        response = this->httpResponse.getResponse();
+    }
+
 
     bytesSent = send(fd, response.c_str(), response.size(), 0);
 
@@ -216,16 +265,24 @@ void ServeRequestEventHandler::sendResponse() {
 }
 
 void ServeRequestEventHandler::readOrCloseRequest() {
-    // TODO: This buffer is local to this function, because we do not do anything with it quite yet
-    // But would need to be moved to a class property, so that multiple reads will concatenate to
-    // the class buffer containing the whole request read.
-    char buffer[BUFFER_SIZE];
-    memset(&buffer, 0, BUFFER_SIZE);
+
+    // TODO: This needs to be improved with the issue about reading in chunks.
+    memset(&this->buffer, 0, BUFFER_SIZE);
 
     std::cout << "ServeRequestEventHandler reading data from (fd = " << fd << ")" << std::endl;
 
     bytesRead = recv(fd, buffer, BUFFER_SIZE, 0);
     std::cout << "ServeRequestEventHandler read data from (fd = " << fd << ") (bytesRead = " << bytesRead << ")" << std::endl;
+
+    // TODO: Remove hardcoded check to differentiate from the index.hml and the favico
+    // GET /favicon.ico HTTP/1.1
+    // We always return for now a hardocded html even when chrome requests the favico
+    // We are confusing Chrome 
+    if (strstr(buffer, "GET /favicon.ico") != NULL) {
+        bIsFaviconRequest = true;
+    } else {
+        bIsFaviconRequest = false;
+    }
 
     if (bytesRead == -1) {
         this->setRequestStatus(REQUEST_STATUS_CLOSED_ERROR);

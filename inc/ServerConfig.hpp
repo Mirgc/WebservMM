@@ -9,6 +9,7 @@
 
 class ServerConfig{
 	private:
+		std::vector<unsigned int>	_listendPorts;
 		unsigned int				_port;
 		in_addr_t					_host;
 		std::string					_serverName;
@@ -24,23 +25,29 @@ class ServerConfig{
 		ServerConfig(const ServerConfig &copy);
 		ServerConfig &operator=(const ServerConfig &obj);
 
-	void setPort(unsigned int port);
-	void setHost(in_addr_t host);
-	void setServerName(std::string _serverName);
-	void setDocRoot(std::string root);
-	void setClientMaxBodySize(unsigned int clientMaxBodySize);
-	void setIndex(std::string index);
-	void setErrorPageMap(int httpStatus, std::string path);
-	void setLocation(LocationConfig location);
+	void setPort(unsigned int const &port);
+	void setHost(in_addr_t const &host);
+	void setServerName(std::string const &_serverName);
+	void setDocRoot(std::string const &root);
+	void setClientMaxBodySize(unsigned int const &clientMaxBodySize);
+	void setIndex(std::string const &index);
+	void setErrorPageMap(int const &httpStatus, std::string const &path);
+	void setLocation(std::vector<LocationConfig> const &location);
+	void addLocation(LocationConfig location);
+	void setListenedPorts(std::vector<unsigned int> ports);
+	void addListenedPorts(unsigned int port);
 
-	unsigned int getPort() const;
-	const in_addr_t &getHost();
-	const std::string &getServerName();
-	const std::string &getDocRoot();
+	const unsigned int &getPortAt(unsigned int pos) const;
+	const unsigned int &getPort() const;
+	const in_addr_t &getHost() const;
+	const std::string &getServerName() const;
+	const std::string &getDocRoot() const;
 	unsigned int getClientMaxBodySize() const;
-	const std::string &getIndex();
-	const std::map<int, std::string> &getErrorPageMap();
-	const std::vector<LocationConfig> &getLocations();
+	const std::string &getIndex() const;
+	int   getListenPortsSize() const;
+	const std::map<int, std::string> &getErrorPageMap() const;
+	const std::vector<LocationConfig> &getLocations() const;
+	const std::vector<unsigned int> &getListenPorts() const;
 
 };
 #endif

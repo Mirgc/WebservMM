@@ -9,6 +9,8 @@ class Reactor;
 
 class HTTPRequest;
 
+const int BUFFER_SIZE = 30720;
+
 class ServeRequestEventHandler: public EventHandler {
 public:
     ServeRequestEventHandler(Reactor& reactor, int fd, const VirtualHostServer & virtualHostServer);
@@ -17,7 +19,7 @@ public:
 
     ServeRequestEventHandler & operator=(ServeRequestEventHandler const & rhs);
 
-    void handleEvent();
+    void handleEvent(const t_event_handler_type eventType = EVENT_HANDLER_TYPE_NONE);
 
 private:
 
@@ -25,6 +27,14 @@ private:
     HTTPRequestStatus requestStatus;
     ssize_t bytesRead;
     HTTPResponse httpResponse;
+
+    // TODO: This buffer is local to this class.
+    // But would need to be moved to a class property, so that multiple reads will concatenate to
+    // the class buffer containing the whole request read.
+    char buffer[BUFFER_SIZE];
+
+    // TODO: To delete when we removed the hardcoded html response.
+    bool bIsFaviconRequest;
 
     void copyHTTPRequest(HTTPRequest * src);
     void freeHTTPRequest();
