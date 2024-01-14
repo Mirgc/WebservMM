@@ -271,6 +271,14 @@ bool Parse::isStrInVector(const std::string &s, std::vector<std::string> const &
 	return false;
 }
 
+// Is int in vector??
+bool Parse::isIntInVector(const int &s, std::vector<unsigned int> const & v){
+	
+	if(std::find(v.begin(), v.end(), s) != v.end())
+		return (true);
+	return false;
+}
+
 // looks for a partial match in a string within a vector
 bool Parse::isPartialStrInVector(const std::string &s, std::vector<std::string> &v){
 	
@@ -368,7 +376,7 @@ std::vector<unsigned int> Parse::splitPorts(const std::string &s){
 		// having to know and justify the reason for the failure.
 		// Or maybe print that phrase here instead of throwing an exception 
 		// to complete the explanation by breaking the bind?
-		if(port > 1023 and port < 65535)
+		if(port > 1023 and port < 65535 and !isIntInVector(port, listenedPorts))
 			listenedPorts.push_back(port);
 		else if (port > 0 and port < 1024){
 			char str[4];

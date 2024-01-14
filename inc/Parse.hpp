@@ -56,6 +56,9 @@ class Parse: public ConfigFileParser{
 		bool isStrInVector(const std::string &s, std::vector<std::string> const & vector);
 		bool isPartialStrInVector(const std::string &s, std::vector<std::string> &vector);
 
+		// check if specific string is in vector
+		bool isIntInVector(const int &s, std::vector<unsigned int> const & v);
+
 		// is a valid url format?
 		bool isUrlFormat(const std::string str);
 
