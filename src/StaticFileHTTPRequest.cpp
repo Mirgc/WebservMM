@@ -2,6 +2,7 @@
 #include <sstream>
 #include <fstream>
 #include <iostream>
+#include <cstdlib>
 
 #include "StaticFileHTTPRequest.hpp"
 #include "HTTPResponse.hpp"
@@ -35,19 +36,42 @@ StaticFileHTTPRequest *StaticFileHTTPRequest::clone()
     return (new StaticFileHTTPRequest(*this));
 }
 
+bool isFile(const std::string& path) {
+    FILE* file = fopen(path.c_str(), "r");
+    if (file) {
+        fclose(file);
+        return true;
+    }
+    return false;
+}
+
+bool isValidDirectory(const std::string& path) {
+    // Puedes agregar lógica adicional aquí para verificar si es un directorio válido.
+    // En este ejemplo, simplemente se comprueba si es un directorio no vacío.
+    return isFile(path);
+}
+
+bool isValidExtension(const std::string& fileName, const std::string& validExtension) {
+    size_t pos = fileName.rfind('.');
+    if (pos != std::string::npos) {
+        std::string extension = fileName.substr(pos + 1);
+        return (extension == validExtension);
+    }
+    return false;
+}
+
 HTTPResponse StaticFileHTTPRequest::process()
 {
     HTTPResponse response;
 
     try
     {
-            std::ifstream archivo(this->httpHeader.getUrl());
-
-            
-            if (!archivo.is_open()) {
-                throw std::runtime_error("No se pudo abrir el archivo: " + rutaArchivo);
- 
-
+        std::string archivo2 = this->httpHeader.getUrl();
+        std::ifstream archivo(this->httpHeader.getUrl());
+          
+        if (!isFile(archivo2)) {
+            throw std::runtime_error("No se pudo abrir el archivo: " + archivo2);
+        }
         std::string bodyContent = "<!DOCTYPE html><html><body><h1> StaticFileHTTPRequest </h1><p> Static file served from location with path = " + this->location.getUploadPath() + " </p></body></html>";
         std::stringstream ss;
 
@@ -63,11 +87,17 @@ HTTPResponse StaticFileHTTPRequest::process()
         }
 
         response.setResponse(ss.str());
+        
+    }
+    catch (const std::runtime_error& e) 
+    {
+        std::cerr << "Error de tiempo de ejecución: " << e.what() << std::endl;
+        return HTTPResponse500();
+
     }
     catch (...)
     {
-        return HTTPResponse500();
+        return (HTTPResponse404());
     }
-
     return (response);
 }
