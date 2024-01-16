@@ -110,6 +110,7 @@ HTTPResponse StaticFileHTTPRequest::process()
 {
     HTTPResponse response;
 
+// Tengo que asegurarme que al concatenar los paths, tnegan / metida entre medias.
     try
     {
         std::string rutaCompleta = this->location.getCfgValueFrom("docroot") + this->httpHeader.getUrl();
