@@ -3,6 +3,10 @@
 #include <fstream>
 #include <iostream>
 #include <cstdlib>
+#include <sys/stat.h>
+#include <dirent.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 #include "StaticFileHTTPRequest.hpp"
 #include "HTTPResponse.hpp"
@@ -36,28 +40,70 @@ StaticFileHTTPRequest *StaticFileHTTPRequest::clone()
     return (new StaticFileHTTPRequest(*this));
 }
 
-bool isFile(const std::string& path) {
-    FILE* file = fopen(path.c_str(), "r");
-    if (file) {
-        fclose(file);
+bool esArchivo(const std::string& ruta) {
+    struct stat info;
+    return stat(ruta.c_str(), &info) == 0 && S_ISREG(info.st_mode);
+}
+
+bool esDirectorio(const std::string& ruta) {
+    DIR* directorio = opendir(ruta.c_str());
+    if (directorio != NULL) {
+        closedir(directorio);
         return true;
     }
     return false;
 }
 
-bool isValidDirectory(const std::string& path) {
-    // Puedes agregar lógica adicional aquí para verificar si es un directorio válido.
-    // En este ejemplo, simplemente se comprueba si es un directorio no vacío.
-    return isFile(path);
+std::string getContentType(std::string str)
+{
+    std::map<std::string, std::string> extensionToContentType;
+    extensionToContentType[".html"] = "text/html";
+    extensionToContentType[".css"] = "text/css";
+    extensionToContentType[".js"] = "application/javascript";
+    extensionToContentType[".jpg"] = "image/jpeg";
+    extensionToContentType[".png"] = "image/png";
+    // Extract the file extension from the filename
+    size_t dotPosition = str.find_last_of(".");
+    if (dotPosition != std::string::npos)
+    {
+        std::string ctExtension = str.substr(dotPosition);
+        // Look up the extension in the map
+        std::map<std::string, std::string>::iterator it = extensionToContentType.find(ctExtension);
+        if (it != extensionToContentType.end())
+        {
+            return it->second;
+        }
+    }
+    return "application/octet-stream";
 }
 
-bool isValidExtension(const std::string& fileName, const std::string& validExtension) {
-    size_t pos = fileName.rfind('.');
-    if (pos != std::string::npos) {
-        std::string extension = fileName.substr(pos + 1);
-        return (extension == validExtension);
+std::string getReponse(std::string path)
+{
+    std::string contenido;
+    int descriptorArchivo = open(path.c_str(), O_RDONLY);
+    if (descriptorArchivo == -1) {
+        throw std::runtime_error("Failed to create a listening socket");
     }
-    return false;
+    char buffer[4096]; // Puedes ajustar el tamaño del buffer según tus necesidades
+    ssize_t tmp;
+    ssize_t bytesLeidos = 0;
+    while ((tmp = read(descriptorArchivo, buffer, sizeof(buffer))) > 0) {
+        bytesLeidos += tmp;
+        contenido.append(buffer, bytesLeidos);
+    }
+    if (bytesLeidos == -1) {
+        throw std::runtime_error("Failed to create a listening socket");
+    }
+    close(descriptorArchivo);
+    std::stringstream ss;
+    ss << "HTTP/1.1 200 OK\r\n"
+    << "Content-Type: "
+    << getContentType(path)
+    << "\r\n"
+    << "Content-Length: " << bytesLeidos
+    << "\r\n\r\n"
+    << contenido;
+    return ss.str();
 }
 
 HTTPResponse StaticFileHTTPRequest::process()
@@ -66,38 +112,29 @@ HTTPResponse StaticFileHTTPRequest::process()
 
     try
     {
-        std::string archivo2 = this->httpHeader.getUrl();
-        std::ifstream archivo(this->httpHeader.getUrl());
-          
-        if (!isFile(archivo2)) {
-            throw std::runtime_error("No se pudo abrir el archivo: " + archivo2);
+        std::string rutaCompleta = this->location.getCfgValueFrom("docroot") + this->httpHeader.getUrl();
+        if (esArchivo(rutaCompleta)) {
+            response.setResponse(getReponse(rutaCompleta));
         }
-        std::string bodyContent = "<!DOCTYPE html><html><body><h1> StaticFileHTTPRequest </h1><p> Static file served from location with path = " + this->location.getUploadPath() + " </p></body></html>";
-        std::stringstream ss;
-
-        ss << "HTTP/1.1 200 OK\r\n"
-           << "Content-Type: text/html\r\n"
-           << "Content-Length: " << bodyContent.size()
-           << "\r\n\r\n"
-           << bodyContent;
-
-        if (false /* check if file not found. Comment this if to test 404 */)
+        else if (esDirectorio(rutaCompleta))
         {
-            return HTTPResponse404();
+            if (true) {//De momento entra siempre aqui, pero aqui ira la logica de autoindex
+                std::string rutaConIndex = rutaCompleta + this->location.getCfgValueFrom("index");
+                if (esArchivo(rutaConIndex))
+                {
+                    response.setResponse(getReponse(rutaConIndex));
+                }
+                else
+                    return HTTPResponse404();
+            }
         }
-
-        response.setResponse(ss.str());
-        
-    }
-    catch (const std::runtime_error& e) 
-    {
-        std::cerr << "Error de tiempo de ejecución: " << e.what() << std::endl;
-        return HTTPResponse500();
-
+        else
+            return HTTPResponse404();
+        return response;
     }
     catch (...)
     {
-        return (HTTPResponse404());
+        return (HTTPResponse500());
     }
     return (response);
 }
