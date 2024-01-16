@@ -22,7 +22,9 @@ class LocationConfig{
 		const std::vector<std::pair<std::string, std::string> > & getUploadCfg(void) const;
 
 		// get specific fg value by name 
-		const std::string & getCfgValueFrom(std::string const & Key);
+		const std::string & getCfgValueFrom(std::string const & Key) const;
+		// check if specific key is in location
+		bool isKeyInLocation(std::string const & Key) const;
 		// specific method validation
 		bool isMethodInLocation(std::string verb);
 
