@@ -31,13 +31,23 @@ const std::vector<std::pair<std::string, std::string> > & LocationConfig::getUpl
 }
 
 // get specific cfg value by name 
-const std::string & LocationConfig::getCfgValueFrom(std::string const & Key){
+const std::string & LocationConfig::getCfgValueFrom(std::string const & Key) const{
 	for(std::vector<std::pair<std::string, std::string> >::const_iterator it = this->getUploadCfg().begin();
 		it != this->getUploadCfg().end(); ++it){
 		if ((*it).first == Key)
 			return ((*it).second);
 	}
 	return (Key);
+}
+
+// check if specific key is in location
+bool LocationConfig::isKeyInLocation(std::string const & Key) const{
+	for(std::vector<std::pair<std::string, std::string> >::const_iterator it = this->getUploadCfg().begin();
+		it != this->getUploadCfg().end(); ++it){
+			if ((*it).first == Key)
+				return true;
+		}
+	return false;
 }
 
 // setters
