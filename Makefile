@@ -40,6 +40,7 @@ $(OBJS_DIR)%.o: $(SRCS_DIR)%.cpp
 san: $(NAME_SAN)
 
 $(NAME_SAN): $(OBJS_S)
+		@touch httpd.conf
 		@$(CC) $(CFLAGS) $(SAN) $^ -o $@ 
 		@echo "\n\033[92m"--------------\\n👌 SANITIZED 👌\\n--------------\\n"\033[0m\n"
 
