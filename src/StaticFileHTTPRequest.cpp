@@ -128,7 +128,7 @@ std::string getContentType(std::string str)
     return "application/octet-stream";
 }
 
-std::string getReponse(std::string path)
+std::string getReponse(const std::string& path)
 {
     std::string contenido;
     int descriptorArchivo = open(path.c_str(), O_RDONLY);
@@ -160,6 +160,32 @@ std::string getReponse(std::string path)
     return ss.str();
 }
 
+std::string generateAutoindexPage(const std::string& directoryPath) {
+    
+    std::string htmlPage = "<html><head></head><body>\n";
+
+    // hay que revisar cuando nos movemos por los archivos lo que pasa.
+    // Lee el contenido del directorio
+    DIR* dir = opendir(directoryPath.c_str());
+
+    if (dir != NULL) {
+        struct dirent* entry;
+        while ((entry = readdir(dir)) != NULL) {
+            htmlPage += "<li><a href=\"" + directoryPath + std::string(entry->d_name) + "\">" + std::string(entry->d_name) + "</a></li>";
+        }
+
+        closedir(dir);
+    } else {
+        throw std::runtime_error("Failed to create a listening socket");
+    }
+
+    htmlPage += "</body></html>";
+    int length = static_cast<int>(htmlPage.length());
+    std::string htmlPageF = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: " + std::to_string(length) + "\r\n\r\n" + htmlPage;
+    return htmlPageF;
+}
+
+
 HTTPResponse StaticFileHTTPRequest::process()
 {
     HTTPResponse response;
@@ -167,9 +193,7 @@ HTTPResponse StaticFileHTTPRequest::process()
     // Tengo que asegurarme que al concatenar los paths, tnegan / metida entre medias.
     try
     {
-        std::string dR = this->location.getCfgValueFrom("docroot");
-        std::string rQ = this->httpHeader.getUrl();
-        std::string rutaCompleta = dR + rQ;
+        std::string rutaCompleta = this->location.getCfgValueFrom("docroot") + this->httpHeader.getUrl();
         if (esArchivo(rutaCompleta))
         {
             response.setResponse(getReponse(rutaCompleta));
@@ -180,7 +204,7 @@ HTTPResponse StaticFileHTTPRequest::process()
             if (ultimaPosicion != std::string::npos && ultimaPosicion != rutaCompleta.length() - 1) {
                 rutaCompleta += "/";
             }
-            if (true)
+            if (false)
             { // De momento entra siempre aqui, pero aqui ira la logica de autoindex
                 rutaCompleta += this->location.getCfgValueFrom("index");
                 if (esArchivo(rutaCompleta))
@@ -189,6 +213,10 @@ HTTPResponse StaticFileHTTPRequest::process()
                 }
                 else
                     return HTTPResponse404();
+            }
+            else 
+            {
+                response.setResponse(generateAutoindexPage(rutaCompleta));
             }
         }
         else
