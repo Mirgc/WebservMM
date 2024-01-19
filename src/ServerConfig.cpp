@@ -8,6 +8,7 @@ ServerConfig::ServerConfig()
         this->_docRoot = "/";
         this->_clientMaxBodySize = 1024;
         this->_index = "index.html";
+        this->_autoindex = "off";
 }
 
 ServerConfig::~ServerConfig() {}
@@ -28,6 +29,7 @@ ServerConfig &ServerConfig::operator=(const ServerConfig &obj)
                 this->_docRoot = obj._docRoot;
                 this->_clientMaxBodySize = obj._clientMaxBodySize;
                 this->_index = obj._index;
+                this->_autoindex = obj._autoindex;
                 this->_errorPageMap = obj._errorPageMap;
                 this->_locations = obj._locations;
                 this->_listendPorts = obj._listendPorts;
@@ -116,6 +118,10 @@ unsigned int ServerConfig::getClientMaxBodySize() const{
 	
 const std::string &ServerConfig::getIndex() const{
 	return (this->_index);
+}
+
+const std::string &ServerConfig::getAutoindex() const{
+	return (this->_autoindex);
 }
 
 const std::map<int, std::string> &ServerConfig::getErrorPageMap() const{

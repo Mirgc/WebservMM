@@ -180,6 +180,8 @@ void Parse::getNextServer(void){
 						this->_ProcesingLocation.push_back("docroot " + srvCfg.getDocRoot());
 					if(!this->isPartialStrInVector(" index", this->_ProcesingLocation))
 						this->_ProcesingLocation.push_back("index " + srvCfg.getIndex());
+					if(!this->isPartialStrInVector("autoindex", this->_ProcesingLocation))
+						this->_ProcesingLocation.push_back("autoindex " + srvCfg.getAutoindex());
 					this->_ProcesingLocation.push_back("}");
 					scope--;
 				}
