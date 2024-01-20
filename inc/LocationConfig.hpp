@@ -26,7 +26,7 @@ class LocationConfig{
 		// check if specific key is in location
 		bool isKeyInLocation(std::string const & Key) const;
 		// specific method validation
-		bool isMethodInLocation(std::string verb);
+		bool isMethodInLocation(std::string verb) const;
 
 		void setUploadPath(std::string const &UploadPath);
 		void setUploadCfg(std::pair<std::string, std::string> const &pair);
