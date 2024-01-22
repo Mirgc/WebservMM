@@ -70,7 +70,7 @@ std::ostream & operator<<(std::ostream & o, LocationConfig const & rhs){
 }
 
 // specific method validation
-bool LocationConfig::isMethodInLocation(std::string verb){
+bool LocationConfig::isMethodInLocation(std::string verb) const{
 	for(std::vector<std::pair<std::string, std::string> >::const_iterator it = this->getUploadCfg().begin();
 		it != this->getUploadCfg().end(); ++it){
 			if ((*it).first == "method" and (*it).second == verb)
