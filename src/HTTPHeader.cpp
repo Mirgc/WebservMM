@@ -21,6 +21,9 @@ HTTPHeader &HTTPHeader::operator=(HTTPHeader const &src)
 	if (this != &src)
 	{
 		this->header = src.header;
+		this->method = src.method;
+		this->url = src.url;
+		this->ver = src.ver;
 	}
 	return (*this);
 }
@@ -35,13 +38,33 @@ std::string HTTPHeader::getUrl() const
 	return (this->url);
 }
 
+bool	HTTPHeader::isMethod(std::string str) const
+{
+	for (std::vector<std::pair<std::string, std::string> >::const_iterator it = this->header.begin(); it != this->header.end(); ++it) {
+        if (it->first == str) {
+			return true;
+        }
+    }
+	return false;
+}
+
+std::string HTTPHeader::getHeader(std::string str) const
+{
+	for (std::vector<std::pair<std::string, std::string> >::const_iterator it = this->header.begin(); it != this->header.end(); ++it) {
+        if (it->first == str) {
+			return it->second;
+        }
+    }
+	return "";
+}
+
 bool HTTPHeader::addMethod(std::string line)
 {
 	std::istringstream lineStream(line);
 	lineStream >> this->method >> this->url >> this->ver;
 	std::string restoDelContenido;
     std::getline(lineStream, restoDelContenido);
-	if (restoDelContenido[0] == '\0') // Si hay un espacio ni si quiera despues del 1.1, falla
+	if (!restoDelContenido.compare("\r")) // Si hay un espacio ni si quiera despues del 1.1, falla
 		return false;
 	return true;
 }
