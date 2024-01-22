@@ -167,7 +167,6 @@ std::string generateAutoindexPage(const std::string& directoryPath) {
     // hay que revisar cuando nos movemos por los archivos lo que pasa.
     // Lee el contenido del directorio
     DIR* dir = opendir(directoryPath.c_str());
-
     if (dir != NULL) {
         struct dirent* entry;
         while ((entry = readdir(dir)) != NULL) {
@@ -185,6 +184,36 @@ std::string generateAutoindexPage(const std::string& directoryPath) {
     return htmlPageF;
 }
 
+std::string obtenerParteDespuesDeTerceraBarra(const std::string& url) {
+    size_t posPrimeraBarra = url.find('/');
+    size_t posSegundaBarra = url.find('/', posPrimeraBarra + 1);
+    size_t posTerceraBarra = url.find('/', posSegundaBarra + 1);
+
+    if (posTerceraBarra != std::string::npos) {
+        return url.substr(posTerceraBarra + 1);
+    } else {
+        // No se encontró la tercera barra, puedes manejar este caso según tus necesidades.
+        return "";
+    }
+}
+
+void removeSubstring(std::string& mainString, const std::string& substringToRemove) {
+    size_t pos = mainString.find(substringToRemove);
+    if (pos != std::string::npos) {
+        mainString.erase(pos, substringToRemove.length());
+    }
+}
+
+std::string StaticFileHTTPRequest::funciontemporal()
+{
+    std::string rutaCompleta;
+            rutaCompleta = this->httpHeader.getHeader("Referer");
+            rutaCompleta = "/" + obtenerParteDespuesDeTerceraBarra(rutaCompleta);
+            std::string tmp = this->httpHeader.getUrl();
+            removeSubstring(tmp, rutaCompleta);
+            rutaCompleta = "./" + tmp;
+            return rutaCompleta;
+}
 
 HTTPResponse StaticFileHTTPRequest::process()
 {
@@ -193,7 +222,14 @@ HTTPResponse StaticFileHTTPRequest::process()
     // Tengo que asegurarme que al concatenar los paths, tnegan / metida entre medias.
     try
     {
-        std::string rutaCompleta = this->location.getCfgValueFrom("docroot") + this->httpHeader.getUrl();
+        std::string rutaCompleta;
+        if (this->httpHeader.isMethod("Referer"))
+        {
+            rutaCompleta = this->funciontemporal();
+        }
+        else
+            rutaCompleta = this->location.getCfgValueFrom("docroot") + this->httpHeader.getUrl();
+        std::cout << "\n\n\n\n\n\n\n\n\n\n " << rutaCompleta << "\n\n\n\n\n\n\n";
         if (esArchivo(rutaCompleta))
         {
             response.setResponse(getReponse(rutaCompleta));
