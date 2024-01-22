@@ -170,7 +170,8 @@ std::string generateAutoindexPage(const std::string& directoryPath) {
     if (dir != NULL) {
         struct dirent* entry;
         while ((entry = readdir(dir)) != NULL) {
-            htmlPage += "<li><a href=\"" + directoryPath + std::string(entry->d_name) + "\">" + std::string(entry->d_name) + "</a></li>";
+            htmlPage += "<li><a href=\"" + std::string(entry->d_name) + "\">" + std::string(entry->d_name) + "</a></li>";
+            std::cout << directoryPath << std::string(entry->d_name) << std::endl;
         }
 
         closedir(dir);
@@ -223,13 +224,13 @@ HTTPResponse StaticFileHTTPRequest::process()
     try
     {
         std::string rutaCompleta;
-        if (this->httpHeader.isMethod("Referer"))
+        if (this->httpHeader.isMethod("Referer") && false)
         {
             rutaCompleta = this->funciontemporal();
         }
         else
             rutaCompleta = this->location.getCfgValueFrom("docroot") + this->httpHeader.getUrl();
-        std::cout << "\n\n\n\n\n\n\n\n\n\n " << rutaCompleta << "\n\n\n\n\n\n\n";
+        //std::cout << "\n\n\n\n\n\n\n\n\n\n " << rutaCompleta << "\n\n\n\n\n\n\n";
         if (esArchivo(rutaCompleta))
         {
             response.setResponse(getReponse(rutaCompleta));
@@ -240,7 +241,7 @@ HTTPResponse StaticFileHTTPRequest::process()
             if (ultimaPosicion != std::string::npos && ultimaPosicion != rutaCompleta.length() - 1) {
                 rutaCompleta += "/";
             }
-            if (false)
+            if (true)
             { // De momento entra siempre aqui, pero aqui ira la logica de autoindex
                 rutaCompleta += this->location.getCfgValueFrom("index");
                 if (esArchivo(rutaCompleta))
