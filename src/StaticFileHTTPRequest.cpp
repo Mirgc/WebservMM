@@ -160,6 +160,12 @@ std::string getReponse(const std::string& path)
     return ss.str();
 }
 
+std::string intToString(int value) {
+    char buffer[20];  // Suficientemente grande para almacenar números enteros comunes
+    std::sprintf(buffer, "%d", value);
+    return std::string(buffer);
+}
+
 std::string generateAutoindexPage(const std::string& directoryPath) {
     
     std::string htmlPage = "<html><head></head><body>\n";
@@ -181,7 +187,7 @@ std::string generateAutoindexPage(const std::string& directoryPath) {
 
     htmlPage += "</body></html>";
     int length = static_cast<int>(htmlPage.length());
-    std::string htmlPageF = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: " + std::to_string(length) + "\r\n\r\n" + htmlPage;
+    std::string htmlPageF = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: " + intToString(length) + "\r\n\r\n" + htmlPage;
     return htmlPageF;
 }
 
