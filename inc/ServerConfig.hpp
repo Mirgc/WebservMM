@@ -17,6 +17,7 @@ class ServerConfig{
 		unsigned int				_clientMaxBodySize;
 		std::string					_index;
 		std::string					_autoindex;
+		std::string					_upload_enable;
 		std::map<int, std::string>	_errorPageMap;
 		std::vector<LocationConfig>	_locations;
 
@@ -45,7 +46,10 @@ class ServerConfig{
 	const std::string &getDocRoot() const;
 	unsigned int getClientMaxBodySize() const;
 	const std::string &getIndex() const;
-	const std::string &getAutoindex() const;
+	const std::string &getUploadEnableStrValue() const;
+	bool getUploadEnableBool() const;
+	const std::string &getAutoIndexStrValue() const;
+	bool getAutoIndexBool() const;
 	int   getListenPortsSize() const;
 	const std::map<int, std::string> &getErrorPageMap() const;
 	const std::vector<LocationConfig> &getLocations() const;
