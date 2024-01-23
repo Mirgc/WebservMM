@@ -1,5 +1,6 @@
 #include "HTTPRequestFactory.hpp"
 #include "StaticFileHTTPRequest.hpp"
+#include "ErrorHTTPRequest.hpp"
 #include "LocationConfig.hpp"
 #include "ServerConfig.hpp"
 #include "HTTPHeader.hpp"
@@ -39,7 +40,10 @@ HTTPRequest *HTTPRequestFactory::createHTTPRequest(const ServerConfig &serverCon
     (void)httpBody;
 
     const LocationConfig &location = this->getLocationWithRequest(serverConfig, httpHeader);
-    // TODO: Check it is a valid verb and if not, return a 405 Method Not Allowed
+    if (!location.isMethodInLocation(httpHeader.getMethod()))
+    {
+        return (new ErrorHTTPRequest(serverConfig, location, httpHeader, 405));
+    }
 
     return (new StaticFileHTTPRequest(serverConfig, location, httpHeader));
 }

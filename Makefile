@@ -3,7 +3,7 @@ NAME_SAN 	= webserv_sanitized
 
 CC		= c++
 
-SAN 	= -fsanitize=address -g3
+SAN 	= -fsanitize=address -g3 -D DEBUG_MODE
 CFLAGS 	= -Wall -Werror -Wno-error=implicit-fallthrough -Wextra -std=c++98 --pedantic -MD -g3
 RM 		= rm -rf
 
@@ -40,6 +40,7 @@ $(OBJS_DIR)%.o: $(SRCS_DIR)%.cpp
 san: $(NAME_SAN)
 
 $(NAME_SAN): $(OBJS_S)
+		@touch httpd.conf
 		@$(CC) $(CFLAGS) $(SAN) $^ -o $@ 
 		@echo "\n\033[92m"--------------\\n👌 SANITIZED 👌\\n--------------\\n"\033[0m\n"
 
