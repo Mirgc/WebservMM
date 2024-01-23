@@ -40,6 +40,19 @@ const std::string & LocationConfig::getCfgValueFrom(std::string const & Key) con
 	return (Key);
 }
 
+// bool getters
+bool LocationConfig::getUploadEnableBool() const{
+        if(this->getCfgValueFrom("upload_enable").compare("on") == 0)
+                return(true);
+        return(false);
+}
+
+bool LocationConfig::getAutoIndexBool() const{
+        if(this->getCfgValueFrom("autoindex").compare("on") == 0)
+                return(true);
+        return(false);
+}
+
 // check if specific key is in location
 bool LocationConfig::isKeyInLocation(std::string const & Key) const{
 	for(std::vector<std::pair<std::string, std::string> >::const_iterator it = this->getUploadCfg().begin();
