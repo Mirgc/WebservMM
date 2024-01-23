@@ -221,7 +221,7 @@ HTTPResponse StaticFileHTTPRequest::process()
             if (lastPosition != std::string::npos && lastPosition != pathComplete.length() - 1) {
                 pathComplete += "/";
             }
-            if (this->location.getCfgValueFrom("autoindex") == "off")
+            if (!this->location.getAutoIndexBool())
             {
                 pathComplete += this->location.getCfgValueFrom("index");
                 if (isFile(pathComplete))
