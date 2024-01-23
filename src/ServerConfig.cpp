@@ -8,6 +8,8 @@ ServerConfig::ServerConfig()
         this->_docRoot = "/";
         this->_clientMaxBodySize = 1024;
         this->_index = "index.html";
+        this->_upload_enable = "off";
+        this->_autoindex = "off";
 }
 
 ServerConfig::~ServerConfig() {}
@@ -28,6 +30,8 @@ ServerConfig &ServerConfig::operator=(const ServerConfig &obj)
                 this->_docRoot = obj._docRoot;
                 this->_clientMaxBodySize = obj._clientMaxBodySize;
                 this->_index = obj._index;
+                this->_upload_enable = obj._upload_enable;
+                this->_autoindex = obj._autoindex;
                 this->_errorPageMap = obj._errorPageMap;
                 this->_locations = obj._locations;
                 this->_listendPorts = obj._listendPorts;
@@ -116,6 +120,26 @@ unsigned int ServerConfig::getClientMaxBodySize() const{
 	
 const std::string &ServerConfig::getIndex() const{
 	return (this->_index);
+}
+
+const std::string &ServerConfig::getUploadEnableStrValue() const{
+	return (this->_upload_enable);
+}
+
+bool ServerConfig::getUploadEnableBool() const{
+        if(this->getUploadEnableStrValue().compare("on") == 0)
+                return(true);
+        return(false);
+}
+
+const std::string &ServerConfig::getAutoIndexStrValue() const{
+	return (this->_autoindex);
+}
+
+bool ServerConfig::getAutoIndexBool() const{
+        if(this->getAutoIndexStrValue().compare("on") == 0)
+                return(true);
+        return(false);
 }
 
 const std::map<int, std::string> &ServerConfig::getErrorPageMap() const{

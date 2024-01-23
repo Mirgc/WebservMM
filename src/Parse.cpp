@@ -180,6 +180,10 @@ void Parse::getNextServer(void){
 						this->_ProcesingLocation.push_back("docroot " + srvCfg.getDocRoot());
 					if(!this->isPartialStrInVector(" index", this->_ProcesingLocation))
 						this->_ProcesingLocation.push_back("index " + srvCfg.getIndex());
+					if(!this->isPartialStrInVector("upload_enable", this->_ProcesingLocation))
+						this->_ProcesingLocation.push_back("upload_enable " + srvCfg.getUploadEnableStrValue());
+					if(!this->isPartialStrInVector("autoindex", this->_ProcesingLocation))
+						this->_ProcesingLocation.push_back("autoindex " + srvCfg.getAutoIndexStrValue());
 					this->_ProcesingLocation.push_back("}");
 					scope--;
 				}
