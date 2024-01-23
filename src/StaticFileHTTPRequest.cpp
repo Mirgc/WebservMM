@@ -40,13 +40,13 @@ StaticFileHTTPRequest *StaticFileHTTPRequest::clone()
     return (new StaticFileHTTPRequest(*this));
 }
 
-bool esArchivo(const std::string &ruta)
+bool isFile(const std::string &ruta)
 {
     struct stat info;
     return stat(ruta.c_str(), &info) == 0 && S_ISREG(info.st_mode);
 }
 
-bool esDirectorio(const std::string &ruta)
+bool isDirectory(const std::string &ruta)
 {
     DIR *directorio = opendir(ruta.c_str());
     if (directorio != NULL)
@@ -166,18 +166,30 @@ std::string intToString(int value) {
     return std::string(buffer);
 }
 
-std::string generateAutoindexPage(const std::string& directoryPath) {
+void removeSubstring(std::string& mainString, const std::string& substringToRemove) {
+    size_t pos = mainString.find(substringToRemove);
+    if (pos != std::string::npos) {
+        mainString.erase(pos, substringToRemove.length());
+    }
+}
+
+std::string StaticFileHTTPRequest::generateAutoindexPage(const std::string& directoryPath) {
     
     std::string htmlPage = "<html><head></head><body>\n";
 
     // hay que revisar cuando nos movemos por los archivos lo que pasa.
     // Lee el contenido del directorio
     DIR* dir = opendir(directoryPath.c_str());
+    std::string dc = directoryPath.c_str();
+    removeSubstring(dc, this->location.getCfgValueFrom("docroot"));
+    size_t lastPosition = dc.find_last_of('/');
+    if (lastPosition != std::string::npos && lastPosition != dc.length() - 1) {
+        dc += "/";
+    }
     if (dir != NULL) {
         struct dirent* entry;
         while ((entry = readdir(dir)) != NULL) {
-            htmlPage += "<li><a href=\"" + std::string(entry->d_name) + "\">" + std::string(entry->d_name) + "</a></li>";
-            std::cout << directoryPath << std::string(entry->d_name) << std::endl;
+            htmlPage += "<li><a href=\"" + dc + std::string(entry->d_name) + "\">" + std::string(entry->d_name) + "</a></li>";
         }
 
         closedir(dir);
@@ -191,75 +203,37 @@ std::string generateAutoindexPage(const std::string& directoryPath) {
     return htmlPageF;
 }
 
-std::string obtenerParteDespuesDeTerceraBarra(const std::string& url) {
-    size_t posPrimeraBarra = url.find('/');
-    size_t posSegundaBarra = url.find('/', posPrimeraBarra + 1);
-    size_t posTerceraBarra = url.find('/', posSegundaBarra + 1);
-
-    if (posTerceraBarra != std::string::npos) {
-        return url.substr(posTerceraBarra + 1);
-    } else {
-        // No se encontró la tercera barra, puedes manejar este caso según tus necesidades.
-        return "";
-    }
-}
-
-void removeSubstring(std::string& mainString, const std::string& substringToRemove) {
-    size_t pos = mainString.find(substringToRemove);
-    if (pos != std::string::npos) {
-        mainString.erase(pos, substringToRemove.length());
-    }
-}
-
-std::string StaticFileHTTPRequest::funciontemporal()
-{
-    std::string rutaCompleta;
-            rutaCompleta = this->httpHeader.getHeader("Referer");
-            rutaCompleta = "/" + obtenerParteDespuesDeTerceraBarra(rutaCompleta);
-            std::string tmp = this->httpHeader.getUrl();
-            removeSubstring(tmp, rutaCompleta);
-            rutaCompleta = "./" + tmp;
-            return rutaCompleta;
-}
-
 HTTPResponse StaticFileHTTPRequest::process()
 {
     HTTPResponse response;
-
+    std::string pathComplete;
     // Tengo que asegurarme que al concatenar los paths, tnegan / metida entre medias.
     try
     {
-        std::string rutaCompleta;
-        if (this->httpHeader.isMethod("Referer") && false)
+        pathComplete = this->location.getCfgValueFrom("docroot") + this->httpHeader.getUrl();
+        if (isFile(pathComplete))
         {
-            rutaCompleta = this->funciontemporal();
+            response.setResponse(getReponse(pathComplete));
         }
-        else
-            rutaCompleta = this->location.getCfgValueFrom("docroot") + this->httpHeader.getUrl();
-        //std::cout << "\n\n\n\n\n\n\n\n\n\n " << rutaCompleta << "\n\n\n\n\n\n\n";
-        if (esArchivo(rutaCompleta))
+        else if (isDirectory(pathComplete))
         {
-            response.setResponse(getReponse(rutaCompleta));
-        }
-        else if (esDirectorio(rutaCompleta))
-        {
-            size_t ultimaPosicion = rutaCompleta.find_last_of('/');
-            if (ultimaPosicion != std::string::npos && ultimaPosicion != rutaCompleta.length() - 1) {
-                rutaCompleta += "/";
+            size_t lastPosition = pathComplete.find_last_of('/');
+            if (lastPosition != std::string::npos && lastPosition != pathComplete.length() - 1) {
+                pathComplete += "/";
             }
-            if (true)
-            { // De momento entra siempre aqui, pero aqui ira la logica de autoindex
-                rutaCompleta += this->location.getCfgValueFrom("index");
-                if (esArchivo(rutaCompleta))
+            if (this->location.getCfgValueFrom("autoindex") == "off")
+            {
+                pathComplete += this->location.getCfgValueFrom("index");
+                if (isFile(pathComplete))
                 {
-                    response.setResponse(getReponse(rutaCompleta));
+                    response.setResponse(getReponse(pathComplete));
                 }
                 else
                     return HTTPResponse404();
             }
             else 
             {
-                response.setResponse(generateAutoindexPage(rutaCompleta));
+                response.setResponse(this->generateAutoindexPage(pathComplete));
             }
         }
         else
