@@ -26,7 +26,8 @@ class HTTPHeader
 		bool		addMethod(std::string line);
 		void		printHeader(void) const;
 		bool		checkMethod(void) const;
-
+		bool		isMethod(std::string str) const;
+		std::string getHeader(std::string str) const;
 		std::string	generateResponse(void) const;
 		void		parseHTTPHeader (const std::string& request);
 
