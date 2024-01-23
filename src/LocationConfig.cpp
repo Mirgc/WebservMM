@@ -40,6 +40,7 @@ const std::string & LocationConfig::getCfgValueFrom(std::string const & Key) con
 	return (Key);
 }
 
+// bool getters
 bool LocationConfig::getUploadEnableBool() const{
         if(this->getCfgValueFrom("upload_enable").compare("on") == 0)
                 return(true);
