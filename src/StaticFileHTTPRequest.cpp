@@ -128,36 +128,41 @@ std::string getContentType(std::string str)
     return "application/octet-stream";
 }
 
-std::string getReponse(const std::string& path)
+std::string getResponse(const std::string& path)
 {
-    std::string contenido;
     int descriptorArchivo = open(path.c_str(), O_RDONLY);
-    if (descriptorArchivo == -1)
-    {
-        throw std::runtime_error("Failed to create a listening socket");
+    if (descriptorArchivo == -1) {
+        throw std::runtime_error("Failed to open the file");
     }
-    char buffer[4096]; // Puedes ajustar el tamaño del buffer según tus necesidades
-    ssize_t tmp;
-    ssize_t bytesLeidos = 0;
-    while ((tmp = read(descriptorArchivo, buffer, sizeof(buffer))) > 0)
-    {
-        bytesLeidos += tmp;
-        contenido.append(buffer, bytesLeidos);
-    }
-    if (bytesLeidos == -1)
-    {
-        throw std::runtime_error("Failed to create a listening socket");
-    }
-    close(descriptorArchivo);
+
     std::stringstream ss;
+    const int bufferSize = 4096;
+    char buffer[bufferSize];
+    ssize_t bytesLeidos;
+
+    while ((bytesLeidos = read(descriptorArchivo, buffer, sizeof(buffer))) > 0) {
+        ss.write(buffer, bytesLeidos);
+    }
+
+    if (bytesLeidos == -1) {
+        throw std::runtime_error("Failed to create a listening socket");
+    }
+
+    close(descriptorArchivo);
+
+    std::string contenido = ss.str();
+    
+    ss.str("");  // Limpiar el stringstream para reutilizarlo
     ss << "HTTP/1.1 200 OK\r\n"
        << "Content-Type: "
        << getContentType(path)
        << "\r\n"
-       << "Content-Length: " << bytesLeidos
+       << "Content-Length: " << contenido.size()
        << "\r\n\r\n"
        << contenido;
+
     return ss.str();
+
 }
 
 std::string intToString(int value) {
@@ -213,7 +218,7 @@ HTTPResponse StaticFileHTTPRequest::process()
         pathComplete = this->location.getCfgValueFrom("docroot") + this->httpHeader.getUrl();
         if (isFile(pathComplete))
         {
-            response.setResponse(getReponse(pathComplete));
+            response.setResponse(getResponse(pathComplete));
         }
         else if (isDirectory(pathComplete))
         {
@@ -226,7 +231,7 @@ HTTPResponse StaticFileHTTPRequest::process()
                 pathComplete += this->location.getCfgValueFrom("index");
                 if (isFile(pathComplete))
                 {
-                    response.setResponse(getReponse(pathComplete));
+                    response.setResponse(getResponse(pathComplete));
                 }
                 else
                     return HTTPResponse404();
