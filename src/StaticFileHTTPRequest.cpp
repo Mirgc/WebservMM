@@ -60,36 +60,36 @@ bool isDirectory(const std::string &ruta)
 
 std::string getResponse(const std::string& path)
 {
-    int descriptorArchivo = open(path.c_str(), O_RDONLY);
-    if (descriptorArchivo == -1) {
+    int fd = open(path.c_str(), O_RDONLY);
+    if (fd == -1) {
         throw std::runtime_error("Failed to open the file");
     }
 
     std::stringstream ss;
     const int bufferSize = 4096;
     char buffer[bufferSize];
-    ssize_t bytesLeidos;
+    ssize_t bytesReaded;
 
-    while ((bytesLeidos = read(descriptorArchivo, buffer, sizeof(buffer))) > 0) {
-        ss.write(buffer, bytesLeidos);
+    while ((bytesReaded = read(fd, buffer, sizeof(buffer))) > 0) {
+        ss.write(buffer, bytesReaded);
     }
 
-    if (bytesLeidos == -1) {
+    if (bytesReaded == -1) {
         throw std::runtime_error("Failed to create a listening socket");
     }
 
-    close(descriptorArchivo);
+    close(fd);
 
-    std::string contenido = ss.str();
+    std::string content = ss.str();
     
     ss.str("");  // Limpiar el stringstream para reutilizarlo
     ss << "HTTP/1.1 200 OK\r\n"
        << "Content-Type: "
        << MIMETypes::getContentType(path)
        << "\r\n"
-       << "Content-Length: " << contenido.size()
+       << "Content-Length: " << content.size()
        << "\r\n\r\n"
-       << contenido;
+       << content;
 
     return ss.str();
 
