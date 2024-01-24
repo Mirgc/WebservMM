@@ -227,11 +227,11 @@ void ServeRequestEventHandler::setRequestStatus(t_http_request_status requestSta
 		isInvalidStatus = (requestStatus != REQUEST_STATUS_CLOSED_OK);
 	}
 
-	if (isInvalidStatus)
-	{
-		std::cout << "ServeRequestEventHandler::setRequestStatus invalid set from " << (std::string)this->requestStatus << " to " << requestStatus << std::endl;
-		throw std::runtime_error("erveRequestEventHandler::setRequestStatus error.");
-	}
+//	if (isInvalidStatus)
+//	{
+//		std::cout << "ServeRequestEventHandler::setRequestStatus invalid set from " << (std::string)this->requestStatus << " to " << requestStatus << std::endl;
+//		throw std::runtime_error("erveRequestEventHandler::setRequestStatus error.");
+//	}
 #endif
 
     this->requestStatus.setStatus(requestStatus);
