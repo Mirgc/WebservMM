@@ -20,7 +20,7 @@ public:
 
     // We need a way to clone a derived instance not knowing its derived form
     StaticFileHTTPRequest * clone();
-    std::string funciontemporal();
+    std::string generateAutoindexPage(const std::string& directoryPath);
 
 
     HTTPResponse process();
