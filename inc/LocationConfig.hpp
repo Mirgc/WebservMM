@@ -23,9 +23,17 @@ class LocationConfig{
 
 		// get specific fg value by name 
 		const std::string & getCfgValueFrom(std::string const & Key) const;
+		// specific string getters
+		const std::string getProxyPass() const;
+		const std::string getRedirection() const;
+		const std::string getDocroot() const;
+		const std::string getIndex() const;
 		// bool getters
 		bool getAutoIndexBool() const;
 		bool getUploadEnableBool() const;
+		bool getMethodGetBool() const;
+		bool getMethodPostBool() const;
+		bool getMethodDeleteBool() const;
 		// check if specific key is in location
 		bool isKeyInLocation(std::string const & Key) const;
 		// specific method validation
