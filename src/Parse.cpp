@@ -397,7 +397,7 @@ std::vector<unsigned int> Parse::splitPorts(const std::string &s){
 			listenedPorts.push_back(port);
 		else if (port > 0 and port < 1024){
 			char str[4];
-			snprintf(str, 4, "%d", port);
+			std::sprintf(str, "%d", port);
 			std::string sport(str);
 			throw ParseException("Reserved Port => " + sport);
 		}
