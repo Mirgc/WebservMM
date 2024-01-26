@@ -17,6 +17,8 @@ class Parse: public ConfigFileParser{
 		std::vector<std::string>    	_ProcesingLocation;
 		std::vector<LocationConfig>  	_ParsedLocations;
 		std::vector<ServerConfig>  		_ParsedCfgs;
+		std::vector<unsigned int>		 _PortPool;
+		std::vector<std::string>    	_ServernamePool;
 
 	public:
 		Parse(void);
@@ -33,6 +35,8 @@ class Parse: public ConfigFileParser{
 		const LocationConfig & getParsedLocationAt(const unsigned int pos) const;
 		const std::vector<ServerConfig> & getParsedCfgs(void) const;
 		const ServerConfig & getParsedCfgAt(const unsigned int pos) const;
+		const std::vector<unsigned int> & getPortPool(void) const;
+		const std::vector<std::string> & getSevernamePool(void) const;
 
 		void setServerName(std::string const &ServerName);
 		void setProcesingLocations(std::vector<std::string> const & ProcesingLocation);
@@ -45,6 +49,8 @@ class Parse: public ConfigFileParser{
 		// add one to vector
 		void addProcesingLocations(std::string const & ProcesingLocation);
 		void addParsedLocations(LocationConfig const & ParsedLocation);
+		void addPortToPool(unsigned int const &NewPort);
+		void addServerNameToPool(std::string const &NewServerName);
 
 		// Get all server config to process it
 		void getNextServer(void);
