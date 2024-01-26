@@ -21,6 +21,9 @@ HTTPHeader &HTTPHeader::operator=(HTTPHeader const &src)
 	if (this != &src)
 	{
 		this->header = src.header;
+		this->method = src.method;
+		this->url = src.url;
+		this->ver = src.ver;
 	}
 	return (*this);
 }
@@ -41,14 +44,27 @@ bool HTTPHeader::addMethod(std::string line)
 	lineStream >> this->method >> this->url >> this->ver;
 	std::string restoDelContenido;
     std::getline(lineStream, restoDelContenido);
-	if (restoDelContenido[0] == '\0') // Si hay un espacio ni si quiera despues del 1.1, falla
+    if (!restoDelContenido.compare("\r"))
 		return false;
 	return true;
 }
+
 // Could be null values?? if so, we can check value1 & value2  anf throw exception
 void HTTPHeader::addHeader(const std::string &value1, const std::string &value2)
 {
 	this->header.push_back(std::make_pair(value1, value2));
+}
+
+std::string HTTPHeader::getHeaderValueWithKey(const std::string & key) const
+{
+	for (size_t i = 0; i < this->header.size(); ++i)
+	{
+        if (this->header[i].first == key) {
+            return this->header[i].second;
+        }
+	}
+
+    return std::string();
 }
 
 std::string HTTPHeader::generateResponse(void) const

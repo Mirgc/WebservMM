@@ -23,6 +23,7 @@ class HTTPHeader
 		std::string getUrl() const;
 
 		void		addHeader(const std::string & value1, const std::string & value2);
+		std::string getHeaderValueWithKey(const std::string & key) const;
 		bool		addMethod(std::string line);
 		void		printHeader(void) const;
 		bool		checkMethod(void) const;

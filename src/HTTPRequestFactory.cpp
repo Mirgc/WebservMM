@@ -1,6 +1,7 @@
 #include "HTTPRequestFactory.hpp"
 #include "StaticFileHTTPRequest.hpp"
 #include "ErrorHTTPRequest.hpp"
+#include "CGIHTTPRequest.hpp"
 #include "LocationConfig.hpp"
 #include "ServerConfig.hpp"
 #include "HTTPHeader.hpp"
@@ -37,12 +38,14 @@ HTTPRequest *HTTPRequestFactory::createHTTPRequest(const ServerConfig &serverCon
     // Upload request
     // Any other?
 
-    (void)httpBody;
-
     const LocationConfig &location = this->getLocationWithRequest(serverConfig, httpHeader);
     if (!location.isMethodInLocation(httpHeader.getMethod()))
     {
         return (new ErrorHTTPRequest(serverConfig, location, httpHeader, 405));
+    }
+
+    if (location.isPyCgi()) {
+        return (new CGIHTTPRequest(serverConfig, location, httpHeader, httpBody));
     }
 
     return (new StaticFileHTTPRequest(serverConfig, location, httpHeader));
@@ -55,11 +58,11 @@ const LocationConfig HTTPRequestFactory::getLocationWithRequest(
 {
     std::vector<LocationConfig> locations = serverConfig.getLocations();
     for (size_t i = 0; i < locations.size(); ++i) {
-        // TODO: We need to identify CGI locations
         // Checks for cgi extension match
-        // if (httpHeader.getExtension() == locations[i].getPath()) {
-        //     return locations[i];
-        // }
+        if ( httpHeader.getUrl().find(".py") != std::string::npos &&
+             locations[i].getUploadPath().find(".py") != std::string::npos) {
+            return locations[i];
+        }
 
         // Checks for part starting with
         if (httpHeader.getUrl().find(locations[i].getUploadPath()) == 0) {
