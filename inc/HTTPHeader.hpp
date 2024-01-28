@@ -30,6 +30,7 @@ class HTTPHeader
 		std::string getHeader(std::string str) const;
 		std::string	generateResponse(void) const;
 		void		parseHTTPHeader (const std::string& request);
+		std::string getQueryString(void);
 
 };
 
