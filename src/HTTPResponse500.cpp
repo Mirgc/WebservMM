@@ -28,7 +28,7 @@ HTTPResponse500 &HTTPResponse500::operator=(const HTTPResponse500 &rhs)
 	return (*this);
 }
 
-HTTPResponse500::HTTPResponse500(const HTTPResponse500 &src)
+HTTPResponse500::HTTPResponse500(const HTTPResponse500 &src) : HTTPResponse(src)
 {
 	*this = src;
 }

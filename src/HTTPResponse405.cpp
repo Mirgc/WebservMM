@@ -23,12 +23,13 @@ HTTPResponse405::~HTTPResponse405() {}
 
 HTTPResponse405 &HTTPResponse405::operator=(const HTTPResponse405 &rhs)
 {
-	if (this != &rhs) {
-    }
+	if (this != &rhs)
+	{
+	}
 	return (*this);
 }
 
-HTTPResponse405::HTTPResponse405(const HTTPResponse405 &src)
+HTTPResponse405::HTTPResponse405(const HTTPResponse405 &src) : HTTPResponse(src)
 {
 	*this = src;
 }
