@@ -41,20 +41,19 @@ HTTPResponse ErrorHTTPRequest::process() {
     try {
         if (this->httpResponseStatusCode >= 400 && this->httpResponseStatusCode < 500) {
             if (this->httpResponseStatusCode == 405) {
-                return HTTPResponse405();
+                return HTTPResponse405(this->serverConfig.get405Content());
             }
-            return HTTPResponse404();
+            return HTTPResponse404(this->serverConfig.get404Content());
         }
         else if (this->httpResponseStatusCode >= 500 && this->httpResponseStatusCode < 600) {
-            return HTTPResponse500();
+            return (HTTPResponse500(this->serverConfig.get500Content()));
         }
 
         std::cout << "ErrorHTTPRequest: Not supportted http response status code: " << this->httpResponseStatusCode << std::endl;
 
     } catch (...) {
-        return HTTPResponse500();
+        return (HTTPResponse500(this->serverConfig.get500Content()));
     }
-
-    return (HTTPResponse500());
+    return (HTTPResponse500(this->serverConfig.get500Content()));
 }
 

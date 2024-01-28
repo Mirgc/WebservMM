@@ -164,7 +164,7 @@ HTTPResponse StaticFileHTTPRequest::process()
                     response.setResponse(getResponse(pathComplete));
                 }
                 else
-                    return HTTPResponse404();
+                    return HTTPResponse404(this->serverConfig.get404Content());
             }
             else 
             {
@@ -172,12 +172,12 @@ HTTPResponse StaticFileHTTPRequest::process()
             }
         }
         else
-            return HTTPResponse404();
+            return HTTPResponse404(this->serverConfig.get404Content());
         return response;
     }
     catch (...)
     {
-        return (HTTPResponse500());
+        return (HTTPResponse500(this->serverConfig.get500Content()));
     }
     return (response);
 }
