@@ -140,10 +140,26 @@ std::string CGIHTTPRequest::execCGI(std::string cgiScriptRelativePath, std::stri
         close(pipeCGIToWebserver[FD_IN]);
 
 		// We are at the main process waiting for child to finish.
-        // TODO: Control timeouts here      
-		pid_t result;
+		pid_t pid = 0;
 		int status;
-		result = waitpid(pid, &status, 0);
+        time_t t;
+
+        time(&t);
+
+        do {
+            pid = waitpid(pid, &status, WNOHANG);
+            if (pid == -1) {
+        		throw std::runtime_error("wait() error");
+            }
+            else if (pid == 0) {
+                // child is still running at %s", ctime(&t)
+                time(&t);
+                sleep(1);
+            }
+            else {
+        		throw std::runtime_error("Child closed with error");
+            }
+        } while (pid == 0);
 	}
     
 	return (output);
