@@ -20,7 +20,7 @@ class HTTPHeader
 		std::string ver;
 
 		std::string getMethod() const;
-		std::string getUrl() const;
+        std::string getUrl(bool removeQueryString = true) const;
 
 		void		addHeader(const std::string & value1, const std::string & value2);
 		std::string getHeaderValueWithKey(const std::string & key) const;

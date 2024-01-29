@@ -33,9 +33,18 @@ std::string HTTPHeader::getMethod() const
 	return (this->method);
 }
 
-std::string HTTPHeader::getUrl() const
+std::string HTTPHeader::getUrl(bool removeQueryString) const
 {
-	return (this->url);
+    if (!removeQueryString) {
+        return (this->url);
+    }
+
+    std::size_t queryPosition = this->url.find("?");
+    if (queryPosition != std::string::npos)
+        return this->url.substr(0, queryPosition);
+    else
+        return this->url;
+
 }
 
 bool HTTPHeader::isMethod(std::string str) const

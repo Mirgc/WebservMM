@@ -52,17 +52,17 @@ HTTPResponse CGIHTTPRequest::process()
         std::string scriptPath = Path::concatenate(this->location.getCfgValueFrom("docroot"), this->httpHeader.getUrl());
         if (!Path::isFileAccessible(scriptPath))
         {
-			return HTTPResponse404();
+			return HTTPResponse404(this->serverConfig.get404Content());
         }
 
         // TODO: Get real query string here once http parser is ready
-        std::string responseContent = this->execCGI(scriptPath, "num1=11,num2=22");
+        std::string responseContent = this->execCGI(scriptPath, this->httpHeader.getQueryString());
 
 		response.setResponse(responseContent);
 	}
 	catch (...)
 	{
-		return HTTPResponse500();
+		return HTTPResponse500(this->serverConfig.get500Content());
 	}
 
 	return (response);
