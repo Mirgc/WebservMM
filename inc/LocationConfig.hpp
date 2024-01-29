@@ -19,6 +19,8 @@ class LocationConfig{
 		LocationConfig & operator=(LocationConfig const & rhs);
 
 		std::string const & getUploadPath(void) const;
+        bool isPyCgi() const;
+
 		const std::vector<std::pair<std::string, std::string> > & getUploadCfg(void) const;
 
 		// get specific fg value by name 
