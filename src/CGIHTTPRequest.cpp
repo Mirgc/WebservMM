@@ -4,6 +4,7 @@
 #include <iostream>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <cstring>
 
 #include "CGIHTTPRequest.hpp"
 #include "HTTPResponse.hpp"
