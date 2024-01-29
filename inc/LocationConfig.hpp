@@ -22,9 +22,22 @@ class LocationConfig{
 		const std::vector<std::pair<std::string, std::string> > & getUploadCfg(void) const;
 
 		// get specific fg value by name 
-		const std::string & getCfgValueFrom(std::string const & Key);
+		const std::string & getCfgValueFrom(std::string const & Key) const;
+		// specific string getters
+		const std::string getProxyPass() const;
+		const std::string getRedirection() const;
+		const std::string getDocroot() const;
+		const std::string getIndex() const;
+		// bool getters
+		bool getAutoIndexBool() const;
+		bool getUploadEnableBool() const;
+		bool getMethodGetBool() const;
+		bool getMethodPostBool() const;
+		bool getMethodDeleteBool() const;
+		// check if specific key is in location
+		bool isKeyInLocation(std::string const & Key) const;
 		// specific method validation
-		bool isMethodInLocation(std::string verb);
+		bool isMethodInLocation(std::string verb) const;
 
 		void setUploadPath(std::string const &UploadPath);
 		void setUploadCfg(std::pair<std::string, std::string> const &pair);

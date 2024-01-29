@@ -19,6 +19,8 @@ Parse& Parse::operator=(const Parse &rhs){
 	this->_ProcesingLocation = rhs.getProcesingLocation();
 	this->_ParsedLocations = rhs.getParsedLocations();
 	this->_ParsedCfgs = rhs.getParsedCfgs();
+	this->_PortPool = rhs.getPortPool();
+	this->_ServernamePool = rhs.getSevernamePool();
 	return (*this);
 }
 
@@ -47,6 +49,14 @@ const ServerConfig & Parse::getParsedCfgAt(const unsigned int pos) const{
 	return(this->_ParsedCfgs.at(pos));
 }
 
+const std::vector<unsigned int> & Parse::getPortPool(void) const{
+	return(this->_PortPool);
+}
+
+const std::vector<std::string> & Parse::getSevernamePool(void) const{
+	return(this->_ServernamePool);
+}
+
 // Setters
 void Parse::setServerName(std::string const &ServerName){
  	this->_ServerName = ServerName;
@@ -66,6 +76,14 @@ void Parse::addProcesingLocations(std::string const &ProcesingLocation){
 
 void Parse::addParsedLocations(LocationConfig const &ParsedLocation){
  	this->_ParsedLocations.push_back(ParsedLocation);
+}
+
+void Parse::addPortToPool(unsigned int const &NewPort){
+ 	this->_PortPool.push_back(NewPort);
+}
+
+void Parse::addServerNameToPool(std::string const &NewServerName){
+ 	this->_ServernamePool.push_back(NewServerName);
 }
 
 void Parse::setServerCfg(std::vector<std::string> const & serverCfg){
@@ -112,9 +130,10 @@ void Parse::getNextServer(void){
 			if((*start).find("server_name") != std::string::npos){
 				const std::string WHITESPACE = " \n\r\t\f\v";
 				this->_ServerName = StringTools::trim((*start).substr((*start).find("server_name")+11, std::string::npos));
-				if (this->_ServerName.empty() or this->_ServerName.find_first_of(WHITESPACE) != std::string::npos)
+				if (this->_ServerName.empty() or this->_ServerName.find_first_of(WHITESPACE) != std::string::npos or this->isStrInVector(this->_ServerName, this->getSevernamePool()))
 						throw ParseException("Invalid Server Name");
 				srvCfg.setServerName(this->_ServerName);
+				this->addServerNameToPool(this->_ServerName);
 			}
 
 			// ErrorPage Parse and some exceptions
@@ -180,6 +199,10 @@ void Parse::getNextServer(void){
 						this->_ProcesingLocation.push_back("docroot " + srvCfg.getDocRoot());
 					if(!this->isPartialStrInVector(" index", this->_ProcesingLocation))
 						this->_ProcesingLocation.push_back("index " + srvCfg.getIndex());
+					if(!this->isPartialStrInVector("upload_enable", this->_ProcesingLocation))
+						this->_ProcesingLocation.push_back("upload_enable " + srvCfg.getUploadEnableStrValue());
+					if(!this->isPartialStrInVector("autoindex", this->_ProcesingLocation))
+						this->_ProcesingLocation.push_back("autoindex " + srvCfg.getAutoIndexStrValue());
 					this->_ProcesingLocation.push_back("}");
 					scope--;
 				}
@@ -205,11 +228,6 @@ void Parse::ParseLocations(ServerConfig srvCfg){
 	std::vector<std::string>::iterator it;
 	std::vector<std::string>::iterator itend;
 
-	// This list of valid CFG keys may increase as needed and we should discuss a possible value list.
-	std::string  Keys[] = { "proxy_pass", "method", "upload_enable", "upload_path",
-							"redirection", "docroot", "autoindex", "index" };
-	std::vector<std::string>  filledVector(Keys, Keys + sizeof(Keys)/sizeof(Keys[0]));
-
 	std::string key;
 	std::string value;
 
@@ -220,6 +238,16 @@ void Parse::ParseLocations(ServerConfig srvCfg){
 	const std::string WHITESPACE = " }\n\r\t\f\v{";
 	while (start != end)
 	{
+		// This list of valid CFG keys may increase as needed and we should discuss a possible value list.
+		// restarted for each location
+		std::string  Keys[] = { "proxy_pass", "method", "upload_enable", "upload_path",
+								"redirection", "docroot", "autoindex", "index" };
+		std::vector<std::string>  filledKeys(Keys, Keys + sizeof(Keys)/sizeof(Keys[0]));
+
+		// Only one of each method is accepted per location
+		std::string  Methods[] = { "GET", "POST", "DELETE"};
+		std::vector<std::string>  filledMethods(Methods, Methods + sizeof(Methods)/sizeof(Methods[0]));
+
 		LocationConfig loc = LocationConfig();
 		loc.setUploadPath(StringTools::trim((*start).substr((*start).find("location")+8, std::string::npos)));
 		if(loc.getUploadPath().at(0) != '/' and !this->isPyCgi(loc.getUploadPath()))
@@ -229,7 +257,7 @@ void Parse::ParseLocations(ServerConfig srvCfg){
 		while (start != itend){
 			key = (*start).substr(StringTools::trim(*start).find_first_not_of(WHITESPACE), StringTools::trim(*start).find_first_of(WHITESPACE));
 			value = StringTools::trim((*start).substr(StringTools::trim(*start).find_last_of(WHITESPACE), StringTools::trim(*start).find_last_not_of(WHITESPACE)));
-			if(isStrInVector(key, filledVector)){
+			if(isStrInVector(key, filledKeys)){
 				valueValidation(key, value);
 				// if the location has a default doocroot path and the upload path is not a cgi path, 
 				// docroot will be set to the location's upload path name
@@ -238,6 +266,14 @@ void Parse::ParseLocations(ServerConfig srvCfg){
 						// and it is checked if it is a valid path
 						this->isValidPath(value = this->relativizePath(loc.getUploadPath()));
 				loc.setUploadCfg(std::make_pair(key, value));
+				// when a key, except methods, is once in a location, it cannot appear more times in the same location
+				// if is method only one per value is allowed
+				if(key != "method")
+					filledKeys.erase(std::find(filledKeys.begin(), filledKeys.end(), key));
+				else if(isStrInVector(value, filledMethods))
+					filledMethods.erase(std::find(filledMethods.begin(), filledMethods.end(), value));
+				else
+					throw ParseException("Syntax error near " + key + " duplicated " + value);
 			}
 			else
 				throw ParseException("Syntax error near " + key);
@@ -265,6 +301,14 @@ void Parse::setFullCfg(std::string const & configFile){
 
 // Is str in vector??
 bool Parse::isStrInVector(const std::string &s, std::vector<std::string> const & v){
+	
+	if(std::find(v.begin(), v.end(), s) != v.end())
+		return (true);
+	return false;
+}
+
+// Is int in vector??
+bool Parse::isIntInVector(const int &s, std::vector<unsigned int> const & v){
 	
 	if(std::find(v.begin(), v.end(), s) != v.end())
 		return (true);
@@ -368,11 +412,13 @@ std::vector<unsigned int> Parse::splitPorts(const std::string &s){
 		// having to know and justify the reason for the failure.
 		// Or maybe print that phrase here instead of throwing an exception 
 		// to complete the explanation by breaking the bind?
-		if(port > 1023 and port < 65535)
+		if(port > 1023 and port < 65535 and !isIntInVector(port, listenedPorts) and !isIntInVector(port, this->getPortPool())){
+			this->addPortToPool(port);
 			listenedPorts.push_back(port);
+		}
 		else if (port > 0 and port < 1024){
 			char str[4];
-			snprintf(str, 4, "%d", port);
+			std::sprintf(str, "%d", port);
 			std::string sport(str);
 			throw ParseException("Reserved Port => " + sport);
 		}

@@ -8,6 +8,8 @@ ServerConfig::ServerConfig()
         this->_docRoot = "/";
         this->_clientMaxBodySize = 1024;
         this->_index = "index.html";
+        this->_upload_enable = "off";
+        this->_autoindex = "off";
 }
 
 ServerConfig::~ServerConfig() {}
@@ -28,6 +30,8 @@ ServerConfig &ServerConfig::operator=(const ServerConfig &obj)
                 this->_docRoot = obj._docRoot;
                 this->_clientMaxBodySize = obj._clientMaxBodySize;
                 this->_index = obj._index;
+                this->_upload_enable = obj._upload_enable;
+                this->_autoindex = obj._autoindex;
                 this->_errorPageMap = obj._errorPageMap;
                 this->_locations = obj._locations;
                 this->_listendPorts = obj._listendPorts;
@@ -118,10 +122,103 @@ const std::string &ServerConfig::getIndex() const{
 	return (this->_index);
 }
 
+const std::string &ServerConfig::getUploadEnableStrValue() const{
+	return (this->_upload_enable);
+}
+
+bool ServerConfig::getUploadEnableBool() const{
+        if(this->getUploadEnableStrValue().compare("on") == 0)
+                return(true);
+        return(false);
+}
+
+const std::string &ServerConfig::getAutoIndexStrValue() const{
+	return (this->_autoindex);
+}
+
+bool ServerConfig::getAutoIndexBool() const{
+        if(this->getAutoIndexStrValue().compare("on") == 0)
+                return(true);
+        return(false);
+}
+
 const std::map<int, std::string> &ServerConfig::getErrorPageMap() const{
 	return (this->_errorPageMap);
 }
 
 const std::vector<LocationConfig> &ServerConfig::getLocations() const{
 	return (this->_locations);
+}
+
+bool ServerConfig::isErrorMap() const{
+        if(this->_errorPageMap.empty())
+                return false;
+        return true;
+}
+
+bool ServerConfig::isErrorInMap(int error) const{
+        if(this->getErrorPageMap().find(error) != this->getErrorPageMap().end())
+                return true;
+	return false; 
+}
+
+bool ServerConfig::isValidPath(const std::string path) const{
+        std::ifstream ifs(path.c_str());
+
+        if (ifs.is_open()){
+                ifs.close();
+	return true;
+        }
+        return false;
+}
+
+const std::string ServerConfig::getPath(int error) const{
+        if(this->isErrorMap() and this->isErrorInMap(error))
+                return(this->getErrorPageMap().find(error)->second);
+        return("");
+}
+
+const std::string ServerConfig::get404Content() const{
+       if(this->isValidPath(this->getPath(404))){
+        std::ifstream file(this->getPath(404).c_str());
+        std::string content;
+        std::string line;
+
+        while (std::getline(file, line))
+                content += line;
+        file.close();
+
+        return content; 
+       }
+       return ("");
+}
+
+const std::string ServerConfig::get405Content() const{
+       if(this->isValidPath(this->getPath(405))){
+        std::ifstream file(this->getPath(405).c_str());
+        std::string content;
+        std::string line;
+
+        while (std::getline(file, line))
+                content += line;
+        file.close();
+
+        return content; 
+       }
+       return ("");
+}
+
+const std::string ServerConfig::get500Content() const{
+       if(this->isValidPath(this->getPath(500))){
+        std::ifstream file(this->getPath(500).c_str());
+        std::string content;
+        std::string line;
+
+        while (std::getline(file, line))
+                content += line;
+        file.close();
+
+        return content; 
+       }
+       return ("");
 }

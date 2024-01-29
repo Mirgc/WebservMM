@@ -200,6 +200,49 @@ void ServeRequestEventHandler::setRequestStatus(t_http_request_status requestSta
     // TODO: We can check here that the current status is a valid status to move from
     // to the new status.
     // for instance we should not jump from waiting, to sending, because we havent read the request!
+
+#ifdef DEBUG_MODE
+	bool isInvalidStatus = true;
+    t_http_request_status currentStatus = this->requestStatus.getStatus();
+
+    if (currentStatus == REQUEST_STATUS_WAITING)
+	{
+		isInvalidStatus = requestStatus != REQUEST_STATUS_WAITING &&
+                          requestStatus != REQUEST_STATUS_READING_HEADERS &&
+                          requestStatus != REQUEST_STATUS_CLOSED_OK;
+	}
+	else if (currentStatus == REQUEST_STATUS_READING_HEADERS)
+	{
+		isInvalidStatus = (requestStatus != REQUEST_STATUS_READING_BODY);
+	}
+	else if (currentStatus == REQUEST_STATUS_READING_BODY)
+	{
+		isInvalidStatus = (requestStatus != REQUEST_STATUS_PROCESSING);
+	}
+	else if (currentStatus == REQUEST_STATUS_PROCESSING)
+	{
+		isInvalidStatus = (requestStatus != REQUEST_STATUS_PROCESSING_COMPLETE);
+	}
+	else if (currentStatus == REQUEST_STATUS_PROCESSING_COMPLETE)
+	{
+		isInvalidStatus = (requestStatus != REQUEST_STATUS_SENDING);
+	}
+	else if (currentStatus == REQUEST_STATUS_SENDING)
+	{
+		isInvalidStatus = (requestStatus != REQUEST_STATUS_SENDING_COMPLETE);
+	}
+	else if (currentStatus == REQUEST_STATUS_SENDING_COMPLETE)
+	{
+		isInvalidStatus = (requestStatus != REQUEST_STATUS_CLOSED_OK);
+	}
+
+//	if (isInvalidStatus)
+//	{
+//		std::cout << "ServeRequestEventHandler::setRequestStatus invalid set from " << (std::string)this->requestStatus << " to " << requestStatus << std::endl;
+//		throw std::runtime_error("erveRequestEventHandler::setRequestStatus error.");
+//	}
+#endif
+
     this->requestStatus.setStatus(requestStatus);
     std::cout << "ServeRequestEventHandler::setRequestStatus on (fd = " << fd << ") to status " << (std::string)this->requestStatus << std::endl;
 }
