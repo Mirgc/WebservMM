@@ -10,11 +10,11 @@
 #include "EventHandler.hpp"
 #include "Log.hpp"
 
-bool sC = true;
-
 Reactor* Reactor::_instance = NULL;
 
-Reactor::Reactor() {}
+Reactor::Reactor() {
+    this->bRunEventLoop = true;
+}
 
 // Official patter sugests makeing this a singleton to avoid having multiple instances of Reactor
 Reactor* Reactor::getInstance(){
@@ -40,8 +40,7 @@ Reactor& Reactor::operator=(const Reactor &rhs) {
 
 extern void	ft_sig_handler(int signo)
 {
-	sC = !sC;
-    std::cout << "\n\n\n Estoy dentro de las senales \n\n\n";
+    Reactor::getInstance()->stopEventLoop();
 	(void) signo;
 }
 
@@ -54,7 +53,7 @@ void Reactor::runEventLoop() {
 	signal(SIGQUIT, ft_sig_handler);
 
     // We will need to deal with ending this loop to free up and gracefully exit
-    while (sC) {
+    while (this->bRunEventLoop) {
         maxFd = 0;
         FD_ZERO(&readSet);
         FD_ZERO(&writeSet);
@@ -112,7 +111,7 @@ void Reactor::runEventLoop() {
 }
 
 void Reactor::stopEventLoop() {
-    // Implement stopping the event loop (while true for now)
+    this->bRunEventLoop = false;
 }
 
 void Reactor::registerEventHandler(int fd, EventHandler* handler) {

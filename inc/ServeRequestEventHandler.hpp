@@ -46,7 +46,6 @@ private:
     void processRequest();
     void sendResponse();
     void readOrCloseRequest();
-    static void manejadorSenal(int senal);
 
 };
 
