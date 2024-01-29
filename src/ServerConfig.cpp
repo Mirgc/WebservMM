@@ -149,3 +149,76 @@ const std::map<int, std::string> &ServerConfig::getErrorPageMap() const{
 const std::vector<LocationConfig> &ServerConfig::getLocations() const{
 	return (this->_locations);
 }
+
+bool ServerConfig::isErrorMap() const{
+        if(this->_errorPageMap.empty())
+                return false;
+        return true;
+}
+
+bool ServerConfig::isErrorInMap(int error) const{
+        if(this->getErrorPageMap().find(error) != this->getErrorPageMap().end())
+                return true;
+	return false; 
+}
+
+bool ServerConfig::isValidPath(const std::string path) const{
+        std::ifstream ifs(path.c_str());
+
+        if (ifs.is_open()){
+                ifs.close();
+	return true;
+        }
+        return false;
+}
+
+const std::string ServerConfig::getPath(int error) const{
+        if(this->isErrorMap() and this->isErrorInMap(error))
+                return(this->getErrorPageMap().find(error)->second);
+        return("");
+}
+
+const std::string ServerConfig::get404Content() const{
+       if(this->isValidPath(this->getPath(404))){
+        std::ifstream file(this->getPath(404).c_str());
+        std::string content;
+        std::string line;
+
+        while (std::getline(file, line))
+                content += line;
+        file.close();
+
+        return content; 
+       }
+       return ("");
+}
+
+const std::string ServerConfig::get405Content() const{
+       if(this->isValidPath(this->getPath(405))){
+        std::ifstream file(this->getPath(405).c_str());
+        std::string content;
+        std::string line;
+
+        while (std::getline(file, line))
+                content += line;
+        file.close();
+
+        return content; 
+       }
+       return ("");
+}
+
+const std::string ServerConfig::get500Content() const{
+       if(this->isValidPath(this->getPath(500))){
+        std::ifstream file(this->getPath(500).c_str());
+        std::string content;
+        std::string line;
+
+        while (std::getline(file, line))
+                content += line;
+        file.close();
+
+        return content; 
+       }
+       return ("");
+}

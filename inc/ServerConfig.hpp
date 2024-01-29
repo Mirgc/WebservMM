@@ -4,6 +4,7 @@
 # include <map>
 # include <string>
 # include <vector>
+# include <fstream>
 # include <arpa/inet.h>
 # include "LocationConfig.hpp"
 
@@ -54,6 +55,13 @@ class ServerConfig{
 	const std::map<int, std::string> &getErrorPageMap() const;
 	const std::vector<LocationConfig> &getLocations() const;
 	const std::vector<unsigned int> &getListenPorts() const;
+	bool isErrorMap() const;
+	bool isErrorInMap(int error) const;
+	bool isValidPath(const std::string path) const;
+	const std::string getPath(int error) const;
+	const std::string get404Content() const;
+	const std::string get405Content() const;
+	const std::string get500Content() const;
 
 };
 #endif

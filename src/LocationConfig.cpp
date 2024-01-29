@@ -46,6 +46,60 @@ const std::string & LocationConfig::getCfgValueFrom(std::string const & Key) con
 	return (Key);
 }
 
+// specific string getters
+const std::string LocationConfig::getProxyPass() const{
+	if(this->isKeyInLocation("proxy_pass")){
+		return(this->getCfgValueFrom("proxy_pass"));
+	}
+	return("");
+}
+
+const std::string LocationConfig::getRedirection() const{
+	if(this->isKeyInLocation("redirection")){
+		return(this->getCfgValueFrom("redirection"));
+	}
+	return("");
+}
+
+const std::string LocationConfig::getDocroot() const{
+	if(this->isKeyInLocation("docroot")){
+		return(this->getCfgValueFrom("docroot"));
+	}
+	return("");
+}
+
+const std::string LocationConfig::getIndex() const{
+	if(this->isKeyInLocation("index")){
+		return(this->getCfgValueFrom("index"));
+	}
+	return("");
+}
+
+// bool getters
+bool LocationConfig::getMethodGetBool() const{
+	return(this->isMethodInLocation("GET"));
+}
+
+bool LocationConfig::getMethodPostBool() const{
+	return(this->isMethodInLocation("POST"));
+}
+
+bool LocationConfig::getMethodDeleteBool() const{
+	return(this->isMethodInLocation("DELETE"));
+}
+
+bool LocationConfig::getUploadEnableBool() const{
+        if(this->getCfgValueFrom("upload_enable").compare("on") == 0)
+                return(true);
+        return(false);
+}
+
+bool LocationConfig::getAutoIndexBool() const{
+        if(this->getCfgValueFrom("autoindex").compare("on") == 0)
+                return(true);
+        return(false);
+}
+
 // check if specific key is in location
 bool LocationConfig::isKeyInLocation(std::string const & Key) const{
 	for(std::vector<std::pair<std::string, std::string> >::const_iterator it = this->getUploadCfg().begin();

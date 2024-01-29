@@ -19,6 +19,8 @@ Parse& Parse::operator=(const Parse &rhs){
 	this->_ProcesingLocation = rhs.getProcesingLocation();
 	this->_ParsedLocations = rhs.getParsedLocations();
 	this->_ParsedCfgs = rhs.getParsedCfgs();
+	this->_PortPool = rhs.getPortPool();
+	this->_ServernamePool = rhs.getSevernamePool();
 	return (*this);
 }
 
@@ -47,6 +49,14 @@ const ServerConfig & Parse::getParsedCfgAt(const unsigned int pos) const{
 	return(this->_ParsedCfgs.at(pos));
 }
 
+const std::vector<unsigned int> & Parse::getPortPool(void) const{
+	return(this->_PortPool);
+}
+
+const std::vector<std::string> & Parse::getSevernamePool(void) const{
+	return(this->_ServernamePool);
+}
+
 // Setters
 void Parse::setServerName(std::string const &ServerName){
  	this->_ServerName = ServerName;
@@ -66,6 +76,14 @@ void Parse::addProcesingLocations(std::string const &ProcesingLocation){
 
 void Parse::addParsedLocations(LocationConfig const &ParsedLocation){
  	this->_ParsedLocations.push_back(ParsedLocation);
+}
+
+void Parse::addPortToPool(unsigned int const &NewPort){
+ 	this->_PortPool.push_back(NewPort);
+}
+
+void Parse::addServerNameToPool(std::string const &NewServerName){
+ 	this->_ServernamePool.push_back(NewServerName);
 }
 
 void Parse::setServerCfg(std::vector<std::string> const & serverCfg){
@@ -112,9 +130,10 @@ void Parse::getNextServer(void){
 			if((*start).find("server_name") != std::string::npos){
 				const std::string WHITESPACE = " \n\r\t\f\v";
 				this->_ServerName = StringTools::trim((*start).substr((*start).find("server_name")+11, std::string::npos));
-				if (this->_ServerName.empty() or this->_ServerName.find_first_of(WHITESPACE) != std::string::npos)
+				if (this->_ServerName.empty() or this->_ServerName.find_first_of(WHITESPACE) != std::string::npos or this->isStrInVector(this->_ServerName, this->getSevernamePool()))
 						throw ParseException("Invalid Server Name");
 				srvCfg.setServerName(this->_ServerName);
+				this->addServerNameToPool(this->_ServerName);
 			}
 
 			// ErrorPage Parse and some exceptions
@@ -393,11 +412,13 @@ std::vector<unsigned int> Parse::splitPorts(const std::string &s){
 		// having to know and justify the reason for the failure.
 		// Or maybe print that phrase here instead of throwing an exception 
 		// to complete the explanation by breaking the bind?
-		if(port > 1023 and port < 65535 and !isIntInVector(port, listenedPorts))
+		if(port > 1023 and port < 65535 and !isIntInVector(port, listenedPorts) and !isIntInVector(port, this->getPortPool())){
+			this->addPortToPool(port);
 			listenedPorts.push_back(port);
+		}
 		else if (port > 0 and port < 1024){
 			char str[4];
-			snprintf(str, 4, "%d", port);
+			std::sprintf(str, "%d", port);
 			std::string sport(str);
 			throw ParseException("Reserved Port => " + sport);
 		}
