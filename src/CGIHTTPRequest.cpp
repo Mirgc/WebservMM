@@ -224,7 +224,7 @@ char** CGIHTTPRequest::createCharPtrArray(const std::vector<std::string>& string
     char** result = new char*[strings.size() + 1];
     for (size_t i = 0; i < strings.size(); ++i) {
         result[i] = new char[strings[i].length() + 1];
-        std::strcpy(result[i], strings[i].c_str());
+        strcpy(result[i], strings[i].c_str());
     }
     result[strings.size()] = NULL;
     return result;
