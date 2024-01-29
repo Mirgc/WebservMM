@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include <unistd.h>
+#include <sys/wait.h>
 
 #include "CGIHTTPRequest.hpp"
 #include "HTTPResponse.hpp"
