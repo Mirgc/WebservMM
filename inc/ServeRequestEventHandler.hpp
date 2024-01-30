@@ -33,9 +33,6 @@ private:
     // the class buffer containing the whole request read.
     char buffer[BUFFER_SIZE];
 
-    // TODO: To delete when we removed the hardcoded html response.
-    bool bIsFaviconRequest;
-
     void copyHTTPRequest(HTTPRequest * src);
     void freeHTTPRequest();
     bool isRequestHeaderFullyRead();
@@ -46,6 +43,7 @@ private:
     void processRequest();
     void sendResponse();
     void readOrCloseRequest();
+    std::string extractBodyFromHttpRequest(const std::string & httpRequest);
 
 };
 

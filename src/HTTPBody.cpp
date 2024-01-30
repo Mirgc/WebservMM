@@ -30,7 +30,19 @@ void HTTPBody::addBodyChunk(const std::string & bodyChunk)
 	body += bodyChunk;
 }
 
-std::string & HTTPBody::getFullBody(void)
+const std::string & HTTPBody::getFullBody(void) const
 {
 	return body;
+}
+
+std::size_t HTTPBody::getBodySize(void) const
+{
+	return body.size();
+}
+
+std::string HTTPBody::getBodySizeString(void) const
+{
+    std::stringstream ss;
+    ss << this->getBodySize();
+    return ss.str();
 }
