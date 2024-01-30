@@ -25,6 +25,12 @@ const std::string & LocationConfig::getUploadPath(void) const{
 	return(this->_UploadPath);
 }
 
+bool LocationConfig::isPyCgi() const {
+	if(this->getUploadPath().compare(".py") == 0)
+		return true;
+	return false;
+}
+
 // get all cfg vector<pair> key.first value.second
 const std::vector<std::pair<std::string, std::string> > & LocationConfig::getUploadCfg(void) const{
 	return(this->_UploadCfg);

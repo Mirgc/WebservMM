@@ -242,10 +242,12 @@ void ServeRequestEventHandler::setRequestStatus(t_http_request_status requestSta
 void ServeRequestEventHandler::processRequest() {
     HTTPRequestFactory httpRequestFactory;
 
-    // TODO: Body remains empty for now until we work on moving the buffer to it own class
     HTTPBody httpBody;
-    HTTPHeader httpHeader;
+    httpBody.addBodyChunk(
+        this->extractBodyFromHttpRequest(this->buffer)
+    );
 
+    HTTPHeader httpHeader;
     httpHeader.parseHTTPHeader(this->buffer);
 
     this->httpRequest = httpRequestFactory.createHTTPRequest(
@@ -267,29 +269,12 @@ void ServeRequestEventHandler::sendResponse() {
     ssize_t bytesSent;
     std::string response = this->httpResponse.getResponse();
 
-    // TODO: To be removed. For now we tell the broser that there is no favico file
-    if (this->bIsFaviconRequest) {
-        std::string bodyContent = "<!DOCTYPE html><html><body><h1>404 Not Found.</h1></body></html>";
-        std::stringstream ss;
-
-        ss << "HTTP/1.1 404\r\n"
-            << "Content-Type: text/html\r\n"
-            << "Content-Length: " << bodyContent.size()
-            << "\r\n\r\n"
-            << bodyContent;
-
-        response = ss.str();
-    }
-    else
-    {
-        response = this->httpResponse.getResponse();
-    }
-
-
     bytesSent = send(fd, response.c_str(), response.size(), 0);
 
     // Process the received data, send responses back to the client here...
     std::cout << "ServeRequestEventHandler write data to client on (fd = " << fd << ") (bytesSent " << bytesSent << ")" << std::endl;
+    std::cout << response << std::endl;
+
     if (bytesSent < (ssize_t) response.size()) {
         // TODO: This need proper implementation. Remember that we can only write once to a socket per select per socket
         // Still we need to control how much data has to be written, and how much data we have already wrote,
@@ -308,16 +293,6 @@ void ServeRequestEventHandler::readOrCloseRequest() {
 
     bytesRead = recv(fd, buffer, BUFFER_SIZE, 0);
     std::cout << "ServeRequestEventHandler read data from (fd = " << fd << ") (bytesRead = " << bytesRead << ")" << std::endl;
-
-    // TODO: Remove hardcoded check to differentiate from the index.hml and the favico
-    // GET /favicon.ico HTTP/1.1
-    // We always return for now a hardocded html even when chrome requests the favico
-    // We are confusing Chrome 
-    if (strstr(buffer, "GET /favicon.ico") != NULL) {
-        bIsFaviconRequest = true;
-    } else {
-        bIsFaviconRequest = false;
-    }
 
     if (bytesRead == -1) {
         this->setRequestStatus(REQUEST_STATUS_CLOSED_ERROR);
@@ -345,5 +320,16 @@ void ServeRequestEventHandler::readOrCloseRequest() {
             this->setRequestStatus(REQUEST_STATUS_PROCESSING);
             this->handleEvent();
         }
+    }
+}
+
+std::string ServeRequestEventHandler::extractBodyFromHttpRequest(const std::string & httpRequest) {
+
+    std::string::size_type pos = httpRequest.find("\r\n\r\n");
+
+    if (pos != std::string::npos) {
+        return httpRequest.substr(pos + 4);
+    } else {
+        return "";
     }
 }

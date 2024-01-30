@@ -13,8 +13,10 @@ class HTTPBody
 		HTTPBody & operator=(HTTPBody const & src);
 		~HTTPBody(void);
 
-		void			addBodyChunk(const std::string & bodyChunk);
-		std::string &	getFullBody(void);
+		void                    addBodyChunk(const std::string & bodyChunk);
+		const std::string &     getFullBody(void) const;
+        std::size_t             getBodySize(void) const;
+        std::string             getBodySizeString(void) const;
 
 	private:
 		std::string body;
