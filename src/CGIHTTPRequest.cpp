@@ -156,9 +156,9 @@ std::string CGIHTTPRequest::execCGI(std::string cgiScriptRelativePath, std::stri
                 // child is still running at %s", ctime(&t)
                 time(&t);
                 sleep(1);
-            }
-            else {
-        		throw std::runtime_error("Child closed with error");
+            // }
+            // else {
+        	// 	throw std::runtime_error("Child closed with error");
             }
         } while (pid == 0);
 	}
