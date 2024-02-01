@@ -38,19 +38,12 @@ Reactor& Reactor::operator=(const Reactor &rhs) {
 	return (*this);
 }
 
-extern void	ft_sig_handler(int signo)
-{
-    Reactor::getInstance()->stopEventLoop();
-	(void) signo;
-}
-
 void Reactor::runEventLoop() {
     fd_set readSet;
     fd_set writeSet;
     int maxFd = 0;
 
-	signal(SIGINT, ft_sig_handler);
-	signal(SIGQUIT, ft_sig_handler);
+
 
     // We will need to deal with ending this loop to free up and gracefully exit
     while (this->bRunEventLoop) {
