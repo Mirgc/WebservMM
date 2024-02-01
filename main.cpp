@@ -5,6 +5,7 @@
 #include "HTTPHeader.hpp"
 #include "Parse.hpp"
 #include "HTTPMethod.hpp"
+#include <signal.h>
 
 extern void	ft_sig_handler(int signo)
 {
