@@ -3,6 +3,7 @@
 #include <arpa/inet.h>
 #include <cstring>
 #include <sstream>
+#include <signal.h>
 
 #include <fstream>
 #include <iostream>

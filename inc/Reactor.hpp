@@ -31,6 +31,7 @@ private:
     std::vector<int> handlersToDelete;
 
     static Reactor *_instance;
+    bool bRunEventLoop;
 };
 
 #endif
