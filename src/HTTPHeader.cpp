@@ -86,9 +86,9 @@ bool HTTPHeader::addMethod(std::string line)
 {
 	std::istringstream lineStream(line);
 	lineStream >> this->method >> this->url >> this->ver;
-	std::string restoDelContenido;
-    std::getline(lineStream, restoDelContenido);
-	if (!restoDelContenido.compare("\r")) // Si hay un espacio ni si quiera despues del 1.1, falla
+	std::string restOfTheContent;
+	std::getline(lineStream, restOfTheContent);
+	if (!restOfTheContent.compare("\r")) // If there is a space even after 1.1, it fails
 		return false;
 	return true;
 }
@@ -126,19 +126,19 @@ std::string HTTPHeader::generateResponse(void) const
 bool HTTPHeader::checkMethod(void) const
 {
 	// t_http_method HttpMethod::getMethod(std::string method)
-	//  Aqui vamos a revisar que la version es la correcta. Se podria revisar que el metodo fuera valido.
+	//  Here we are going to check that the version is correct. It could be checked that the method was valid.
 	if (this->method.empty() || this->url.empty() || this->ver.empty() || this->ver.compare("HTTP/1.1") != 0)
 		return false;
 	const std::string allowedMethods[] = {"GET", "DELETE", "POST"};
 	const size_t numMethods = sizeof(allowedMethods) / sizeof(allowedMethods[0]);
 	bool ver = false;
-	// Verificar si this->method está en el array
+	// Check if this->method is in the array
 	for (size_t i = 0; i < numMethods; ++i)
 	{
 		if (allowedMethods[i] == this->method)
 		{
 			ver = true;
-			break; // Se encontró el método, salir del bucle
+			break; // Method found, exit loop
 		}
 	}
 	return ver;
@@ -154,25 +154,25 @@ void HTTPHeader::parseHTTPHeader(const std::string &request)
 	if (this->addMethod(line) || !this->checkMethod())
 	{
 		std::cout << "Invalid HTTPRequest" << std::endl;
-		return; // Aqui habria que lanzar una excepcion
+		return; // An exception would have to be thrown here.
 	}
 	while (std::getline(iss, line))
 	{
 		line = StringTools::trim(line, " \n\r\t");
 		size_t pos = line.find(':');
-		if (pos != std::string::npos && pos > 0 && pos < line.length() - 1) // ahora hay que ver si podemos meter vacio algo.
-		// que pasa si metemos dos iguales?
+		if (pos != std::string::npos && pos > 0 && pos < line.length() - 1) // Now we have to see if we can empty something.
+		// What happens if we put two identical ones?
 		{
 			std::string key = line.substr(0, pos);
-			std::string value = line.substr(pos + 1);												   // +1 para omitir el ':' después del encabezado
-			this->addHeader(StringTools::rtrim(key, " \n\r\t"), StringTools::ltrim(value, " \n\r\t")); // el rtrim(key), en la realidad, no se hace.
+			std::string value = line.substr(pos + 1);												   // +1 for omitting the ':' after the header
+			this->addHeader(StringTools::rtrim(key, " \n\r\t"), StringTools::ltrim(value, " \n\r\t")); // the rtrim(key), in reality, is not done.
 		}
 		else
 		{
 			if (line.compare(""))
-				std::cout << "Mala descripcion" << std::endl;
+				std::cout << "Bad description" << std::endl;
 			else
-				// Aqui hemos encontrado una linea vacia, por lo que asumimos que empieza el boy;
+				// Here we have found an empty line, so we assume that the boy begins;
 				// std::cout << "Checkbody" << std::endl;
 				return;
 		}
