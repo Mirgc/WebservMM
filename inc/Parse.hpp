@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <limits.h>
 #include <vector>
 #include <map>
 #include "ConfigFileParser.hpp"
