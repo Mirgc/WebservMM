@@ -110,5 +110,25 @@ HTTPResponse UploadFileRequest::process()
 
     std::fwrite(fileContent.c_str(), 1, fileContent.size(), outFile);
     std::fclose(outFile);
+        std::string responseBody =
+        "<!DOCTYPE html>"
+        "<html>"
+        "<head>"
+        "    <title>HTTP 201 Created</title>"
+        "</head>"
+        "<body>"
+        "    <h1>HTTP 201 Created</h1>"
+        "    <p>La operación se realizó con éxito.</p>"
+        "</body>"
+        "</html>";
+
+    // Construir la respuesta HTTP
+    std::stringstream ss;
+    ss << "HTTP/1.1 201 Created\r\n";
+    ss << "Content-Length: " << responseBody.size() << "\r\n";
+    ss << "Content-Type: text/html\r\n";
+    ss << "\r\n";  // Fin de las cabeceras, inicio del cuerpo
+    ss << responseBody;
+    response.setResponse(ss.str());
     return (response);
 }
