@@ -249,9 +249,9 @@ void Parse::ParseLocations(ServerConfig srvCfg){
 		std::vector<std::string>  filledMethods(Methods, Methods + sizeof(Methods)/sizeof(Methods[0]));
 
 		LocationConfig loc = LocationConfig();
-		loc.setUploadPath(StringTools::trim((*start).substr((*start).find("location")+8, std::string::npos)));
-		if(loc.getUploadPath().at(0) != '/' and !this->isPyCgi(loc.getUploadPath()))
-			throw ParseException("Invalid location format => " + (loc.getUploadPath()));
+		loc.setLocationName(StringTools::trim((*start).substr((*start).find("location")+8, std::string::npos)));
+		if(loc.getLocationName().at(0) != '/' and !this->isPyCgi(loc.getLocationName()))
+			throw ParseException("Invalid location format => " + (loc.getLocationName()));
 		start++;
 		itend = std::find(start, end, "}");
 		while (start != itend){
@@ -261,10 +261,10 @@ void Parse::ParseLocations(ServerConfig srvCfg){
 				valueValidation(key, value);
 				// if the location has a default doocroot path and the upload path is not a cgi path, 
 				// docroot will be set to the location's upload path name
-					if(key == "docroot" and value == "/" and !this->isPyCgi(loc.getUploadPath()))
+					if(key == "docroot" and value == "/" and !this->isPyCgi(loc.getLocationName()))
 						// When global docroot does not exist, the Upload Paths are changed as relative paths before configuring it as docroot 
 						// and it is checked if it is a valid path
-						this->isValidPath(value = this->relativizePath(loc.getUploadPath()));
+						this->isValidPath(value = this->relativizePath(loc.getLocationName()));
 				loc.setUploadCfg(std::make_pair(key, value));
 				// when a key, except methods, is once in a location, it cannot appear more times in the same location
 				// if is method only one per value is allowed

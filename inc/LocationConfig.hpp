@@ -8,7 +8,7 @@
 class LocationConfig{
 
 	private:
-		std::string   	_UploadPath;
+		std::string   	_LocationName;
 		std::vector<std::pair<std::string, std::string> > _UploadCfg;
 
 	public:
@@ -18,7 +18,7 @@ class LocationConfig{
 
 		LocationConfig & operator=(LocationConfig const & rhs);
 
-		std::string const & getUploadPath(void) const;
+		std::string const & getLocationName(void) const;
         bool isPyCgi() const;
 
 		const std::vector<std::pair<std::string, std::string> > & getUploadCfg(void) const;
@@ -41,7 +41,7 @@ class LocationConfig{
 		// specific method validation
 		bool isMethodInLocation(std::string verb) const;
 
-		void setUploadPath(std::string const &UploadPath);
+		void setLocationName(std::string const &LocationName);
 		void setUploadCfg(std::pair<std::string, std::string> const &pair);
 
 };

@@ -60,12 +60,12 @@ const LocationConfig HTTPRequestFactory::getLocationWithRequest(
     for (size_t i = 0; i < locations.size(); ++i) {
         // Checks for cgi extension match
         if ( httpHeader.getUrl().find(".py") != std::string::npos &&
-             locations[i].getUploadPath().find(".py") != std::string::npos) {
+             locations[i].getLocationName().find(".py") != std::string::npos) {
             return locations[i];
         }
 
         // Checks for part starting with
-        if (httpHeader.getUrl().find(locations[i].getUploadPath()) == 0) {
+        if (httpHeader.getUrl().find(locations[i].getLocationName()) == 0) {
             return locations[i];
         }
     }

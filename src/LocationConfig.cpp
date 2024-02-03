@@ -15,18 +15,18 @@ LocationConfig::~LocationConfig(void){
 }
 
 LocationConfig& LocationConfig::operator=(const LocationConfig &rhs){
-	this->_UploadPath = rhs.getUploadPath();
+	this->_LocationName = rhs.getLocationName();
 	this->_UploadCfg = rhs.getUploadCfg();
 	return (*this);
 }
 
 // get location Upload Path
-const std::string & LocationConfig::getUploadPath(void) const{
-	return(this->_UploadPath);
+const std::string & LocationConfig::getLocationName(void) const{
+	return(this->_LocationName);
 }
 
 bool LocationConfig::isPyCgi() const {
-	if(this->getUploadPath().compare(".py") == 0)
+	if(this->getLocationName().compare(".py") == 0)
 		return true;
 	return false;
 }
@@ -111,8 +111,8 @@ bool LocationConfig::isKeyInLocation(std::string const & Key) const{
 }
 
 // setters
-void LocationConfig::setUploadPath(std::string const &UploadPath){
-	this->_UploadPath = UploadPath;
+void LocationConfig::setLocationName(std::string const &LocationName){
+	this->_LocationName = LocationName;
 }
 
 void LocationConfig::setUploadCfg(std::pair<std::string, std::string> const &pair){
@@ -121,7 +121,7 @@ void LocationConfig::setUploadCfg(std::pair<std::string, std::string> const &pai
 
 // print all cfg vector<pair> key.first value.second if needed to debug
 std::ostream & operator<<(std::ostream & o, LocationConfig const & rhs){
-	std::cout << "Location" << " : " << rhs.getUploadPath() << std::endl;
+	std::cout << "Location" << " : " << rhs.getLocationName() << std::endl;
 	std::cout << "KEY" << " : " << "VALUE" << std::endl;
 	for(std::vector<std::pair<std::string, std::string> >::const_iterator it = rhs.getUploadCfg().begin();
 	it != rhs.getUploadCfg().end(); ++it)
