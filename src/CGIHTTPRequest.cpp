@@ -168,14 +168,16 @@ std::string CGIHTTPRequest::execCGI(std::string cgiScriptRelativePath, std::stri
 std::string CGIHTTPRequest::getAbsolutePath(const std::string& relativePath) {
     char cwd[FILENAME_MAX];
     if (getcwd(cwd, sizeof(cwd)) != NULL) {
-        char absolutePath[FILENAME_MAX];
-        if (std::snprintf(absolutePath, sizeof(absolutePath), "%s/%s", cwd, relativePath.c_str()) < (int)sizeof(absolutePath)) {
-            return std::string(absolutePath);
+        std::ostringstream oss;
+        oss << cwd << "/" << relativePath;
+        std::string absolutePath = oss.str();
+        if (absolutePath.size() < sizeof(cwd)) {
+            return absolutePath;
         } else {
-	        throw std::runtime_error("Absolute path too long");
+            throw std::runtime_error("Absolute path too long");
         }
     } else {
-		throw std::runtime_error("Error calling getcwd");
+        throw std::runtime_error("Error calling getcwd");
     }
 }
 

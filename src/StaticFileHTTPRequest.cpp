@@ -96,9 +96,9 @@ std::string getResponse(const std::string& path)
 }
 
 std::string intToString(int value) {
-    char buffer[20];  // Large enough to store common integers
-    std::snprintf(buffer, sizeof(buffer), "%d", value);
-    return std::string(buffer);
+    std::ostringstream oss;
+    oss << value;
+    return oss.str();
 }
 
 void removeSubstring(std::string& mainString, const std::string& substringToRemove) {
