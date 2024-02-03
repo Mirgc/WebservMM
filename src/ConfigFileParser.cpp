@@ -8,12 +8,12 @@ ConfigFileParser::~ConfigFileParser(){
 
 // TODO: Change checkfile method this fails too many times
 void ConfigFileParser::checkFile(const std::string &fileName){
-	struct stat	fileInfo; //Estructura que nos da informacion del fichero
+	struct stat	fileInfo; //Structure that gives us information about the file
 
-        if (stat(fileName.c_str(), &fileInfo) != -1){ // Si al intentar sacar el estado da error
-			if (fileInfo.st_mode & S_IFREG) { // Si es una ruta pero vacia, sin indicarle fichero
-				if (access(fileName.c_str(), R_OK) == 0) { //Tenemos permisos de lectura en el fichero
-			        if (isEmptyFile(fileName)) // El fichero esta vacio o contiene solo espacios en blanco
+        if (stat(fileName.c_str(), &fileInfo) != -1){ // If when trying to get the status it gives an error
+			if (fileInfo.st_mode & S_IFREG) { // If it is a route but empty, without indicating a file
+				if (access(fileName.c_str(), R_OK) == 0) { // We have read permissions on the file
+			        if (isEmptyFile(fileName)) // The file is empty or contains only white spaces
 						throw ParseException("File is empty.");
 					else{
 						this->_fileContent = removeCommentsWhiteLines(fileName);
@@ -53,25 +53,25 @@ std::string ConfigFileParser::removeCommentsWhiteLines(const std::string &fileNa
 	std::string			content;
 	size_t				pos;
 
-	while (std::getline(input, line)){ // Eliminar espacios en blanco y tabulaciones al principio y al final de la línea
+	while (std::getline(input, line)){ // Remove whitespace and tabs at the beginning and end of the line
 		size_t start = line.find_first_not_of(" \t");
 		size_t end = line.find_last_not_of(" \t");
 
 		if (start != std::string::npos && end != std::string::npos)
 			line = line.substr(start, end - start + 1);
 		else
-			line.clear(); // La línea solo tiene espacios y tabulaciones, se convierte en línea vacía
+			line.clear(); // The line only has spaces and tabs, it becomes an empty line
 
 		output << line << std::endl;
 	}
 	content = output.str();
 
-	// Eliminamos comentarios
+	// We delete comments
         pos = 0;
         while ((pos = content.find("#", pos)) != std::string::npos)
 			content.erase(pos, content.find("\n", pos + 1) - pos);
 
-	// Eliminamos lineas vacias
+	// We eliminate empty lines
 	pos = 0;
 	while ((pos = content.find("\n\n", pos)) != std::string::npos)
 		content.erase(pos, 1);

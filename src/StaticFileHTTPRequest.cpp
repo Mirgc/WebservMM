@@ -41,18 +41,18 @@ StaticFileHTTPRequest *StaticFileHTTPRequest::clone()
     return (new StaticFileHTTPRequest(*this));
 }
 
-bool isFile(const std::string &ruta)
+bool isFile(const std::string &path)
 {
     struct stat info;
-    return stat(ruta.c_str(), &info) == 0 && S_ISREG(info.st_mode);
+    return stat(path.c_str(), &info) == 0 && S_ISREG(info.st_mode);
 }
 
-bool isDirectory(const std::string &ruta)
+bool isDirectory(const std::string &path)
 {
-    DIR *directorio = opendir(ruta.c_str());
-    if (directorio != NULL)
+    DIR *directory = opendir(path.c_str());
+    if (directory != NULL)
     {
-        closedir(directorio);
+        closedir(directory);
         return true;
     }
     return false;
@@ -82,7 +82,7 @@ std::string getResponse(const std::string& path)
 
     std::string content = ss.str();
     
-    ss.str("");  // Limpiar el stringstream para reutilizarlo
+    ss.str("");  // Clean up the stringstream to reuse it
     ss << "HTTP/1.1 200 OK\r\n"
        << "Content-Type: "
        << MIMETypes::getContentType(path)
@@ -96,7 +96,7 @@ std::string getResponse(const std::string& path)
 }
 
 std::string intToString(int value) {
-    char buffer[20];  // Suficientemente grande para almacenar números enteros comunes
+    char buffer[20];  // Large enough to store common integers
     std::sprintf(buffer, "%d", value);
     return std::string(buffer);
 }
@@ -112,8 +112,8 @@ std::string StaticFileHTTPRequest::generateAutoindexPage(const std::string& dire
     
     std::string htmlPage = "<html><head></head><body>\n";
 
-    // hay que revisar cuando nos movemos por los archivos lo que pasa.
-    // Lee el contenido del directorio
+    // we have to check what happens when we move through the files.
+    // Read the contents of the directory
     DIR* dir = opendir(directoryPath.c_str());
     std::string dc = directoryPath.c_str();
     removeSubstring(dc, this->location.getCfgValueFrom("docroot"));
@@ -142,7 +142,7 @@ HTTPResponse StaticFileHTTPRequest::process()
 {
     HTTPResponse response;
     std::string pathComplete;
-    // Tengo que asegurarme que al concatenar los paths, tnegan / metida entre medias.
+    // I have to make sure that when concatenating the paths, there is no / tucked in between.
     try
     {
         pathComplete = this->location.getCfgValueFrom("docroot") + this->httpHeader.getUrl();
