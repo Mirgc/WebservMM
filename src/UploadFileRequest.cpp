@@ -106,13 +106,13 @@ HTTPResponse UploadFileRequest::process()
     filename = this->location.getCfgValueFrom("upload_path") + "/" + filename;
     // Save content in the file
     FILE *outFile = std::fopen(filename.c_str(), "wb");
-    if (outFile == nullptr)
+    if (outFile == NULL)
     {
         return HTTPResponse500(this->serverConfig.get500Content());
     }
-
     std::fwrite(fileContent.c_str(), 1, fileContent.size(), outFile);
     std::fclose(outFile);
+
     std::string responseBody =
         "<!DOCTYPE html>"
         "<html>"
