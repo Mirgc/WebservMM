@@ -27,11 +27,7 @@ private:
     HTTPRequestStatus requestStatus;
     ssize_t bytesRead;
     HTTPResponse httpResponse;
-
-    // TODO: This buffer is local to this class.
-    // But would need to be moved to a class property, so that multiple reads will concatenate to
-    // the class buffer containing the whole request read.
-    char buffer[BUFFER_SIZE];
+    std::vector<char> buffer;
 
     void copyHTTPRequest(HTTPRequest * src);
     void freeHTTPRequest();
@@ -43,7 +39,7 @@ private:
     void processRequest();
     void sendResponse();
     void readOrCloseRequest();
-    std::string extractBodyFromHttpRequest(const std::string & httpRequest);
+    std::vector<char> extractBodyFromHttpRequest(const std::vector<char> & httpRequest) const;
 
 };
 

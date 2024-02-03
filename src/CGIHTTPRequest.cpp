@@ -57,7 +57,6 @@ HTTPResponse CGIHTTPRequest::process()
 			return HTTPResponse404(this->serverConfig.get404Content());
         }
 
-        // TODO: Get real query string here once http parser is ready
         std::string responseContent = this->execCGI(scriptPath, this->httpHeader.getQueryString());
 
 		response.setResponse(responseContent);
@@ -96,7 +95,7 @@ std::string CGIHTTPRequest::execCGI(std::string cgiScriptRelativePath, std::stri
 	pid_t pid = fork();
 	if (pid == 0) {
 		// We are at the child process to run the cgi
-		std::string cgiInterpreter = "python";
+		std::string cgiInterpreter = "python3";
 		std::string cgiInterpreterAbsolutePath = "/usr/bin/" + cgiInterpreter;
 		
 		char** args = createArgs(cgiInterpreter, cgiScriptAbsolutePath, queryString);
@@ -108,7 +107,7 @@ std::string CGIHTTPRequest::execCGI(std::string cgiScriptRelativePath, std::stri
         // Redirects web server output to the read end of the pipe. Parent process
         // will write here (pipeWebserverToCGI)
         if (dup2(pipeWebserverToCGI[FD_IN], STDIN_FILENO) == -1) {
-    		throw std::runtime_error("Error calling dup2 pipeWebserverToCGI[out], stdin");
+            std::cout << "Error calling dup2 pipeWebserverToCGI[out], stdin" << std::endl;
             exit(EXIT_FAILURE);
         }
         close(pipeWebserverToCGI[FD_IN]);
@@ -116,13 +115,13 @@ std::string CGIHTTPRequest::execCGI(std::string cgiScriptRelativePath, std::stri
         // Redirects cgi script output to the write end of the pipe, so webserver can read it.
         // Parent process will read from here(pipeCGIToWebserver)
         if (dup2(pipeCGIToWebserver[FD_OUT], STDOUT_FILENO) == -1) {
-    		throw std::runtime_error("Error calling dup2 pipeCGIToWebserver[in], stdout");
+            std::cout << "Error calling dup2 pipeCGIToWebserver[in], stdout" << std::endl;
             exit(EXIT_FAILURE);
         }
         close(pipeCGIToWebserver[FD_OUT]);
 
-		execve(cgiInterpreterAbsolutePath.c_str(), args, env);
-		throw std::runtime_error("Error calling execve");
+        execve(cgiInterpreterAbsolutePath.c_str(), args, env);
+        std::cout << "Error calling execve: " << strerror(errno) << std::endl;
 		exit (EXIT_FAILURE);
 	} else {
         close(pipeCGIToWebserver[FD_OUT]);
@@ -130,10 +129,10 @@ std::string CGIHTTPRequest::execCGI(std::string cgiScriptRelativePath, std::stri
 
 		// If POST http request, they are passed to the script's standard input.
         if (this->httpHeader.getMethod() == "POST") {
-            const std::string & httpRequestBody = this->httpBody.getFullBody();
-    
+            const std::vector<char> & httpRequestBody = this->httpBody.getFullBody();
+
             // Write the HTTP request body to the standard input of the child process
-            write(pipeWebserverToCGI[FD_OUT], httpRequestBody.c_str(), httpRequestBody.size());
+            write(pipeWebserverToCGI[FD_OUT], httpRequestBody.data(), httpRequestBody.size());
         }
         close(pipeWebserverToCGI[FD_OUT]);
 

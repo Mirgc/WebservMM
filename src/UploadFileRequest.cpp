@@ -70,7 +70,9 @@ HTTPResponse UploadFileRequest::process()
     if (boundary.empty())
         // Must be a 400 error
         return HTTPResponse404(this->serverConfig.get404Content());
-    std::string body = httpBody.getFullBody();
+    
+    std::vector<char> bodyVec = httpBody.getFullBody();
+    std::string body(bodyVec.begin(), bodyVec.end());
 
     // Find the limit of the boundary
     size_t pos = body.find(boundary);
@@ -79,7 +81,7 @@ HTTPResponse UploadFileRequest::process()
         return HTTPResponse404(this->serverConfig.get404Content());
     }
 
-    // Extrat Content-Disposition and filename
+    // Extract Content-Disposition and filename
     size_t start = body.find("Content-Disposition: ", pos);
     size_t end = body.find("\r\n\r\n", start);
     if (start == std::string::npos || end == std::string::npos)
@@ -129,7 +131,7 @@ HTTPResponse UploadFileRequest::process()
     ss << "HTTP/1.1 201 Created\r\n";
     ss << "Content-Length: " << responseBody.size() << "\r\n";
     ss << "Content-Type: text/html\r\n";
-    ss << "\r\n"; // End of the headders
+    ss << "\r\n"; // End of the headers
     ss << responseBody;
     response.setResponse(ss.str());
     return (response);

@@ -25,12 +25,12 @@ HTTPBody &HTTPBody::operator=(HTTPBody const &src)
 	return (*this);
 }
 
-void HTTPBody::addBodyChunk(const std::string & bodyChunk)
+void HTTPBody::setBody(const std::vector<char> & newBody)
 {
-	body += bodyChunk;
+	this->body = newBody;
 }
 
-const std::string & HTTPBody::getFullBody(void) const
+const std::vector<char> & HTTPBody::getFullBody(void) const
 {
 	return body;
 }

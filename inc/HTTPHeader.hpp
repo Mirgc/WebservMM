@@ -30,7 +30,7 @@ class HTTPHeader
 		bool		isMethod(std::string str) const;
 		std::string getHeader(std::string str) const;
 		std::string	generateResponse(void) const;
-		void		parseHTTPHeader (const std::string& request);
+		void		parseHTTPHeader (const std::vector<char>& request);
 		std::string getQueryString(void);
 
 };

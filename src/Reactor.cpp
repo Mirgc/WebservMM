@@ -67,7 +67,6 @@ void Reactor::runEventLoop() {
         std::cout << std::endl;
 
         // Checks whether any socket has data
-        // TODO: Only one read or write per select per socket as requirement. We have to check writeSet also in select
         int numReady = select(maxFd + 1, &readSet, &writeSet, NULL, NULL);
 
         if (numReady == -1) {

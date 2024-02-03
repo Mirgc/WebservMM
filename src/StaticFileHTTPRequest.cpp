@@ -97,7 +97,7 @@ std::string getResponse(const std::string& path)
 
 std::string intToString(int value) {
     char buffer[20];  // Large enough to store common integers
-    std::sprintf(buffer, "%d", value);
+    std::snprintf(buffer, sizeof(buffer), "%d", value);
     return std::string(buffer);
 }
 

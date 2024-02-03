@@ -144,9 +144,10 @@ bool HTTPHeader::checkMethod(void) const
 	return ver;
 }
 
-void HTTPHeader::parseHTTPHeader(const std::string &request)
+void HTTPHeader::parseHTTPHeader(const std::vector<char> &request)
 {
-	std::istringstream iss(request);
+    std::string requestStr(request.begin(), request.end());
+    std::istringstream iss(requestStr);
 	std::string line;
 	std::string tmp;
 
