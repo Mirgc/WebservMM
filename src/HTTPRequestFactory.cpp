@@ -6,6 +6,7 @@
 #include "ServerConfig.hpp"
 #include "HTTPHeader.hpp"
 #include "HTTPBody.hpp"
+#include "UploadFileRequest.hpp"
 
 HTTPRequestFactory::HTTPRequestFactory()
 {
@@ -37,13 +38,13 @@ HTTPRequest *HTTPRequestFactory::createHTTPRequest(const ServerConfig &serverCon
     // Directory listing request; If directory, read all files and directories in it, produce an HTML page with it
     // Upload request
     // Any other?
-
     const LocationConfig &location = this->getLocationWithRequest(serverConfig, httpHeader);
     if (!location.isMethodInLocation(httpHeader.getMethod()))
     {
         return (new ErrorHTTPRequest(serverConfig, location, httpHeader, 405));
     }
-
+    if (!httpHeader.getMethod().compare("POST"))
+        return (new UploadFileRequest(serverConfig, location, httpHeader, httpBody));
     if (location.isPyCgi()) {
         return (new CGIHTTPRequest(serverConfig, location, httpHeader, httpBody));
     }
