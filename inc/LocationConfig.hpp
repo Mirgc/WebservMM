@@ -8,7 +8,7 @@
 class LocationConfig{
 
 	private:
-		std::string   	_UploadPath;
+		std::string   	_LocationName;
 		std::vector<std::pair<std::string, std::string> > _UploadCfg;
 
 	public:
@@ -18,7 +18,7 @@ class LocationConfig{
 
 		LocationConfig & operator=(LocationConfig const & rhs);
 
-		std::string const & getUploadPath(void) const;
+		std::string const & getLocationName(void) const;
         bool isPyCgi() const;
 
 		const std::vector<std::pair<std::string, std::string> > & getUploadCfg(void) const;
@@ -26,6 +26,7 @@ class LocationConfig{
 		// get specific fg value by name 
 		const std::string & getCfgValueFrom(std::string const & Key) const;
 		// specific string getters
+		const std::string getUploadPath() const;
 		const std::string getProxyPass() const;
 		const std::string getRedirection() const;
 		const std::string getDocroot() const;
@@ -41,7 +42,7 @@ class LocationConfig{
 		// specific method validation
 		bool isMethodInLocation(std::string verb) const;
 
-		void setUploadPath(std::string const &UploadPath);
+		void setLocationName(std::string const &LocationName);
 		void setUploadCfg(std::pair<std::string, std::string> const &pair);
 
 };
