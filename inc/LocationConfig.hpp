@@ -26,6 +26,7 @@ class LocationConfig{
 		// get specific fg value by name 
 		const std::string & getCfgValueFrom(std::string const & Key) const;
 		// specific string getters
+		const std::string getUploadPath() const;
 		const std::string getProxyPass() const;
 		const std::string getRedirection() const;
 		const std::string getDocroot() const;

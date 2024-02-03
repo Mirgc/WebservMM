@@ -47,6 +47,13 @@ const std::string & LocationConfig::getCfgValueFrom(std::string const & Key) con
 }
 
 // specific string getters
+const std::string LocationConfig::getUploadPath() const{
+	if(this->isKeyInLocation("upload_path")){
+		return(this->getCfgValueFrom("upload_path"));
+	}
+	return("");
+}
+
 const std::string LocationConfig::getProxyPass() const{
 	if(this->isKeyInLocation("proxy_pass")){
 		return(this->getCfgValueFrom("proxy_pass"));
