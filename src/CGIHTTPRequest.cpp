@@ -169,7 +169,7 @@ std::string CGIHTTPRequest::getAbsolutePath(const std::string& relativePath) {
     char cwd[FILENAME_MAX];
     if (getcwd(cwd, sizeof(cwd)) != NULL) {
         char absolutePath[FILENAME_MAX];
-        if (snprintf(absolutePath, sizeof(absolutePath), "%s/%s", cwd, relativePath.c_str()) < (int)sizeof(absolutePath)) {
+        if (std::snprintf(absolutePath, sizeof(absolutePath), "%s/%s", cwd, relativePath.c_str()) < (int)sizeof(absolutePath)) {
             return std::string(absolutePath);
         } else {
 	        throw std::runtime_error("Absolute path too long");
