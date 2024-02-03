@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <errno.h>
+#include <signal.h>
 
 #include "Reactor.hpp"
 #include "EventHandler.hpp"
@@ -11,7 +12,9 @@
 
 Reactor* Reactor::_instance = NULL;
 
-Reactor::Reactor() {}
+Reactor::Reactor() {
+    this->bRunEventLoop = true;
+}
 
 // Official patter sugests makeing this a singleton to avoid having multiple instances of Reactor
 Reactor* Reactor::getInstance(){
@@ -40,8 +43,10 @@ void Reactor::runEventLoop() {
     fd_set writeSet;
     int maxFd = 0;
 
+
+
     // We will need to deal with ending this loop to free up and gracefully exit
-    while (true) {
+    while (this->bRunEventLoop) {
         maxFd = 0;
         FD_ZERO(&readSet);
         FD_ZERO(&writeSet);
@@ -67,9 +72,8 @@ void Reactor::runEventLoop() {
 
         if (numReady == -1) {
             std::cerr << "select() error with errno:" << errno << " ( " << strerror(errno) << " )" << std::endl;
-            return;
+            break;
         }
-
         // Any with data?
         if (numReady > 0) {
             // Elements can get deleted from the map as we loop through it. Find a better solution
@@ -95,13 +99,12 @@ void Reactor::runEventLoop() {
                 }
             }
         }
-
         deleteUnregisteredHandlers();
     }
 }
 
 void Reactor::stopEventLoop() {
-    // Implement stopping the event loop (while true for now)
+    this->bRunEventLoop = false;
 }
 
 void Reactor::registerEventHandler(int fd, EventHandler* handler) {

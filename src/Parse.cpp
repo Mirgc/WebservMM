@@ -152,8 +152,8 @@ void Parse::getNextServer(void){
 
 			// ClientMaxBodySize Parse and possible exceptions SET MAX????? WHICH MAX????
 			if((*start).find("client_max_body_size") != std::string::npos){
-				srvCfg.setClientMaxBodySize(atoi(StringTools::trim((*start).substr((*start).find("client_max_body_size")+20, std::string::npos)).c_str()));
-				if (srvCfg.getClientMaxBodySize() > 1024)
+				srvCfg.setClientMaxBodySize(atoi(StringTools::trim((*start).substr((*start).find("client_max_body_size")+20, std::string::npos)).c_str())*1000);
+				if (srvCfg.getClientMaxBodySize() > INT_MAX)
 						throw ParseException("Invalid client_max_body_size value");
 			}
 

@@ -5,12 +5,20 @@
 #include "HTTPHeader.hpp"
 #include "Parse.hpp"
 #include "HTTPMethod.hpp"
+#include <signal.h>
+
+extern void	ft_sig_handler(int signo)
+{
+    Reactor::getInstance()->stopEventLoop();
+	(void) signo;
+}
 
 int startServer(const Parse &cfg)
 {
 	// Create an Reactor to dispatch events
 	Reactor *reactor = Reactor::getInstance();
-
+	signal(SIGINT, ft_sig_handler);
+	signal(SIGQUIT, ft_sig_handler);
 	std::vector<VirtualHostServer> virtualHostServers;
 
 	// Starts all servers in the config file
@@ -35,6 +43,8 @@ int startServer(const Parse &cfg)
 	}
 
 	delete reactor;
+	signal(SIGINT, SIG_DFL);
+	signal(SIGQUIT, SIG_DFL);
 	return (0);
 }
 
