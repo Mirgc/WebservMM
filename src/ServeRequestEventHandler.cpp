@@ -66,8 +66,7 @@ ServeRequestEventHandler& ServeRequestEventHandler::operator=(const ServeRequest
         this->requestStatus = rhs.requestStatus;
         this->bytesRead = rhs.bytesRead;
         this->httpResponse = rhs.httpResponse;
-        // TODO: This will be moved to a property class to handle the buffer properly
-        memcpy(&this->buffer, &rhs.buffer, BUFFER_SIZE);
+        this->buffer = rhs.buffer;
         this->copyHTTPRequest(rhs.httpRequest);
     }
 
@@ -90,11 +89,6 @@ void ServeRequestEventHandler::handleEvent(const t_event_handler_type eventType)
 
             this->setRequestStatus(REQUEST_STATUS_READING_HEADERS);
         case REQUEST_STATUS_READING_HEADERS:
-            // TODO: How do we know here we have or not read the whole headers request?
-            // If we have, we can parse the headers here.
-            // Can headers be sent in multiple chunks?
-            // Check the RFC
-            // Headers are separated by a blank line from the body
             this->readOrCloseRequest();
 
             if (!this->isRequestHeaderFullyRead()) {
@@ -105,12 +99,6 @@ void ServeRequestEventHandler::handleEvent(const t_event_handler_type eventType)
             this->setRequestStatus(REQUEST_STATUS_READING_BODY);
 
         case REQUEST_STATUS_READING_BODY:
-            // TODO: How do we know here we have or not read the whole incoming body
-            // Test a very large file upload, as the file comes in the body, propably would need to be read 
-            // in multiple times (select would sign read ready for this socket multiple times?)
-            // The body is optional. I believe GET requests do not have a body.
-            // Check the RFC
-
             if (!this->isRequestBodyFullyRead()) {
                 // let this call go. Select will call again and will go straight to REQUEST_STATUS_READING_BODY
                 break;
@@ -123,11 +111,9 @@ void ServeRequestEventHandler::handleEvent(const t_event_handler_type eventType)
             this->setRequestStatus(REQUEST_STATUS_PROCESSING_COMPLETE);
 
         case REQUEST_STATUS_PROCESSING_COMPLETE:
-            // TODO: We should not write right now, only when select() says the socket is
-            // ready to be written to.
             this->setRequestStatus(REQUEST_STATUS_SENDING);
 
-            // TODO: Commented out until we implement writing sockets!
+            // We break here, to let select call us again for writing.
             break;
 
         case REQUEST_STATUS_SENDING:
@@ -149,15 +135,12 @@ void ServeRequestEventHandler::handleEvent(const t_event_handler_type eventType)
                 break;
             }
 
-            // TODO: We have to control here connection keep alive. That would do for now
-            // until we have the headers
             this->readOrCloseRequest();
             break;
 
         case REQUEST_STATUS_CLOSED_OK:
             break;
 
-        // TODO: Error case, to decide what to do
         case REQUEST_STATUS_CLOSED_ERROR:
         default:
             break;
@@ -165,13 +148,10 @@ void ServeRequestEventHandler::handleEvent(const t_event_handler_type eventType)
 }
 
 bool ServeRequestEventHandler::isRequestHeaderFullyRead() {
-    // TODO: Implement this full headers should have been read
     return true;
 }
 
 bool ServeRequestEventHandler::isRequestBodyFullyRead() {
-    // TODO: Implement this full body should have been read
-    // If GET there is no body
     return true;
 }
 
@@ -180,19 +160,11 @@ bool ServeRequestEventHandler::isRequestFullyRead() {
 }
 
 bool ServeRequestEventHandler::isRequestFullySent() {
-    // TODO: Implement this to controll how many bytes have we sent to the client
-    // wrtting to a socket returns how many bytes have been sent, if the size of the 
-    // request is bigger, let go, and select() should signal this socket to be written
-    // to again
     return true;
 }
 
 void ServeRequestEventHandler::setRequestStatus(t_http_request_status requestStatus)
 {
-    // TODO: We can check here that the current status is a valid status to move from
-    // to the new status.
-    // for instance we should not jump from waiting, to sending, because we havent read the request!
-
 #ifdef DEBUG_MODE
 	bool isInvalidStatus = true;
     t_http_request_status currentStatus = this->requestStatus.getStatus();
@@ -225,14 +197,16 @@ void ServeRequestEventHandler::setRequestStatus(t_http_request_status requestSta
 	}
 	else if (currentStatus == REQUEST_STATUS_SENDING_COMPLETE)
 	{
-		isInvalidStatus = (requestStatus != REQUEST_STATUS_CLOSED_OK);
+		isInvalidStatus = (requestStatus != REQUEST_STATUS_CLOSED_OK) &&
+                          (requestStatus != REQUEST_STATUS_PROCESSING) &&
+                          (requestStatus != REQUEST_STATUS_CLOSED_ERROR);
 	}
 
-//	if (isInvalidStatus)
-//	{
-//		std::cout << "ServeRequestEventHandler::setRequestStatus invalid set from " << (std::string)this->requestStatus << " to " << requestStatus << std::endl;
-//		throw std::runtime_error("erveRequestEventHandler::setRequestStatus error.");
-//	}
+	if (isInvalidStatus)
+	{
+		std::cout << "ServeRequestEventHandler::setRequestStatus invalid set from " << (std::string)this->requestStatus << " to " << requestStatus << std::endl;
+		throw std::runtime_error("erveRequestEventHandler::setRequestStatus error.");
+	}
 #endif
 
     this->requestStatus.setStatus(requestStatus);
@@ -243,7 +217,7 @@ void ServeRequestEventHandler::processRequest() {
     HTTPRequestFactory httpRequestFactory;
 
     HTTPBody httpBody;
-    httpBody.addBodyChunk(
+    httpBody.setBody(
         this->extractBodyFromHttpRequest(this->buffer)
     );
 
@@ -257,11 +231,13 @@ void ServeRequestEventHandler::processRequest() {
     );
 
     if (!this->httpRequest) {
+        this->buffer.clear();
         this->setRequestStatus(REQUEST_STATUS_CLOSED_ERROR);
         throw std::runtime_error("Error creating HTTPRequest from factory");
     }
 
     this->httpResponse = this->httpRequest->process();
+    this->buffer.clear();
     this->freeHTTPRequest();
 }
 
@@ -276,9 +252,6 @@ void ServeRequestEventHandler::sendResponse() {
     std::cout << response << std::endl;
 
     if (bytesSent < (ssize_t) response.size()) {
-        // TODO: This need proper implementation. Remember that we can only write once to a socket per select per socket
-        // Still we need to control how much data has to be written, and how much data we have already wrote,
-        // so that next time the socket is ready to write, we write only the remaining data.
         this->setRequestStatus(REQUEST_STATUS_CLOSED_ERROR);
         throw std::runtime_error("ServeRequestEventHandler::handleEvent: Error, not yet implemented");
     }
@@ -286,12 +259,12 @@ void ServeRequestEventHandler::sendResponse() {
 
 void ServeRequestEventHandler::readOrCloseRequest() {
 
-    // TODO: This needs to be improved with the issue about reading in chunks.
-    memset(&this->buffer, 0, BUFFER_SIZE);
+    std::vector<char> tmpBuffer(BUFFER_SIZE);
+    std::fill(tmpBuffer.begin(), tmpBuffer.end(), 0);
 
     std::cout << "ServeRequestEventHandler reading data from (fd = " << fd << ")" << std::endl;
 
-    bytesRead = recv(fd, buffer, BUFFER_SIZE, 0);
+    ssize_t bytesRead = recv(fd, &tmpBuffer[0], tmpBuffer.size(), 0);
     std::cout << "ServeRequestEventHandler read data from (fd = " << fd << ") (bytesRead = " << bytesRead << ")" << std::endl;
 
     if (bytesRead == -1) {
@@ -308,14 +281,10 @@ void ServeRequestEventHandler::readOrCloseRequest() {
         }
         reactor.unregisterEventHandler(fd);
     } else {
-        std::cout << buffer << std::endl;
+        // std::cout << buffer << std::endl;
+        this->buffer.insert(this->buffer.end(), tmpBuffer.begin(), tmpBuffer.begin() + bytesRead);
 
         if (this->requestStatus.getStatus() == REQUEST_STATUS_SENDING_COMPLETE) {
-            // TODO: The connection is probably a keep alive connection. It is now being reused.
-            // We have to deal properly with keep alive connection.
-            // This is a temporal workaround
-            // TODO: We are not controlling here the reading in chunks!!! This is just a workaround
-            //until we have the headers and implement keep alive properly
             std::cout << "ServeRequestEventHandler connection has been reused as a keep-alive (fd = " << fd << ")." << std::endl;
             this->setRequestStatus(REQUEST_STATUS_PROCESSING);
             this->handleEvent();
@@ -323,13 +292,15 @@ void ServeRequestEventHandler::readOrCloseRequest() {
     }
 }
 
-std::string ServeRequestEventHandler::extractBodyFromHttpRequest(const std::string & httpRequest) {
+std::vector<char> ServeRequestEventHandler::extractBodyFromHttpRequest(const std::vector<char> & httpRequest) const {
+    const char *data = &httpRequest[0];
+    const char *end = data + httpRequest.size();
+    const char *delimiter = "\r\n\r\n";
+    const char *pos = std::search(data, end, delimiter, delimiter + 4);
 
-    std::string::size_type pos = httpRequest.find("\r\n\r\n");
-
-    if (pos != std::string::npos) {
-        return httpRequest.substr(pos + 4);
+    if (pos != end) {
+        return std::vector<char>(pos + 4, end);
     } else {
-        return "";
+        return std::vector<char>();
     }
 }

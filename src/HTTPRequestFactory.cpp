@@ -43,10 +43,19 @@ HTTPRequest *HTTPRequestFactory::createHTTPRequest(const ServerConfig &serverCon
     {
         return (new ErrorHTTPRequest(serverConfig, location, httpHeader, 405));
     }
-    if (!httpHeader.getMethod().compare("POST"))
-        return (new UploadFileRequest(serverConfig, location, httpHeader, httpBody));
+
+	if (httpHeader.getMethod() == "POST" && serverConfig.getClientMaxBodySize()) {
+		if (httpBody.getBodySize() > serverConfig.getClientMaxBodySize()) {
+			// https://developer.mozilla.org/es/docs/Web/HTTP/Status/413
+			return (new ErrorHTTPRequest(serverConfig, location, httpHeader, 413));
+		}
+	}
     if (location.isPyCgi()) {
         return (new CGIHTTPRequest(serverConfig, location, httpHeader, httpBody));
+    }
+
+    if (!httpHeader.getMethod().compare("POST")) {
+        return (new UploadFileRequest(serverConfig, location, httpHeader, httpBody));
     }
 
     return (new StaticFileHTTPRequest(serverConfig, location, httpHeader));
