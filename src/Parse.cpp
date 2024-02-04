@@ -412,11 +412,11 @@ std::vector<unsigned int> Parse::splitPorts(const std::string &s){
 		// having to know and justify the reason for the failure.
 		// Or maybe print that phrase here instead of throwing an exception 
 		// to complete the explanation by breaking the bind?
-		if(port > 1023 and port < 65535 and !isIntInVector(port, listenedPorts) and !isIntInVector(port, this->getPortPool())){
+		if(port > 1023 and port < 65535 and !isIntInVector(port, listenedPorts) and !isIntInVector(port, this->getPortPool()) and port != 1025){
 			this->addPortToPool(port);
 			listenedPorts.push_back(port);
 		}
-		else if (port > 0 and port < 1024){
+		else if ((port > 0 and port < 1024) or port == 1025){
             std::ostringstream oss;
             oss << port;
             std::string sport = oss.str();
