@@ -155,7 +155,7 @@ void HTTPHeader::parseHTTPHeader(const std::vector<char> &request)
 	if (this->addMethod(line) || !this->checkMethod())
 	{
 		std::cout << "Invalid HTTPRequest" << std::endl;
-    	throw std::runtime_error("Error creating HTTPRequest from factory");
+		return; // An exception would have to be thrown here.
 	}
 	while (std::getline(iss, line))
 	{
@@ -171,7 +171,7 @@ void HTTPHeader::parseHTTPHeader(const std::vector<char> &request)
 		else
 		{
 			if (line.compare(""))
-    			throw std::runtime_error("Error creating HTTPRequest from factory");
+				std::cout << "Bad description" << std::endl;
 			else
 				// Here we have found an empty line, so we assume that the boy begins;
 				// std::cout << "Checkbody" << std::endl;
