@@ -7,6 +7,7 @@
 #include <dirent.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <cstdlib>
 
 #include "StaticFileHTTPRequest.hpp"
 #include "HTTPResponse.hpp"
@@ -138,6 +139,14 @@ std::string StaticFileHTTPRequest::generateAutoindexPage(const std::string& dire
     return htmlPageF;
 }
 
+std::string fileDeleted() {
+    std::string response;
+    response += "HTTP/1.1 200 OK\r\n";
+    response += "Content-Length: 0\r\n";
+    response += "\r\n";  // Fin de las cabeceras
+    return response;
+}
+
 HTTPResponse StaticFileHTTPRequest::process()
 {
     HTTPResponse response;
@@ -148,6 +157,16 @@ HTTPResponse StaticFileHTTPRequest::process()
         pathComplete = this->location.getCfgValueFrom("docroot") + this->httpHeader.getUrl();
         if (isFile(pathComplete))
         {
+            if (!this->httpHeader.getMethod().compare("DELETE") && this->location.isMethodInLocation(this->httpHeader.getMethod()))
+            {
+                if (std::remove(pathComplete.c_str()) == 0)
+                {
+                    response.setResponse(fileDeleted());
+                    return response;
+                }
+                else
+                    return (HTTPResponse500(this->serverConfig.get500Content()));
+            }
             response.setResponse(getResponse(pathComplete));
         }
         else if (isDirectory(pathComplete))
