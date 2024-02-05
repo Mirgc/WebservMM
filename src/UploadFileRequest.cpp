@@ -100,7 +100,7 @@ HTTPResponse UploadFileRequest::process()
     size_t filenameEnd = contentDisposition.find("\"", filenamePos);
     std::string filename = contentDisposition.substr(filenamePos, filenameEnd - filenamePos);
 
-    // Take content from Invalid HTTPRequest file
+    // Take content from the file
     size_t contentStart = end + 4; // "\r\n\r\n" size
     size_t contentEnd = body.find(boundary, contentStart);
     std::string fileContent = body.substr(contentStart, contentEnd - contentStart);
