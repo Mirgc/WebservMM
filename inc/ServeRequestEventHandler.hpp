@@ -6,6 +6,7 @@ class Reactor;
 #include "EventHandler.hpp"
 #include "HTTPRequestStatus.hpp"
 #include "HTTPResponse.hpp"
+#include "HTTPHeader.hpp"
 
 class HTTPRequest;
 
@@ -28,6 +29,7 @@ private:
     ssize_t bytesRead;
     HTTPResponse httpResponse;
     std::vector<char> buffer;
+    HTTPHeader httpHeader;
 
     void copyHTTPRequest(HTTPRequest * src);
     void freeHTTPRequest();
@@ -40,6 +42,7 @@ private:
     void sendResponse();
     void readOrCloseRequest();
     std::vector<char> extractBodyFromHttpRequest(const std::vector<char> & httpRequest) const;
+    ssize_t getCurrentBodySize(const std::vector<char> & httpRequest) const;
 
 };
 
