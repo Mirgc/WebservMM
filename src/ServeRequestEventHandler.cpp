@@ -258,12 +258,14 @@ void ServeRequestEventHandler::processRequest() {
 
     if (!this->httpRequest) {
         this->buffer.clear();
+        this->httpHeader.clear();
         this->setRequestStatus(REQUEST_STATUS_CLOSED_ERROR);
         throw std::runtime_error("Error creating HTTPRequest from factory");
     }
 
     this->httpResponse = this->httpRequest->process();
     this->buffer.clear();
+    this->httpHeader.clear();
     this->freeHTTPRequest();
 }
 
@@ -308,15 +310,32 @@ void ServeRequestEventHandler::readOrCloseRequest() {
         }
         reactor.unregisterEventHandler(fd);
     } else {
+        if (this->requestStatus.getStatus() == REQUEST_STATUS_SENDING_COMPLETE) {
+            this->buffer.clear();
+        }
+
         this->buffer.insert(this->buffer.end(), tmpBuffer.begin(), tmpBuffer.begin() + bytesRead);
 
         std::cout.write(tmpBuffer.data(), std::min(tmpBuffer.size(), static_cast<size_t>(80)));
         std::cout << std::endl;
 
         if (this->requestStatus.getStatus() == REQUEST_STATUS_SENDING_COMPLETE) {
-            std::cout << "ServeRequestEventHandler connection has been reused as a keep-alive (fd = " << fd << ")." << std::endl;
-            this->setRequestStatus(REQUEST_STATUS_PROCESSING);
-            this->handleEvent();
+            if (!this->isRequestHeaderFullyRead()) {
+                this->setRequestStatus(REQUEST_STATUS_READING_REQUEST);
+            } else {
+                this->httpHeader.parseHTTPHeader(this->buffer);
+
+                std::cout << "Expected Content-Length " << this->httpHeader.getHeaderValueWithKey("Content-Length") << std::endl;
+                std::cout << "Read " <<  "" << this->buffer.size() << std::endl;
+
+                if (!this->isRequestBodyFullyRead()) {
+                    this->setRequestStatus(REQUEST_STATUS_READING_REQUEST);
+                } else {
+                    std::cout << "ServeRequestEventHandler connection has been reused as a keep-alive (fd = " << fd << ")." << std::endl;
+                    this->setRequestStatus(REQUEST_STATUS_PROCESSING);
+                    this->handleEvent();
+                }
+            }
         }
     }
 }

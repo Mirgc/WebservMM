@@ -146,6 +146,8 @@ bool HTTPHeader::checkMethod(void) const
 
 void HTTPHeader::parseHTTPHeader(const std::vector<char> &request)
 {
+    this->clear();
+
     std::string requestStr(request.begin(), request.end());
     std::istringstream iss(requestStr);
 	std::string line;
@@ -190,4 +192,11 @@ void HTTPHeader::printHeader(void) const
 		std::cout << this->header[i].first << ": " << this->header[i].second;
 		std::cout << std::endl;
 	}
+}
+
+void HTTPHeader::clear(void) {
+    this->header.clear();
+    this->method.clear();
+    this->url.clear();
+    this->ver.clear();
 }
