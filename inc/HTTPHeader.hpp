@@ -33,6 +33,8 @@ class HTTPHeader
 		void		parseHTTPHeader (const std::vector<char>& request);
 		std::string getQueryString(void);
 
+        void        clear();
+
 };
 
 #endif

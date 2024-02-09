@@ -85,9 +85,7 @@ std::string getResponse(const std::string& path)
     
     ss.str("");  // Clean up the stringstream to reuse it
     ss << "HTTP/1.1 200 OK\r\n"
-       << "Content-Type: "
-       << MIMETypes::getContentType(path)
-       << "\r\n"
+       << "Content-Type: " << MIMETypes::getContentType(path) << "\r\n"
        << "Content-Length: " << content.size()
        << "\r\n\r\n"
        << content;

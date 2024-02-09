@@ -9,6 +9,9 @@
 
 extern void	ft_sig_handler(int signo)
 {
+    std::cout << std::endl << std::endl 
+                << "User stopped the server. Shutting down ..." << std::endl;
+
     Reactor::getInstance()->stopEventLoop();
 	(void) signo;
 }
@@ -45,6 +48,9 @@ int startServer(const Parse &cfg)
 	delete reactor;
 	signal(SIGINT, SIG_DFL);
 	signal(SIGQUIT, SIG_DFL);
+
+    std::cout << "Server stopped succesfully." << std::endl;
+
 	return (0);
 }
 
