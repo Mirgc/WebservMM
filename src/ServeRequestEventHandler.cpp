@@ -4,7 +4,7 @@
 #include <cstring>
 #include <sstream>
 #include <signal.h>
-
+#include <iomanip>
 #include <fstream>
 #include <iostream>
 
@@ -13,17 +13,6 @@
 #include "HTTPRequestFactory.hpp"
 #include "HTTPHeader.hpp"
 #include "HTTPBody.hpp"
-
-// To be done:
-
-// - ServeRequestEventHandler: Read data in chunks, let select call us again. Upload a big file with POST to test
-// - ServeRequestEventHandler: Find a way to determine isRequestHeaderFullyRead and implement
-// - ServeRequestEventHandler: Find a way to determine isRequestBodyFullyRead and implement
-
-// - ServeRequestEventHandler: Write data in chunks, let select call us again. Download a big file with GET to test
-// - ServeRequestEventHandler: Find a way to determine isRequestFullySent and implement
-
-// - ServeRequestEventHandler: Check that a status can move from a valid previous one in setRequestStatus
 
 ServeRequestEventHandler::ServeRequestEventHandler(Reactor& reactor, int fd, const VirtualHostServer & virtualHostServer) 
     : EventHandler(reactor, fd, virtualHostServer) {
@@ -37,6 +26,7 @@ ServeRequestEventHandler::ServeRequestEventHandler(const ServeRequestEventHandle
     this->requestStatus = src.requestStatus;
     this->bytesRead = src.bytesRead;
     this->httpResponse = src.httpResponse;
+    this->httpHeader = src.httpHeader;
     this->copyHTTPRequest(src.httpRequest);
 }
 
@@ -66,6 +56,7 @@ ServeRequestEventHandler& ServeRequestEventHandler::operator=(const ServeRequest
         this->requestStatus = rhs.requestStatus;
         this->bytesRead = rhs.bytesRead;
         this->httpResponse = rhs.httpResponse;
+        this->httpHeader = rhs.httpHeader;
         this->buffer = rhs.buffer;
         this->copyHTTPRequest(rhs.httpRequest);
     }
@@ -87,20 +78,21 @@ void ServeRequestEventHandler::handleEvent(const t_event_handler_type eventType)
                 break;
             }
 
-            this->setRequestStatus(REQUEST_STATUS_READING_HEADERS);
-        case REQUEST_STATUS_READING_HEADERS:
+            this->setRequestStatus(REQUEST_STATUS_READING_REQUEST);
+        case REQUEST_STATUS_READING_REQUEST:
             this->readOrCloseRequest();
 
             if (!this->isRequestHeaderFullyRead()) {
-                // let this call go. Select will call again and will go straight to REQUEST_STATUS_READING_BODY
+                // let this call go. Select will call again and will go straight to REQUEST_STATUS_READING_REQUEST
                 break;
             }
 
-            this->setRequestStatus(REQUEST_STATUS_READING_BODY);
+            this->httpHeader.parseHTTPHeader(this->buffer);
 
-        case REQUEST_STATUS_READING_BODY:
+            std::cout << "Expected Content-Length " << this->httpHeader.getHeaderValueWithKey("Content-Length") << std::endl;
+
             if (!this->isRequestBodyFullyRead()) {
-                // let this call go. Select will call again and will go straight to REQUEST_STATUS_READING_BODY
+                // let this call go. Select will call again and will go straight to REQUEST_STATUS_READING_REQUEST
                 break;
             }
 
@@ -148,10 +140,51 @@ void ServeRequestEventHandler::handleEvent(const t_event_handler_type eventType)
 }
 
 bool ServeRequestEventHandler::isRequestHeaderFullyRead() {
-    return true;
+    size_t bufferSize = buffer.size();
+
+    if (bufferSize < 4) {
+        // Insufficient data to determine the end of headers
+        return false;
+    }
+
+    for (size_t i = 0; i < bufferSize - 3; ++i) {
+        if (buffer[i] == '\r' && buffer[i + 1] == '\n' &&
+            buffer[i + 2] == '\r' && buffer[i + 3] == '\n') {
+            // Found two consecutive '\r\n\r\n' sequences, indicating the end of headers
+            return true;
+        }
+    }
+
+    return false;
 }
 
 bool ServeRequestEventHandler::isRequestBodyFullyRead() {
+    if (this->httpHeader.getMethod() == "GET") {
+        // GET requests do not allow BODY
+        return true;
+    }
+
+    std::string contentLenghtStr = this->httpHeader.getHeaderValueWithKey("Content-Length");
+    if (contentLenghtStr.empty()) {
+        // This should be an error, as by now we should have the content length
+        // Bad request, no content length
+        return false;
+    }
+
+    std::istringstream iss(contentLenghtStr);
+    ssize_t contentLenght;
+
+    if (!(iss >> contentLenght)) {
+        // This should be an error, as by now we should have the content length
+        // Bad request, no valid content lengths
+        return false;
+    }
+
+    if (this->getCurrentBodySize(this->buffer) != contentLenght) {
+        // No error, but we have not yet read the full content length
+        return false;
+    }
+
     return true;
 }
 
@@ -172,14 +205,10 @@ void ServeRequestEventHandler::setRequestStatus(t_http_request_status requestSta
     if (currentStatus == REQUEST_STATUS_WAITING)
 	{
 		isInvalidStatus = requestStatus != REQUEST_STATUS_WAITING &&
-                          requestStatus != REQUEST_STATUS_READING_HEADERS &&
+                          requestStatus != REQUEST_STATUS_READING_REQUEST &&
                           requestStatus != REQUEST_STATUS_CLOSED_OK;
 	}
-	else if (currentStatus == REQUEST_STATUS_READING_HEADERS)
-	{
-		isInvalidStatus = (requestStatus != REQUEST_STATUS_READING_BODY);
-	}
-	else if (currentStatus == REQUEST_STATUS_READING_BODY)
+	else if (currentStatus == REQUEST_STATUS_READING_REQUEST)
 	{
 		isInvalidStatus = (requestStatus != REQUEST_STATUS_PROCESSING);
 	}
@@ -221,23 +250,22 @@ void ServeRequestEventHandler::processRequest() {
         this->extractBodyFromHttpRequest(this->buffer)
     );
 
-    HTTPHeader httpHeader;
-    httpHeader.parseHTTPHeader(this->buffer);
-
     this->httpRequest = httpRequestFactory.createHTTPRequest(
         this->virtualHostServer.getServerConfig(),
-        httpHeader,
+        this->httpHeader,
         httpBody
     );
 
     if (!this->httpRequest) {
         this->buffer.clear();
+        this->httpHeader.clear();
         this->setRequestStatus(REQUEST_STATUS_CLOSED_ERROR);
         throw std::runtime_error("Error creating HTTPRequest from factory");
     }
 
     this->httpResponse = this->httpRequest->process();
     this->buffer.clear();
+    this->httpHeader.clear();
     this->freeHTTPRequest();
 }
 
@@ -249,7 +277,8 @@ void ServeRequestEventHandler::sendResponse() {
 
     // Process the received data, send responses back to the client here...
     std::cout << "ServeRequestEventHandler write data to client on (fd = " << fd << ") (bytesSent " << bytesSent << ")" << std::endl;
-    std::cout << response << std::endl;
+    std::cout.write(response.data(), std::min(response.size(), static_cast<size_t>(80)));
+    std::cout << std::endl;
 
     if (bytesSent < (ssize_t) response.size()) {
         this->setRequestStatus(REQUEST_STATUS_CLOSED_ERROR);
@@ -281,13 +310,32 @@ void ServeRequestEventHandler::readOrCloseRequest() {
         }
         reactor.unregisterEventHandler(fd);
     } else {
-        // std::cout << buffer << std::endl;
+        if (this->requestStatus.getStatus() == REQUEST_STATUS_SENDING_COMPLETE) {
+            this->buffer.clear();
+        }
+
         this->buffer.insert(this->buffer.end(), tmpBuffer.begin(), tmpBuffer.begin() + bytesRead);
 
+        std::cout.write(tmpBuffer.data(), std::min(tmpBuffer.size(), static_cast<size_t>(80)));
+        std::cout << std::endl;
+
         if (this->requestStatus.getStatus() == REQUEST_STATUS_SENDING_COMPLETE) {
-            std::cout << "ServeRequestEventHandler connection has been reused as a keep-alive (fd = " << fd << ")." << std::endl;
-            this->setRequestStatus(REQUEST_STATUS_PROCESSING);
-            this->handleEvent();
+            if (!this->isRequestHeaderFullyRead()) {
+                this->setRequestStatus(REQUEST_STATUS_READING_REQUEST);
+            } else {
+                this->httpHeader.parseHTTPHeader(this->buffer);
+
+                std::cout << "Expected Content-Length " << this->httpHeader.getHeaderValueWithKey("Content-Length") << std::endl;
+                std::cout << "Read " <<  "" << this->buffer.size() << std::endl;
+
+                if (!this->isRequestBodyFullyRead()) {
+                    this->setRequestStatus(REQUEST_STATUS_READING_REQUEST);
+                } else {
+                    std::cout << "ServeRequestEventHandler connection has been reused as a keep-alive (fd = " << fd << ")." << std::endl;
+                    this->setRequestStatus(REQUEST_STATUS_PROCESSING);
+                    this->handleEvent();
+                }
+            }
         }
     }
 }
@@ -303,4 +351,17 @@ std::vector<char> ServeRequestEventHandler::extractBodyFromHttpRequest(const std
     } else {
         return std::vector<char>();
     }
+}
+
+ssize_t ServeRequestEventHandler::getCurrentBodySize(const std::vector<char> & httpRequest) const {
+    const char *data = &httpRequest[0];
+    const char *end = data + httpRequest.size();
+    const char *delimiter = "\r\n\r\n";
+    const char *pos = std::search(data, end, delimiter, delimiter + 4);
+
+    if (pos != end) {
+        return (end - (pos + 4));
+    }
+
+    return 0;
 }

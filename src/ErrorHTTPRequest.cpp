@@ -7,6 +7,7 @@
 #include "HTTPResponse.hpp"
 #include "HTTPResponse404.hpp"
 #include "HTTPResponse405.hpp"
+#include "HTTPResponse413.hpp"
 #include "HTTPResponse500.hpp"
 
 ErrorHTTPRequest::ErrorHTTPRequest(
@@ -42,6 +43,8 @@ HTTPResponse ErrorHTTPRequest::process() {
         if (this->httpResponseStatusCode >= 400 && this->httpResponseStatusCode < 500) {
             if (this->httpResponseStatusCode == 405) {
                 return HTTPResponse405(this->serverConfig.get405Content());
+            } else if (this->httpResponseStatusCode == 413) {
+                return HTTPResponse413("");
             }
             return HTTPResponse404(this->serverConfig.get404Content());
         }

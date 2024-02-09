@@ -100,7 +100,7 @@ void VirtualHostServer::listen()
 
 void VirtualHostServer::stop()
 {
-    std::cout << "VirtualHostServer::stop() closing the server socket!!" << std::endl;
+    std::cout << "VirtualHostServer::stop() Shutting the virtual server down..." << std::endl;
 
     if (!listenSocket.empty())
     {
