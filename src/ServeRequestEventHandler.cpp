@@ -193,7 +193,7 @@ bool ServeRequestEventHandler::isRequestFullyRead() {
 }
 
 bool ServeRequestEventHandler::isRequestFullySent() {
-    return true;
+    return this->httpResponse.isRequestFullySent();
 }
 
 void ServeRequestEventHandler::setRequestStatus(t_http_request_status requestStatus)
@@ -271,18 +271,22 @@ void ServeRequestEventHandler::processRequest() {
 
 void ServeRequestEventHandler::sendResponse() {
     ssize_t bytesSent;
-    std::string response = this->httpResponse.getResponse();
+    std::vector<char> response = this->httpResponse.getNextResponseChunkToBeSent();
 
-    bytesSent = send(fd, response.c_str(), response.size(), 0);
+    bytesSent = send(fd, &response[0], response.size(), 0);
+    if (bytesSent == -1) {
+        std::runtime_error("Error sending reposnse to the client");
+    } else if (bytesSent == 0) {
+        // No bytes were sent
+        std::cout << "No bytes were sent to the client" << std::endl;
+    } else {
+        // bytesSent bytes were sent
+        this->httpResponse.addBytesSentToClient(bytesSent);
 
-    // Process the received data, send responses back to the client here...
-    std::cout << "ServeRequestEventHandler write data to client on (fd = " << fd << ") (bytesSent " << bytesSent << ")" << std::endl;
-    std::cout.write(response.data(), std::min(response.size(), static_cast<size_t>(80)));
-    std::cout << std::endl;
-
-    if (bytesSent < (ssize_t) response.size()) {
-        this->setRequestStatus(REQUEST_STATUS_CLOSED_ERROR);
-        throw std::runtime_error("ServeRequestEventHandler::handleEvent: Error, not yet implemented");
+        // Process the received data, send responses back to the client here...
+        std::cout << "ServeRequestEventHandler write data to client on (fd = " << fd << ") (bytesSent " << bytesSent << ")" << std::endl;
+        std::cout.write(response.data(), std::min(response.size(), static_cast<size_t>(80)));
+        std::cout << std::endl;
     }
 }
 

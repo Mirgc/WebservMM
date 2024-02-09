@@ -86,15 +86,20 @@ void Reactor::runEventLoop() {
                         continue;
                     }
 
-                    if (FD_ISSET(fd, &readSet)) {
-                        std::cout << std::endl << "Socket (" << fd << ") is ready to read data" << std::endl;
-                        handler->handleEvent(EVENT_HANDLER_TYPE_READ);
-                    } else if (FD_ISSET(fd, &writeSet)) {
-                        std::cout << std::endl << "Socket (" << fd << ") is ready to write data" << std::endl;
-                        handler->handleEvent(EVENT_HANDLER_TYPE_WRITE);
-                    } else {
-                        std::runtime_error("Reactor::runEventLoop not read ready nor write ready. Internal error!");
-                    }                    
+                    try {
+                        if (FD_ISSET(fd, &readSet)) {
+                            std::cout << std::endl << "Socket (" << fd << ") is ready to read data" << std::endl;
+                            handler->handleEvent(EVENT_HANDLER_TYPE_READ);
+                        } else if (FD_ISSET(fd, &writeSet)) {
+                            std::cout << std::endl << "Socket (" << fd << ") is ready to write data" << std::endl;
+                            handler->handleEvent(EVENT_HANDLER_TYPE_WRITE);
+                        } else {
+                            std::runtime_error("Reactor::runEventLoop not read ready nor write ready. Internal error!");
+                        }
+                    }
+                    catch(...) {
+                        this->unregisterEventHandler(fd);
+                    }
                 }
             }
         }

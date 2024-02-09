@@ -1,7 +1,7 @@
 // ------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------
 
-var url = 'http://localhost:8080/postcgi.py';
+var url = 'http://localhost:8080/cgi-bin/postcgi.py';
 var data = {key1: 'value1', key2: 'value2'};
 
 fetch(url, {
@@ -18,8 +18,8 @@ fetch(url, {
 // ------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------
 
-var url = 'http://localhost:8080/postcgi.py';
-var data = {key1: 'value1', key2: 'value2'};
+var url = 'http://localhost:8080/cgi-bin/postcgi.py';
+var data = {number1: '21', number2: '21'};
 
 // Create a FormData object
 var formData = new FormData();
