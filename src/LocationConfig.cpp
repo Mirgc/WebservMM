@@ -17,6 +17,8 @@ LocationConfig::~LocationConfig(void){
 LocationConfig& LocationConfig::operator=(const LocationConfig &rhs){
 	this->_LocationName = rhs.getLocationName();
 	this->_UploadCfg = rhs.getUploadCfg();
+	this->_RedirectionPath = rhs.getRedirectionPath();
+	this->_RedirectionPort = rhs.getRedirectionPort();
 	return (*this);
 }
 
@@ -82,6 +84,15 @@ const std::string LocationConfig::getIndex() const{
 	return("");
 }
 
+
+unsigned int LocationConfig::getRedirectionPort() const{
+	return(this->_RedirectionPort);
+}
+
+const std::string LocationConfig::getRedirectionPath() const{
+	return(this->_RedirectionPath);
+}
+
 // bool getters
 bool LocationConfig::getMethodGetBool() const{
 	return(this->isMethodInLocation("GET"));
@@ -124,6 +135,14 @@ void LocationConfig::setLocationName(std::string const &LocationName){
 
 void LocationConfig::setUploadCfg(std::pair<std::string, std::string> const &pair){
 	this->_UploadCfg.push_back(pair);
+}
+
+void LocationConfig::setRedirectionPort(unsigned int port){
+	this->_RedirectionPort = port;
+}
+
+void LocationConfig::setRedirectionPath(std::string &path){
+	this->_RedirectionPath = path;
 }
 
 // print all cfg vector<pair> key.first value.second if needed to debug

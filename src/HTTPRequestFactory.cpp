@@ -1,5 +1,6 @@
 #include "HTTPRequestFactory.hpp"
 #include "StaticFileHTTPRequest.hpp"
+#include "RedirectionHTTPRequest.hpp"
 #include "ErrorHTTPRequest.hpp"
 #include "CGIHTTPRequest.hpp"
 #include "LocationConfig.hpp"
@@ -44,6 +45,10 @@ HTTPRequest *HTTPRequestFactory::createHTTPRequest(const ServerConfig &serverCon
         return (new ErrorHTTPRequest(serverConfig, location, httpHeader, 405));
     }
 
+    if(!location.getRedirection().empty()){
+        return (new RedirectionHTTPRequest(serverConfig, location, httpHeader));
+    }
+
 	if (httpHeader.getMethod() == "POST" && serverConfig.getClientMaxBodySize()) {
 		if (httpBody.getBodySize() > serverConfig.getClientMaxBodySize()) {
 			// https://developer.mozilla.org/es/docs/Web/HTTP/Status/413
@@ -57,7 +62,6 @@ HTTPRequest *HTTPRequestFactory::createHTTPRequest(const ServerConfig &serverCon
     if (!httpHeader.getMethod().compare("POST")) {
         return (new UploadFileRequest(serverConfig, location, httpHeader, httpBody));
     }
-
     return (new StaticFileHTTPRequest(serverConfig, location, httpHeader));
 }
 

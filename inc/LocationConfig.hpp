@@ -10,6 +10,8 @@ class LocationConfig{
 	private:
 		std::string   	_LocationName;
 		std::vector<std::pair<std::string, std::string> > _UploadCfg;
+		unsigned int _RedirectionPort;
+		std::string _RedirectionPath;
 
 	public:
 		LocationConfig(void);
@@ -31,6 +33,8 @@ class LocationConfig{
 		const std::string getRedirection() const;
 		const std::string getDocroot() const;
 		const std::string getIndex() const;
+		unsigned int getRedirectionPort() const;
+		const std::string getRedirectionPath() const;
 		// bool getters
 		bool getAutoIndexBool() const;
 		bool getUploadEnableBool() const;
@@ -44,6 +48,8 @@ class LocationConfig{
 
 		void setLocationName(std::string const &LocationName);
 		void setUploadCfg(std::pair<std::string, std::string> const &pair);
+		void setRedirectionPort(unsigned int port);
+		void setRedirectionPath(std::string &path);
 
 };
 

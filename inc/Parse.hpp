@@ -76,6 +76,7 @@ class Parse: public ConfigFileParser{
 
 		// String ports to int vector ports
 		std::vector<unsigned int> splitPorts(const std::string &s);
+		unsigned int toValidPort(const std::string &s);
 
 		// transform ip string into in_addr_t
 		in_addr_t strToIp(const std::string ipString);

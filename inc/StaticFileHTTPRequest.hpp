@@ -2,6 +2,7 @@
 #define STATIC_FILE_HTTP_REQUEST_HPP
 
 #include "HTTPRequest.hpp"
+#include "RequestTools.hpp"
 
 class HTTPResponse;
 class LocationConfig;

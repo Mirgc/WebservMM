@@ -105,7 +105,7 @@ HTTPResponse UploadFileRequest::process()
     size_t contentEnd = body.find(boundary, contentStart);
     std::string fileContent = body.substr(contentStart, contentEnd - contentStart);
     // Change to the specific getter
-    filename = this->location.getCfgValueFrom("upload_path") + "/" + filename;
+    filename = this->location.getUploadPath() + "/" + filename;
     // Save content in the file
     FILE *outFile = std::fopen(filename.c_str(), "wb");
     if (outFile == NULL)
