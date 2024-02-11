@@ -52,7 +52,7 @@ HTTPResponse CGIHTTPRequest::process()
 
 	try
 	{
-        std::string scriptPath = Path::concatenate(this->location.getCfgValueFrom("docroot"), this->httpHeader.getUrl());
+        std::string scriptPath = Path::concatenate(this->location.getDocroot(), this->httpHeader.getUrl());
         if (!Path::isFileAccessible(scriptPath))
         {
 			return HTTPResponse404(this->serverConfig.get404Content());
