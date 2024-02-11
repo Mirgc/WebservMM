@@ -50,7 +50,7 @@ body::before {
     transparent 1px,
     transparent 2px
   );
-  animation: scanlines 3s linear infinite;
+  /* animation: scanlines 3s linear infinite; */
 }
 
 @keyframes scanlines {
@@ -194,7 +194,7 @@ body::after {
     transparent 1px,
     transparent 2px
   );
-  animation: blackScanline 3s linear infinite;
+  /*animation: blackScanline 3s linear infinite;*/
 }
 
 @keyframes blackScanline {
