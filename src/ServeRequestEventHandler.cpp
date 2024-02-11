@@ -13,6 +13,7 @@
 #include "HTTPRequestFactory.hpp"
 #include "HTTPHeader.hpp"
 #include "HTTPBody.hpp"
+#include "HTTPResponse400.hpp"
 
 ServeRequestEventHandler::ServeRequestEventHandler(Reactor& reactor, int fd, const VirtualHostServer & virtualHostServer) 
     : EventHandler(reactor, fd, virtualHostServer) {
@@ -87,7 +88,7 @@ void ServeRequestEventHandler::handleEvent(const t_event_handler_type eventType)
                 break;
             }
 
-            this->httpHeader.parseHTTPHeader(this->buffer);
+            this->isValidHTTPRequestHeader = this->httpHeader.parseHTTPHeader(this->buffer);
 
             std::cout << "Expected Content-Length " << this->httpHeader.getHeaderValueWithKey("Content-Length") << std::endl;
 
@@ -166,18 +167,25 @@ bool ServeRequestEventHandler::isRequestBodyFullyRead() {
 
     std::string contentLenghtStr = this->httpHeader.getHeaderValueWithKey("Content-Length");
     if (contentLenghtStr.empty()) {
-        // This should be an error, as by now we should have the content length
-        // Bad request, no content length
-        return false;
+        // We are waiting to read the body of a valid request
+        if (this->isValidHTTPRequestHeader) {
+            return false;
+        }
+
+        // This should be an error, as it is an invalid request and there is no content lenght to
+        // read out of the socket. Let it give a bad request error.
+        return true;
     }
 
     std::istringstream iss(contentLenghtStr);
     ssize_t contentLenght;
 
     if (!(iss >> contentLenght)) {
-        // This should be an error, as by now we should have the content length
-        // Bad request, no valid content lengths
-        return false;
+        // This should be an error, as by now we should have the content length and there is none
+        // or is not a number
+        // Bad request, no valid content lenght
+        this->isValidHTTPRequestHeader = false;
+        return true;
     }
 
     if (this->getCurrentBodySize(this->buffer) != contentLenght) {
@@ -243,6 +251,15 @@ void ServeRequestEventHandler::setRequestStatus(t_http_request_status requestSta
 }
 
 void ServeRequestEventHandler::processRequest() {
+
+    if (!this->isValidHTTPRequestHeader) {
+        this->httpResponse = HTTPResponse400("");
+        this->buffer.clear();
+        this->httpHeader.clear();
+
+        return;
+    }
+
     HTTPRequestFactory httpRequestFactory;
 
     HTTPBody httpBody;
@@ -327,7 +344,7 @@ void ServeRequestEventHandler::readOrCloseRequest() {
             if (!this->isRequestHeaderFullyRead()) {
                 this->setRequestStatus(REQUEST_STATUS_READING_REQUEST);
             } else {
-                this->httpHeader.parseHTTPHeader(this->buffer);
+                this->isValidHTTPRequestHeader = this->httpHeader.parseHTTPHeader(this->buffer);
 
                 std::cout << "Expected Content-Length " << this->httpHeader.getHeaderValueWithKey("Content-Length") << std::endl;
                 std::cout << "Read " <<  "" << this->buffer.size() << std::endl;

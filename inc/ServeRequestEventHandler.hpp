@@ -30,6 +30,7 @@ private:
     HTTPResponse httpResponse;
     std::vector<char> buffer;
     HTTPHeader httpHeader;
+    bool isValidHTTPRequestHeader;
 
     void copyHTTPRequest(HTTPRequest * src);
     void freeHTTPRequest();
