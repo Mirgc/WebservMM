@@ -144,7 +144,7 @@ bool HTTPHeader::checkMethod(void) const
 	return ver;
 }
 
-void HTTPHeader::parseHTTPHeader(const std::vector<char> &request)
+bool HTTPHeader::parseHTTPHeader(const std::vector<char> &request)
 {
     this->clear();
 
@@ -157,8 +157,9 @@ void HTTPHeader::parseHTTPHeader(const std::vector<char> &request)
 	if (this->addMethod(line) || !this->checkMethod())
 	{
 		std::cout << "Invalid HTTPRequest" << std::endl;
-		return; // An exception would have to be thrown here.
+		return false;
 	}
+
 	while (std::getline(iss, line))
 	{
 		line = StringTools::trim(line, " \n\r\t");
@@ -177,9 +178,11 @@ void HTTPHeader::parseHTTPHeader(const std::vector<char> &request)
 			else
 				// Here we have found an empty line, so we assume that the boy begins;
 				// std::cout << "Checkbody" << std::endl;
-				return;
+				return true;
 		}
 	}
+
+    return true;
 }
 
 void HTTPHeader::printHeader(void) const
