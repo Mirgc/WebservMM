@@ -10,6 +10,8 @@ print("\r")
 print("<!DOCTYPE html><html lang=\"en\"><body>")
 print("<h1> Waiting forever!!! </h1>")
 
-time.sleep(1000)
+# Sleeps 60 seconds
+# Server max execution time is 30 seconds
+time.sleep(60)
 
 print("</body></html>")

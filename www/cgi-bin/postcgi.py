@@ -32,11 +32,17 @@ if os.environ.get('REQUEST_METHOD', '') == 'POST':
         # Reads the form
         form = cgi.FieldStorage()
         print("<p>POST multipart/form-data form: %s</p>" % form)
-    elif os.environ.get('CONTENT_TYPE', '').startswith('application/json'):
 
-        # Parse JSON data
-        json_data = json.loads(sys.stdin.read())
-        print("<p>POST application/json body: %s</p>" % json_data)
+        # Extracts the fields "number1" and "number2"
+        number1 = form.getvalue('number1', 0)
+        number2 = form.getvalue('number2', 0)
+
+        # Converts the values to integers and sums them up
+        sum = int(number1) + int(number2)
+
+        # Prints the result
+        print("<p>The sum of number1 and number2 is: %d</p>" % sum)
+
     else:
         post_data = sys.stdin.read()
         print("<p>POST data: %s</p>" % post_data)
