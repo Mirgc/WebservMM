@@ -3,7 +3,6 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <errno.h>
 #include <signal.h>
 
 #include "Reactor.hpp"
@@ -70,7 +69,7 @@ void Reactor::runEventLoop() {
         int numReady = select(maxFd + 1, &readSet, &writeSet, NULL, NULL);
 
         if (numReady == -1) {
-            std::cerr << "select() error with errno:" << errno << " ( " << strerror(errno) << " )" << std::endl;
+            std::cerr << "select() error -1." << std::endl;
             break;
         }
         // Any with data?

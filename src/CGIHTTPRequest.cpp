@@ -130,7 +130,7 @@ std::string CGIHTTPRequest::execCGI(std::string cgiScriptRelativePath, std::stri
         close(pipeCGIToWebserver[FD_OUT]);
 
         execve(cgiInterpreterAbsolutePath.c_str(), args, env);
-        std::cout << "Error calling execve: " << strerror(errno) << std::endl;
+        std::cout << "Error calling execve." << std::endl;
 		exit (EXIT_FAILURE);
 	} else {
         close(pipeCGIToWebserver[FD_OUT]);
