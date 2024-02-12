@@ -86,6 +86,9 @@ bool HTTPHeader::addMethod(std::string line)
 {
 	std::istringstream lineStream(line);
 	lineStream >> this->method >> this->url >> this->ver;
+    this->method = StringTools::toUpper(this->method);
+    this->url = StringTools::toLower(this->url);
+    this->ver = StringTools::toUpper(this->ver);
 	std::string restOfTheContent;
 	std::getline(lineStream, restOfTheContent);
 	if (!restOfTheContent.compare("\r")) // If there is a space even after 1.1, it fails
@@ -93,17 +96,17 @@ bool HTTPHeader::addMethod(std::string line)
 	return true;
 }
 
-// Could be null values?? if so, we can check value1 & value2  anf throw exception
-void HTTPHeader::addHeader(const std::string &value1, const std::string &value2)
+void HTTPHeader::addHeader(const std::string &key, const std::string &value)
 {
-	this->header.push_back(std::make_pair(value1, value2));
+	this->header.push_back(std::make_pair(StringTools::toLower(key), value));
 }
 
 std::string HTTPHeader::getHeaderValueWithKey(const std::string & key) const
 {
+    std::string lowercaseKey = StringTools::toLower(key);
 	for (size_t i = 0; i < this->header.size(); ++i)
 	{
-        if (this->header[i].first == key) {
+        if (this->header[i].first == lowercaseKey) {
             return this->header[i].second;
         }
 	}

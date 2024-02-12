@@ -1,4 +1,9 @@
 #include "StringTools.hpp"
+
+#include <cctype>
+#include <algorithm>
+#include <string>
+
 /* orthodox canonical class form requirement */
 
 StringTools::StringTools(void) : _toTrim("0"), _string("0"){
@@ -39,4 +44,16 @@ std::string StringTools::rtrim(const std::string &s, std::string totrim){
 
 std::string StringTools::trim(const std::string &s, std::string totrim) {
     return rtrim(ltrim(s, totrim), totrim);
+}
+
+std::string StringTools::toUpper(const std::string& s) {
+    std::string result = s;
+    std::transform(result.begin(), result.end(), result.begin(), ::toupper);
+    return result;
+}
+
+std::string StringTools::toLower(const std::string& s) {
+    std::string result = s;
+    std::transform(result.begin(), result.end(), result.begin(), ::tolower);
+    return result;
 }

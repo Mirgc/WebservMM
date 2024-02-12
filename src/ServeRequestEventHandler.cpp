@@ -160,7 +160,7 @@ bool ServeRequestEventHandler::isRequestHeaderFullyRead() {
 }
 
 bool ServeRequestEventHandler::isRequestBodyFullyRead() {
-    if (this->httpHeader.getMethod() == "GET") {
+    if (this->httpHeader.getMethod() == "GET" || this->httpHeader.getMethod() == "DELETE") {
         // GET requests do not allow BODY
         return true;
     }
@@ -168,7 +168,10 @@ bool ServeRequestEventHandler::isRequestBodyFullyRead() {
     std::string contentLenghtStr = this->httpHeader.getHeaderValueWithKey("Content-Length");
     if (contentLenghtStr.empty()) {
         // We are waiting to read the body of a valid request
-        if (this->isValidHTTPRequestHeader) {
+        if (this->isValidHTTPRequestHeader && (
+            this->httpHeader.getMethod() == "POST" ||
+            this->httpHeader.getMethod() == "PUT"
+        )) {
             return false;
         }
 

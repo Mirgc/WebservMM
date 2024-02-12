@@ -24,6 +24,9 @@ class StringTools{
         static std::string rtrim(const std::string &s, std::string totrim = " }\n\r\t\f\v{");
 
         static std::string trim(const std::string &s, std::string totrim = " }\n\r\t\f\v{");
+
+        static std::string toUpper(const std::string& s);
+        static std::string toLower(const std::string& s);
 };
 
 #endif
