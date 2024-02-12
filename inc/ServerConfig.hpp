@@ -22,6 +22,8 @@ class ServerConfig{
 		std::map<int, std::string>	_errorPageMap;
 		std::vector<LocationConfig>	_locations;
 
+        const std::string getContent(int error) const;
+
 	public:
 		ServerConfig();
 		~ServerConfig();
@@ -59,9 +61,12 @@ class ServerConfig{
 	bool isErrorInMap(int error) const;
 	bool isValidPath(const std::string path) const;
 	const std::string getPath(int error) const;
+	const std::string get400Content() const;
 	const std::string get404Content() const;
 	const std::string get405Content() const;
+	const std::string get413Content() const;
 	const std::string get500Content() const;
+	const std::string get504Content() const;
 
 };
 #endif

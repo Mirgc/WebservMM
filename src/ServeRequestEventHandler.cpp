@@ -256,7 +256,8 @@ void ServeRequestEventHandler::setRequestStatus(t_http_request_status requestSta
 void ServeRequestEventHandler::processRequest() {
 
     if (!this->isValidHTTPRequestHeader) {
-        this->httpResponse = HTTPResponse400("");
+        const ServerConfig & serverConfig = this->virtualHostServer.getServerConfig();
+        this->httpResponse = HTTPResponse400(serverConfig.get400Content());
         this->buffer.clear();
         this->httpHeader.clear();
 

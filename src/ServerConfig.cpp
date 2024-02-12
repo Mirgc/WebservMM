@@ -178,39 +178,33 @@ const std::string ServerConfig::getPath(int error) const{
         return("");
 }
 
-const std::string ServerConfig::get404Content() const{
-       if(this->isValidPath(this->getPath(404))){
-        std::ifstream file(this->getPath(404).c_str());
-        std::string content;
-        std::string line;
-
-        while (std::getline(file, line))
-                content += line;
-        file.close();
-
-        return content; 
-       }
-       return ("");
+const std::string ServerConfig::get400Content() const {
+    return this->getContent(400);
 }
 
-const std::string ServerConfig::get405Content() const{
-       if(this->isValidPath(this->getPath(405))){
-        std::ifstream file(this->getPath(405).c_str());
-        std::string content;
-        std::string line;
-
-        while (std::getline(file, line))
-                content += line;
-        file.close();
-
-        return content; 
-       }
-       return ("");
+const std::string ServerConfig::get404Content() const {
+    return this->getContent(404);
 }
 
-const std::string ServerConfig::get500Content() const{
-       if(this->isValidPath(this->getPath(500))){
-        std::ifstream file(this->getPath(500).c_str());
+const std::string ServerConfig::get405Content() const {
+    return this->getContent(405);
+}
+
+const std::string ServerConfig::get413Content() const {
+    return this->getContent(413);
+}
+
+const std::string ServerConfig::get500Content() const {
+    return this->getContent(500);
+}
+
+const std::string ServerConfig::get504Content() const {
+    return this->getContent(504);
+}
+
+const std::string ServerConfig::getContent(int error) const{
+       if(this->isValidPath(this->getPath(error))){
+        std::ifstream file(this->getPath(error).c_str());
         std::string content;
         std::string line;
 
