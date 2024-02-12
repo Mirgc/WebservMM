@@ -70,18 +70,6 @@ std::string HTTPHeader::getQueryString(void)
 	return "";
 }
 
-std::string HTTPHeader::getHeader(std::string str) const
-{
-	for (std::vector<std::pair<std::string, std::string> >::const_iterator it = this->header.begin(); it != this->header.end(); ++it)
-	{
-		if (it->first == str)
-		{
-			return it->second;
-		}
-	}
-	return "";
-}
-
 bool HTTPHeader::addMethod(std::string line)
 {
 	std::istringstream lineStream(line);

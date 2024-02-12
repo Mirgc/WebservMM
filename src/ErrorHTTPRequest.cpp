@@ -48,13 +48,13 @@ HTTPResponse ErrorHTTPRequest::process() {
             } else if (this->httpResponseStatusCode == 405) {
                 return HTTPResponse405(this->serverConfig.get405Content());
             } else if (this->httpResponseStatusCode == 413) {
-                return HTTPResponse413("");
+                return HTTPResponse413(this->serverConfig.get413Content());
             }
-            return HTTPResponse400("");
+            return HTTPResponse400(this->serverConfig.get400Content());
         }
         else if (this->httpResponseStatusCode >= 500 && this->httpResponseStatusCode < 600) {
             if (this->httpResponseStatusCode == 504) {
-                return HTTPResponse504("");
+                return HTTPResponse504(this->serverConfig.get504Content());
             }
             return (HTTPResponse500(this->serverConfig.get500Content()));
         }

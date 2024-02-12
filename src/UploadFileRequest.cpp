@@ -11,6 +11,7 @@
 
 #include "UploadFileRequest.hpp"
 #include "HTTPResponse.hpp"
+#include "HTTPResponse400.hpp"
 #include "HTTPResponse404.hpp"
 #include "HTTPResponse500.hpp"
 #include "MIMETypes.hpp"
@@ -65,11 +66,13 @@ HTTPResponse UploadFileRequest::process()
 {
     HTTPResponse response;
 
-    std::string boundary = this->httpHeader.getHeader("Content-Type");
-    boundary = "--" + getBoundary(boundary);
-    if (boundary.empty())
+    std::string boundary = getBoundary(this->httpHeader.getHeaderValueWithKey("Content-Type"));
+    if (boundary.empty()) {
         // Must be a 400 error
-        return HTTPResponse404(this->serverConfig.get404Content());
+        return HTTPResponse400(this->serverConfig.get400Content());
+    }
+
+    boundary = "--" + boundary;
     
     std::vector<char> bodyVec = httpBody.getFullBody();
     std::string body(bodyVec.begin(), bodyVec.end());

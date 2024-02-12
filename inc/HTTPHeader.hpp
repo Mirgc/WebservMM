@@ -28,7 +28,6 @@ class HTTPHeader
 		void		printHeader(void) const;
 		bool		checkMethod(void) const;
 		bool		isMethod(std::string str) const;
-		std::string getHeader(std::string str) const;
 		std::string	generateResponse(void) const;
 		bool		parseHTTPHeader (const std::vector<char>& request);
 		std::string getQueryString(void);

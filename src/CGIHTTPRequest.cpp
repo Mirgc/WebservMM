@@ -66,7 +66,7 @@ HTTPResponse CGIHTTPRequest::process()
     {
         std::string error_message = e.what();
         if (error_message == "504") {
-    		return HTTPResponse504("");
+    		return HTTPResponse504(this->serverConfig.get504Content());
         }
 		return HTTPResponse500(this->serverConfig.get500Content());
     }
