@@ -54,7 +54,7 @@ std::string RequestTools::getResponse(const std::string& path)
     }
 
     if (bytesReaded == -1) {
-        throw std::runtime_error("Failed to create a listening socket");
+        throw std::runtime_error("Failed to read from file");
     }
 
     close(fd);

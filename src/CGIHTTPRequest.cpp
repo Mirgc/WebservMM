@@ -141,7 +141,12 @@ std::string CGIHTTPRequest::execCGI(std::string cgiScriptRelativePath, std::stri
             const std::vector<char> & httpRequestBody = this->httpBody.getFullBody();
 
             // Write the HTTP request body to the standard input of the child process
-            write(pipeWebserverToCGI[FD_OUT], httpRequestBody.data(), httpRequestBody.size());
+            ssize_t bytesWritten = write(pipeWebserverToCGI[FD_OUT], httpRequestBody.data(), httpRequestBody.size());
+            if (!bytesWritten) {
+                std::cout << " No body written to the CGI script " << std::endl;
+            } else if (bytesWritten == -1) {
+                throw std::runtime_error("Error could not write body to the CGI script");
+            }
         }
         close(pipeWebserverToCGI[FD_OUT]);
 
@@ -249,9 +254,14 @@ std::string CGIHTTPRequest::readFromPipe(int pipefd) {
     char buffer[1024];
     ssize_t bytesRead;
     std::string output = "";
-    while ((bytesRead = read(pipefd, buffer, sizeof(buffer) - 1)) != 0) {
+    while ((bytesRead = read(pipefd, buffer, sizeof(buffer) - 1)) > 0) {
         buffer[bytesRead] = '\0';
         output.append(buffer);
     }
+
+    if (bytesRead == -1) {
+        std::cout << "CGI error reading cgi script output." << std::endl;
+    }
+
     return output;
 }
