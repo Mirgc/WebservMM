@@ -195,13 +195,13 @@ void Parse::getNextServer(void){
 					}
 					// Check if docroot and index do not exist in the location and add the global ones 
 					// and if they do not exist, the default ones are kept.
-					if(!this->isPartialStrInVector("docroot", this->_ProcesingLocation))
+					if(!this->isPartialStrInVector("docroot ", this->_ProcesingLocation))
 						this->_ProcesingLocation.push_back("docroot " + srvCfg.getDocRoot());
-					if(!this->isPartialStrInVector(" index", this->_ProcesingLocation))
+					if(!this->isPartialStrInVector("index ", this->_ProcesingLocation))
 						this->_ProcesingLocation.push_back("index " + srvCfg.getIndex());
-					if(!this->isPartialStrInVector("upload_enable", this->_ProcesingLocation))
+					if(!this->isPartialStrInVector("upload_enable ", this->_ProcesingLocation))
 						this->_ProcesingLocation.push_back("upload_enable " + srvCfg.getUploadEnableStrValue());
-					if(!this->isPartialStrInVector("autoindex", this->_ProcesingLocation))
+					if(!this->isPartialStrInVector("autoindex ", this->_ProcesingLocation))
 						this->_ProcesingLocation.push_back("autoindex " + srvCfg.getAutoIndexStrValue());
 					this->_ProcesingLocation.push_back("}");
 					scope--;
