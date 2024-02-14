@@ -251,7 +251,6 @@ void Parse::ParseLocations(ServerConfig srvCfg){
 
 		LocationConfig loc = LocationConfig();
 		loc.setLocationName(StringTools::trim((*start).substr((*start).find("location")+8, std::string::npos)));
-		loc.setRedirectionPort(0);
 		if(loc.getLocationName().at(0) != '/' and !this->isPyCgi(loc.getLocationName()))
 			throw ParseException("Invalid location format => " + (loc.getLocationName()));
 		start++;
@@ -276,23 +275,6 @@ void Parse::ParseLocations(ServerConfig srvCfg){
 					filledMethods.erase(std::find(filledMethods.begin(), filledMethods.end(), value));
 				else
 					throw ParseException("Syntax error near " + key + " duplicated " + value);
-				// redirection parse and validation added to location specific attributesnumReady == -1
-				// to simplify subsequent redirection request proccesing
-				if(key == "redirection"){
-					tmp = value.substr(value.find_first_of("//")+2);
-					tmp = tmp.substr(0, tmp.find_last_of(':'));
-					if(tmp.compare("127.0.0.1") != 0 and tmp.compare("localhost") != 0)
-						throw ParseException("Syntax error near " + key + ": host unreachable => " + tmp);
-					tmp = value.substr(value.find_last_of(':')+1);
-					tmp = tmp.substr(0, tmp.find_last_of('/'));
-					loc.setRedirectionPort(this->toValidPort(tmp));
-					tmp = value.substr(value.find_first_of("//")+2);
-					tmp = tmp.substr(tmp.find_first_of('/')+1);
-				}
-				if(loc.getRedirectionPort() != 0 and !isStrInVector("docroot", filledKeys) and loc.getRedirectionPath().empty()){
-					// tmp = "/" + tmp;
-					loc.setRedirectionPath(tmp);
-				}
 			}
 			else
 				throw ParseException("Syntax error near " + key);

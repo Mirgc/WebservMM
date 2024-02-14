@@ -40,7 +40,7 @@ HTTPResponse RedirectionHTTPRequest::process()
         std::stringstream ss;
         
         ss.str("");  // Clean up the stringstream to reuse it
-        ss << "HTTP/1.1 307 Temporary Redirect\r\n"
+        ss << "HTTP/1.1 302 Found\r\n"
         << "Location:" << this->location.getRedirection() << "\r\n" 
         << "\r\n\r\n";
         response.setResponse(ss.str());
