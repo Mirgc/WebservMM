@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <cstring>
+#include <signal.h>
 
 #include "CGIHTTPRequest.hpp"
 #include "HTTPResponse.hpp"
@@ -130,7 +131,6 @@ std::string CGIHTTPRequest::execCGI(std::string cgiScriptRelativePath, std::stri
         close(pipeCGIToWebserver[FD_OUT]);
 
         execve(cgiInterpreterAbsolutePath.c_str(), args, env);
-        std::cout << "Error calling execve." << std::endl;
 		exit (EXIT_FAILURE);
 	} else {
         close(pipeCGIToWebserver[FD_OUT]);
@@ -152,32 +152,43 @@ std::string CGIHTTPRequest::execCGI(std::string cgiScriptRelativePath, std::stri
 
         std::cout << " Waiting for CGI request to finish... " << std::endl;
 		// We are at the main process waiting for child to finish.
-		pid_t pid = 0;
+		pid_t pidWaitingResult = 0;
 		int status = 0;
         int numberAttemptsOnWaiting = 0;
+        std::string httpCode = "";
 
         do {
-            pid = waitpid(pid, &status, WNOHANG);
-            if (pid == -1) {
-        		throw std::runtime_error("waitpid() error");
+            pidWaitingResult = waitpid(pid, &status, WNOHANG);
+            if (pidWaitingResult == -1) {
+        		std::cerr << "waitpid() error" << std::endl;
+                httpCode = "500";
             }
-            else if (pid == 0) {
-                std::cout << "CGI Proccess has NOT finished yet. Waiting ... " << std::endl;
+            else if (pidWaitingResult == 0) {
+                // CGI Proccess has NOT finished yet. Waiting ...
                 sleep(1);
                 numberAttemptsOnWaiting++;
                 if (numberAttemptsOnWaiting > 30) {
-                    std::cout << "CGI Proccess exceeded max waiting time." << std::endl;
-                    throw std::runtime_error("504");
+                    kill(pid, SIGKILL);
+                    std::cerr << "CGI Proccess exceeded max waiting time." << std::endl;
+                    httpCode = "504";
+                    break;
                 }
             }
             else {
-                std::cout << "CGI Proccess has finished." << std::endl;
+                std::cout << "CGI Proccess has finished with status " << status << std::endl;
+                if (status != 0) {
+                    httpCode = "500";
+                }
+
                 output = readFromPipe(pipeCGIToWebserver[FD_IN]);
             }
-        } while (pid == 0);
+        } while (pidWaitingResult == 0);
 
         close(pipeCGIToWebserver[FD_IN]);
 
+        if (!httpCode.empty()) {
+            throw std::runtime_error(httpCode);
+        }
 	}
     
 	return (output);
