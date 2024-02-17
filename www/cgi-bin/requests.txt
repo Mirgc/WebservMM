@@ -2,23 +2,6 @@
 // ------------------------------------------------------------------------------
 
 var url = 'http://localhost:8080/cgi-bin/postcgi.py';
-var data = {key1: 'value1', key2: 'value2'};
-
-fetch(url, {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify(data),
-})
-.then((data) => {
-  console.log('Success:', data);
-})
-
-// ------------------------------------------------------------------------------
-// ------------------------------------------------------------------------------
-
-var url = 'http://localhost:8080/cgi-bin/postcgi.py';
 var data = {number1: '21', number2: '21'};
 
 // Create a FormData object
