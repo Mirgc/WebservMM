@@ -44,7 +44,8 @@ int startServer(const Parse &cfg)
 		VirtualHostServer &virtualHostServer = *it;
 		virtualHostServer.stop();
 	}
-
+	
+	reactor->deleteUnregisteredHandlers();
 	delete reactor;
 	signal(SIGINT, SIG_DFL);
 	signal(SIGQUIT, SIG_DFL);

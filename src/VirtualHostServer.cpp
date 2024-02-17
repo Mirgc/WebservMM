@@ -106,6 +106,7 @@ void VirtualHostServer::stop()
     {
         for (std::vector<int>::size_type i = 0; i < listenSocket.size(); ++i)
         {
+            this->reactor.unregisterEventHandler(listenSocket[i]);
             close(listenSocket[i]);
             listenSocket[i] = 0;
         }
